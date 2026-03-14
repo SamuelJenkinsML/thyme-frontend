@@ -1,0 +1,79 @@
+"use client";
+
+import { useState } from "react";
+import { useFeaturesets } from "@/lib/hooks/use-featuresets";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import type { FeatureQuery } from "@/lib/types";
+
+interface InspectFormProps {
+  onSubmit: (query: FeatureQuery) => void;
+}
+
+export function InspectForm({ onSubmit }: InspectFormProps) {
+  const { data: featuresets } = useFeaturesets();
+  const [featureset, setFeatureset] = useState("");
+  const [entityId, setEntityId] = useState("");
+  const [timestamp, setTimestamp] = useState("");
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!entityId.trim()) return;
+    onSubmit({
+      entity_id: entityId.trim(),
+      featureset: featureset || undefined,
+      timestamp: timestamp || undefined,
+    });
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4 sm:flex-row sm:items-end">
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm font-medium">Featureset</label>
+        <Select value={featureset} onValueChange={(v) => setFeatureset(v ?? "")}>
+          <SelectTrigger className="w-52">
+            <SelectValue placeholder="Select featureset" />
+          </SelectTrigger>
+          <SelectContent>
+            {(featuresets ?? []).map((fs) => (
+              <SelectItem key={fs.id} value={fs.name}>
+                {fs.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm font-medium">Entity ID</label>
+        <Input
+          placeholder="e.g. user_123"
+          value={entityId}
+          onChange={(e) => setEntityId(e.target.value)}
+          className="w-52"
+        />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm font-medium">Timestamp (optional)</label>
+        <Input
+          type="datetime-local"
+          value={timestamp}
+          onChange={(e) => setTimestamp(e.target.value)}
+          className="w-52"
+        />
+      </div>
+
+      <Button type="submit" disabled={!entityId.trim()}>
+        Fetch Features
+      </Button>
+    </form>
+  );
+}
