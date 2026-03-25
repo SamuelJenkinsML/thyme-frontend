@@ -1,0 +1,59 @@
+---
+title: Why Thyme
+description: The problem every ML team hits — and how Thyme solves it.
+---
+
+## The problem every ML team hits
+
+You train a model offline on historical data. The offline metrics look great. You deploy it. Within weeks, production accuracy drops — not because the model is wrong, but because the features it sees in production are computed differently than the features it trained on.
+
+This is **training/serving skew**. It's the most common silent killer of production ML systems.
+
+---
+
+## Where skew comes from
+
+### Separate batch and streaming pipelines
+
+Most teams compute training features in a batch job (Spark, dbt, SQL) and serving features in a real-time system (Flink, custom microservices). These pipelines diverge. A bug fix in one doesn't propagate to the other. The logic drifts.
+
+### Hand-rolled feature stores
+
+Without a unified abstraction, teams copy-paste aggregation logic between their batch ETL and their streaming jobs. Any change needs to be made in two places — and usually only gets made in one.
+
+### Stale features at serving time
+
+Batch pipelines run on schedules: hourly, daily. A user's last transaction was 4 minutes ago. Your model sees their average spend from yesterday's batch job. You're serving predictions based on data that's hours old.
+
+---
+
+## How Thyme solves it
+
+### One definition, two modes
+
+You write a feature once in Python. Thyme compiles it to:
+
+- **Streaming aggregation** — a continuously-running Rust process that keeps values fresh as events arrive
+- **Point-in-time lookup** — the same logic applied to historical data at any past timestamp for offline training
+
+There is one source of truth. The online and offline paths are guaranteed consistent.
+
+### Declarative, not operational
+
+You declare *what* a feature is, not *how* to run it. You don't manage Kafka consumers, RocksDB compaction, or checkpoint recovery. Thyme handles the infrastructure layer; you own the feature logic.
+
+### Real-time by default
+
+The engine is written in Rust and runs continuously. Feature values are updated within milliseconds of new events arriving. You don't choose between freshness and simplicity — you get both.
+
+---
+
+## Business outcomes
+
+**Faster ML iteration** — Define a new feature, commit it, and it's live. No pipeline deployment, no backfill coordination, no ops ticket.
+
+**Fewer production incidents** — Training/serving parity is structural, not a convention you have to enforce manually.
+
+**Smaller infrastructure footprint** — One system replaces the batch ETL, the streaming job, and the custom serving layer.
+
+**Safe schema evolution** — Features have integer IDs. You can add, rename, and version features without breaking downstream consumers.

@@ -1,7 +1,9 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import type { FeatureResponse } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -11,10 +13,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Copy, Check } from "lucide-react";
 
 function renderValue(value: unknown): React.ReactNode {
   if (value === null || value === undefined) {
-    return <span className="text-muted-foreground">—</span>;
+    return <span className="text-muted-foreground">{"\u2014"}</span>;
   }
   if (typeof value === "boolean") {
     return (
@@ -42,18 +45,41 @@ interface FeatureViewerProps {
 }
 
 export function FeatureViewer({ response }: FeatureViewerProps) {
-  const entries = Object.entries(response.features ?? {});
+  const [copied, setCopied] = useState(false);
+
+  const entries = useMemo(() => {
+    return Object.entries(response.features ?? {}).sort((a, b) =>
+      a[0].localeCompare(b[0])
+    );
+  }, [response.features]);
+
+  async function handleCopy() {
+    await navigator.clipboard.writeText(JSON.stringify(response.features, null, 2));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
 
   return (
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between gap-4">
-          <CardTitle className="text-base">
-            {response.entity_type} · <span className="font-mono">{response.entity_id}</span>
-          </CardTitle>
-          <Badge variant={response.mode === "online" ? "default" : "secondary"}>
-            {response.mode}
-          </Badge>
+          <div className="flex items-center gap-3">
+            <CardTitle className="text-base">
+              {response.entity_type} · <span className="font-mono">{response.entity_id}</span>
+            </CardTitle>
+            <Badge variant="ghost" className="text-[10px]">
+              {entries.length} feature{entries.length !== 1 ? "s" : ""}
+            </Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={handleCopy}>
+              {copied ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+              {copied ? "Copied" : "Copy JSON"}
+            </Button>
+            <Badge variant={response.mode === "online" ? "default" : "secondary"}>
+              {response.mode}
+            </Badge>
+          </div>
         </div>
       </CardHeader>
       <CardContent>

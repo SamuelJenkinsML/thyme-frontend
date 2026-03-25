@@ -1,0 +1,91 @@
+---
+title: Thyme
+description: Real-time ML features. Defined in Python. Computed in Rust.
+---
+
+Thyme is a streaming feature platform for ML engineers. You write features once in Python — Thyme compiles them to a high-throughput Rust engine that keeps them fresh in real time.
+
+---
+
+## Why Thyme
+
+<Tabs items={["Consistency", "No Infra Ops", "Sub-second Freshness"]}>
+<Tab value="Consistency">
+Define features in one place. The same definition drives both training-time lookups and online serving — no more training/serving skew.
+</Tab>
+<Tab value="No Infra Ops">
+Declare what you want, not how to compute it. Thyme manages the Kafka consumers, state store, and serving layer.
+</Tab>
+<Tab value="Sub-second Freshness">
+The Rust engine continuously consumes your event streams and updates feature values as new data arrives.
+</Tab>
+</Tabs>
+
+---
+
+## Five minutes to features
+
+```python
+from datetime import datetime
+from thyme.dataset import dataset, field
+from thyme.pipeline import pipeline, inputs, Avg, Count
+from thyme.featureset import featureset, feature, extractor
+from thyme.featureset import extractor_inputs, extractor_outputs
+
+@dataset(index=True)
+class Transaction:
+    user_id: str   = field(key=True)
+    amount:  float
+    ts:      datetime = field(timestamp=True)
+
+@dataset(index=True)
+class UserStats:
+    user_id:       str   = field(key=True)
+    ts:            datetime = field(timestamp=True)
+    avg_amount_7d: float
+    txn_count_30d: int
+
+    @pipeline(version=1)
+    @inputs(Transaction)
+    def compute(cls, t: Transaction):
+        return (
+            t.groupby("user_id")
+             .aggregate(
+                 avg_amount_7d=Avg(of="amount", window="7d"),
+                 txn_count_30d=Count(of="user_id", window="30d"),
+             )
+        )
+
+@featureset
+class UserFeatures:
+    uid:          str   = feature(id=1)
+    avg_spend_7d: float = feature(id=2)
+    txn_count_30d: int  = feature(id=3)
+
+    @extractor
+    @extractor_inputs("uid")
+    @extractor_outputs("avg_spend_7d", "txn_count_30d")
+    def from_stats(cls, ts, inputs):
+        uid = inputs["uid"]
+        row = UserStats.lookup(ts, user_id=uid)
+        return row["avg_amount_7d"], row["txn_count_30d"]
+```
+
+Then deploy:
+
+```bash
+thyme commit features.py
+```
+
+And query:
+
+```bash
+curl "http://localhost:8081/features?featureset=UserFeatures&uid=user_42"
+```
+
+---
+
+<Cards>
+<Card title="Get Started" href="/docs/getting-started/installation" />
+<Card title="Why Thyme?" href="/docs/why-thyme" />
+</Cards>

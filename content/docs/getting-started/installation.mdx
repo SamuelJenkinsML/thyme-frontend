@@ -1,0 +1,61 @@
+---
+title: Installation
+description: Install the Thyme SDK and set up local infrastructure.
+---
+
+## Requirements
+
+- Python 3.12+
+- [uv](https://docs.astral.sh/uv/) (recommended) or pip
+
+## Install the SDK
+
+<Tabs items={["uv", "pip"]}>
+<Tab value="uv">
+```bash
+uv add thyme-sdk
+```
+</Tab>
+<Tab value="pip">
+```bash
+pip install thyme-sdk
+```
+</Tab>
+</Tabs>
+
+## Verify
+
+```bash
+thyme version
+# thyme 0.1.0
+```
+
+---
+
+## Infrastructure (for local development)
+
+Thyme's engine requires Kafka (or Redpanda) and Postgres. The quickest way to run these locally is via the provided Docker Compose setup:
+
+```bash
+# Clone the Thyme repo (for the docker-compose.yml)
+git clone https://github.com/your-org/thyme
+cd thyme
+
+# Start Postgres + Redpanda
+make infra
+
+# Run migrations
+make migrate
+```
+
+Then start the three services in separate terminals:
+
+```bash
+make run-definition-service   # Control plane on :8080
+make run-engine               # Streaming engine
+make run-query-server         # Query server on :8081
+```
+
+<Callout type="info">
+For a self-contained end-to-end example, see [Quick Start](/docs/getting-started/quickstart).
+</Callout>

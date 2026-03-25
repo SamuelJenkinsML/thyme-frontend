@@ -1,0 +1,123 @@
+---
+title: How Thyme Works
+description: The Thyme data path from Python to query results.
+---
+
+This page explains the Thyme data path from the perspective of someone using the platform — without going into implementation details like RocksDB internals or Kafka partition assignment.
+
+---
+
+## The big picture
+
+```
+Your Python file
+      ↓  thyme commit
+ Control Plane          ← stores definitions, creates topics
+      ↓  (on startup / change)
+   Engine               ← reads from source, computes aggregations
+      ↓  (continuous)
+ Feature Store          ← keyed by entity + timestamp
+      ↓  (on query)
+ Query Server           ← runs extractors, returns JSON
+      ↓
+ Your model / app
+```
+
+---
+
+## Step 1: You write Python
+
+You define datasets, pipelines, featuresets, and sources in a Python file. Nothing runs at import time — decorators only register metadata.
+
+```python
+@dataset(index=True)
+class Transaction: ...
+
+@dataset(index=True)
+class UserStats:
+    @pipeline(version=1)
+    @inputs(Transaction)
+    def compute(cls, t): ...
+
+@featureset
+class UserFeatures: ...
+```
+
+---
+
+## Step 2: `thyme commit` sends definitions to the control plane
+
+When you run `thyme commit features.py`, the CLI:
+
+1. Imports your Python file, triggering all the decorators
+2. Serializes the registered definitions into a structured payload
+3. POSTs the payload to the control plane at `:8080`
+
+The control plane stores your definitions in Postgres and creates a Kafka topic for each dataset. From this point on, the engine knows what to run.
+
+---
+
+## Step 3: The engine picks up the job and starts streaming
+
+The engine runs continuously in the background. When it sees new job definitions from the control plane, it:
+
+1. Spins up a **source connector** for each dataset that has a `@source` attached
+2. The source polls your external system (e.g., an Iceberg table) on the configured interval and publishes new rows to Kafka
+3. Spins up a **pipeline runner** for each `@pipeline` definition
+4. The runner consumes from Kafka, applies windowed aggregations, and writes results to the feature store
+
+The engine keeps running, continuously updating feature values as new events arrive. You don't manage this process — it runs until the definition changes.
+
+---
+
+## Step 4: You query features
+
+When your model or application needs feature values, it queries the query server at `:8081`:
+
+```bash
+GET /features?featureset=UserFeatures&uid=user_42
+```
+
+The query server:
+
+1. Looks up the featureset definition from Postgres
+2. Resolves the extractor DAG — which extractors need to run and in what order
+3. Reads aggregated values from the feature store (keyed by entity ID)
+4. Runs the extractor code in Python, passing the raw aggregated values
+5. Returns the composed feature values as JSON
+
+---
+
+## Online vs offline queries
+
+The same query endpoint supports both modes:
+
+**Online** (latest value):
+```bash
+GET /features?featureset=UserFeatures&uid=user_42
+```
+
+**Offline / point-in-time** (value as of a specific timestamp):
+```bash
+GET /features?featureset=UserFeatures&uid=user_42&ts=2024-01-15T12:00:00Z
+```
+
+Because Thyme uses event time throughout, point-in-time queries return exactly the feature value that would have been served at that moment. This makes offline training datasets consistent with online serving — eliminating training/serving skew.
+
+---
+
+## What you don't manage
+
+- Kafka consumers and consumer groups
+- State store compaction and eviction
+- Checkpoint recovery after restarts
+- Topic creation and partition assignment
+- Watermark advancement and late-event handling
+
+These are handled by the engine. Your job is to define *what* the features are, not *how* to compute them at scale.
+
+---
+
+<Callout type="info" title="For implementers">
+If you're contributing to Thyme or want to understand the internal architecture in depth, see `docs/architecture-walkthrough.md` and the ADRs in `docs/decisions/` in the repository.
+</Callout>

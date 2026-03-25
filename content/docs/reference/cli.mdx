@@ -1,0 +1,86 @@
+---
+title: CLI Reference
+description: Reference for the thyme command-line interface.
+---
+
+The `thyme` CLI has two commands: `version` and `commit`.
+
+---
+
+## `thyme version`
+
+Prints the installed Thyme SDK version.
+
+```bash
+thyme version
+# thyme 0.1.0
+```
+
+---
+
+## `thyme commit`
+
+Imports a feature module, serializes all registered definitions, and sends them to the Thyme control plane.
+
+```bash
+thyme commit [OPTIONS] [PATH]
+```
+
+### Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `PATH` | Path to a Python file containing feature definitions (e.g. `features.py`) |
+
+### Options
+
+| Option | Short | Env var | Default | Description |
+|--------|-------|---------|---------|-------------|
+| `--module MODULE` | `-m` | — | — | Import by dotted module path instead of file path (e.g. `myproject.features`) |
+| `--dry-run` | — | — | `False` | Print the serialized payload instead of POSTing |
+| `--output FILE` | — | — | — | Write dry-run payload to a file (requires `--dry-run`) |
+| `--api-url URL` | — | `THYME_API_URL` | `http://localhost:8080/api/v1/commit` | Control plane URL |
+
+Either `PATH` or `--module` must be provided, but not both.
+
+---
+
+### Examples
+
+**Commit from a file path:**
+```bash
+thyme commit features.py
+```
+
+**Commit from a module path:**
+```bash
+thyme commit -m myproject.features
+```
+
+**Dry run — print payload to stdout:**
+```bash
+thyme commit features.py --dry-run
+```
+
+**Dry run — write payload to file:**
+```bash
+thyme commit features.py --dry-run --output payload.json
+```
+
+**Commit to a non-default control plane:**
+```bash
+thyme commit features.py --api-url https://thyme.internal/api/v1/commit
+# or via environment variable:
+THYME_API_URL=https://thyme.internal/api/v1/commit thyme commit features.py
+```
+
+---
+
+### Output
+
+On success:
+```
+Committed 2 dataset(s), 1 pipeline(s), 1 featureset(s), 1 source(s) to http://localhost:8080/api/v1/commit
+```
+
+On error, the error message is printed to stderr and the exit code is non-zero.

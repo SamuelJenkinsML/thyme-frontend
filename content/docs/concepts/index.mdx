@@ -1,0 +1,38 @@
+---
+title: Concepts Overview
+description: The four primitives that make up a Thyme feature pipeline.
+---
+
+Thyme is built around four primitives. You use all four when defining a feature pipeline.
+
+| Primitive | What it is | Defined with |
+|-----------|-----------|-------------|
+| **Dataset** | A named, schema'd stream of events | `@dataset` |
+| **Pipeline** | A windowed aggregation over a dataset | `@pipeline` + `@inputs` |
+| **Featureset** | A collection of model-ready features | `@featureset` + `@extractor` |
+| **Source** | A connector that feeds raw events into a dataset | `@source` |
+
+---
+
+## How they connect
+
+```
+Source → Dataset (raw events)
+           ↓  @pipeline
+         Dataset (aggregated stats)
+           ↓  @extractor
+         Featureset (model features)
+           ↓
+         Query Server → model
+```
+
+A source ingests raw events into a dataset. A pipeline aggregates that dataset into another dataset. An extractor reads the aggregated dataset and composes the final features that your model queries.
+
+---
+
+## Learn more
+
+- [Datasets](/docs/concepts/datasets) — schema, keys, timestamps
+- [Pipelines](/docs/concepts/pipelines) — windowed aggregations, groupby
+- [Featuresets](/docs/concepts/featuresets) — features, extractors, IDs
+- [Sources](/docs/concepts/sources) — connectors, CDC modes, polling

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useJobs } from "@/lib/hooks/use-jobs";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -49,9 +50,18 @@ export function JobsTable() {
         {data.map((job) => {
           const spec = job.spec;
           const operators = spec.pipeline_spec?.operators ?? [];
+          const pipelineName = job.name.replace(/_job$/, "");
           return (
             <TableRow key={job.id}>
-              <TableCell className="font-medium">{job.name}</TableCell>
+              <TableCell className="font-medium">
+                <Link
+                  href={`/catalog/pipelines/${encodeURIComponent(pipelineName)}`}
+                  className="hover:text-primary transition-colors underline-offset-4 hover:underline"
+                  title={spec.replaylog_topic ? `replaylog: ${spec.replaylog_topic}` : undefined}
+                >
+                  {job.name}
+                </Link>
+              </TableCell>
               <TableCell className="font-mono text-xs text-muted-foreground">
                 {spec.input_topic}
               </TableCell>
@@ -63,7 +73,7 @@ export function JobsTable() {
                 {spec.pipeline_spec?.disorder ? (
                   <Badge variant="outline">{spec.pipeline_spec.disorder}</Badge>
                 ) : (
-                  <span className="text-muted-foreground">—</span>
+                  <span className="text-muted-foreground">{"\u2014"}</span>
                 )}
               </TableCell>
               <TableCell className="text-right">{operators.length}</TableCell>

@@ -1,0 +1,135 @@
+---
+title: Featuresets
+description: Named collections of model-ready features with extractors.
+---
+
+A featureset is a named collection of features that your models and applications consume. It's the public API of your feature pipeline — the thing you query at serving time.
+
+## Defining a featureset
+
+```python
+from thyme.featureset import featureset, feature, extractor
+from thyme.featureset import extractor_inputs, extractor_outputs
+
+@featureset
+class UserFeatures:
+    uid:           str   = feature(id=1)
+    avg_spend_7d:  float = feature(id=2)
+    txn_count_30d: int   = feature(id=3)
+
+    @extractor
+    @extractor_inputs("uid")
+    @extractor_outputs("avg_spend_7d", "txn_count_30d")
+    def from_stats(cls, ts, inputs):
+        uid = inputs["uid"]
+        row = UserStats.lookup(ts, user_id=uid)
+        return row["avg_amount_7d"], row["txn_count_30d"]
+```
+
+---
+
+## Features
+
+Each class-level annotation paired with `feature(id=N)` declares one feature:
+
+```python
+avg_spend_7d: float = feature(id=2)
+```
+
+- The **name** (`avg_spend_7d`) is what callers use in queries.
+- The **type annotation** (`float`) declares the expected dtype.
+- The **integer ID** (`id=2`) is a stable identifier used for schema evolution.
+
+### Why integer IDs?
+
+IDs decouple the feature's name from its identity. You can rename `avg_spend_7d` to `mean_transaction_amount_7d` without breaking any downstream system that references it by ID. You can also safely add features (new IDs) and deprecate old ones without versioning the entire featureset.
+
+<Callout type="warn">
+IDs must be unique within a featureset. Never reuse an ID, even after deleting the original feature.
+</Callout>
+
+---
+
+## Extractors
+
+An extractor is a method that computes one or more output features from input features and dataset lookups. Extractors run in Python inside the query server at serving time.
+
+```python
+@extractor
+@extractor_inputs("uid")
+@extractor_outputs("avg_spend_7d", "txn_count_30d")
+def from_stats(cls, ts, inputs):
+    uid = inputs["uid"]
+    row = UserStats.lookup(ts, user_id=uid)
+    return row["avg_amount_7d"], row["txn_count_30d"]
+```
+
+### Extractor signature
+
+```python
+def extractor_method(cls, ts, inputs):
+    ...
+```
+
+| Parameter | Description |
+|-----------|-------------|
+| `cls` | The featureset class (class method style) |
+| `ts` | The query timestamp (for point-in-time lookups) |
+| `inputs` | Dict of input feature values keyed by feature name |
+
+The return value must match the order declared in `@extractor_outputs`.
+
+### `@extractor_inputs`
+
+Lists the feature names this extractor needs. The query planner resolves these before calling the extractor:
+
+```python
+@extractor_inputs("uid")         # single input
+@extractor_inputs("uid", "age")  # multiple inputs
+```
+
+### `@extractor_outputs`
+
+Lists the feature names this extractor produces. Must match the return value order:
+
+```python
+@extractor_outputs("avg_spend_7d", "txn_count_30d")
+```
+
+---
+
+## Extractor dependencies
+
+For complex featuresets, extractors can depend on outputs from other extractors. Use `deps` to declare these:
+
+```python
+@extractor(deps=[UserFeatures])
+@extractor_inputs("uid", "avg_spend_7d")
+@extractor_outputs("spend_percentile")
+def compute_percentile(cls, ts, inputs):
+    ...
+```
+
+The query planner builds a DAG from the dependency declarations and executes extractors in topological order.
+
+---
+
+## Querying featuresets
+
+```bash
+curl "http://localhost:8081/features?featureset=UserFeatures&uid=user_42"
+```
+
+```json
+{
+  "uid": "user_42",
+  "avg_spend_7d": 47.32,
+  "txn_count_30d": 18
+}
+```
+
+Point-in-time queries (for offline training) pass a timestamp:
+
+```bash
+curl "http://localhost:8081/features?featureset=UserFeatures&uid=user_42&ts=2024-01-15T12:00:00Z"
+```

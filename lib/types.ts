@@ -33,6 +33,26 @@ export interface FeaturesetRecord {
   spec: FeaturesetSpec;
 }
 
+// Pipeline operators
+export interface AggregateOp {
+  aggregate: { agg_type: string; field: string; window: string; output_field: string };
+}
+export interface FilterOp {
+  filter: { expression: string };
+}
+export interface TransformOp {
+  transform: { expression: string };
+}
+export interface GroupByOp {
+  group_by: { keys: string[] };
+}
+export type PipelineOperator =
+  | AggregateOp
+  | FilterOp
+  | TransformOp
+  | GroupByOp
+  | Record<string, unknown>;
+
 // Jobs
 export interface JobSpec {
   name: string;
@@ -41,7 +61,7 @@ export interface JobSpec {
   output_topic: string;
   replaylog_topic: string;
   pipeline_spec: {
-    operators: unknown[];
+    operators: PipelineOperator[];
     disorder?: string;
   };
 }
@@ -63,6 +83,8 @@ export interface SourceRecord {
   cursor_field: string;
   poll_interval: string;
   cursor_value: string;
+  disorder?: string;
+  cdc?: string;
 }
 
 // Feature query/response
