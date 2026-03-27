@@ -39,10 +39,10 @@ export function CTASection() {
           </p>
 
           <div className="flex flex-wrap justify-center gap-4">
-            <button className="group bg-white text-[#2E5A1C] px-8 py-4 rounded-full flex items-center gap-2 hover:bg-[#f0f7e6] transition-all shadow-lg shadow-black/20 font-[var(--font-dm-sans)] text-[1.05rem] font-semibold">
+            <a href="mailto:sam@realthyme.io" className="group bg-white text-[#2E5A1C] px-8 py-4 rounded-full flex items-center gap-2 hover:bg-[#f0f7e6] transition-all shadow-lg shadow-black/20 font-[var(--font-dm-sans)] text-[1.05rem] font-semibold">
               Book a Demo
               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-            </button>
+            </a>
             <Link href="/docs">
               <button className="border-2 border-white/30 text-white px-8 py-4 rounded-full hover:border-white/60 hover:bg-white/10 transition-all font-[var(--font-dm-sans)] text-[1.05rem] font-semibold">
                 Read the Docs

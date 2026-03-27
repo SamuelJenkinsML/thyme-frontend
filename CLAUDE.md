@@ -6,6 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Thyme is a streaming feature platform frontend built with Next.js 16, React 19, TypeScript, and Tailwind CSS 4. It provides a UI for managing featuresets, pipelines/jobs, sources, and inspecting feature values.
 
+## Related Repositories
+
+- `~/Projects/thyme` — core backend (definition service, query server, pipeline engine)
+- `~/Projects/thyme-sdk` — Thyme SDK (client libraries, API definitions)
+
 ## Commands
 
 - `npm run dev` — start dev server (localhost:3000)

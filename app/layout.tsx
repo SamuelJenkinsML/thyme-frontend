@@ -24,8 +24,22 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Thyme",
-  description: "Thyme streaming feature platform",
+  title: "Thyme — The Streaming Feature Platform",
+  description:
+    "Define features in Python, serve them in real-time with a Rust engine. Thyme eliminates training/serving skew with point-in-time correct feature computation.",
+  openGraph: {
+    title: "Thyme — The Streaming Feature Platform",
+    description:
+      "Define features in Python, serve them in real-time with a Rust engine. Zero training/serving skew.",
+    type: "website",
+    siteName: "Thyme",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Thyme — The Streaming Feature Platform",
+    description:
+      "Define features in Python, serve them in real-time with a Rust engine. Zero training/serving skew.",
+  },
 };
 
 export default function RootLayout({
@@ -34,7 +48,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} ${dmSans.variable} antialiased`}>
         <Providers>
           {children}

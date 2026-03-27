@@ -1,4 +1,4 @@
-import type { FeaturesetRecord, JobRecord, SourceRecord } from "@/lib/types";
+import type { FeaturesetRecord, JobRecord, SourceRecord, StatusResponse } from "@/lib/types";
 
 function definitionBase(): string {
   if (typeof window === "undefined") {
@@ -28,5 +28,13 @@ export async function fetchSources(): Promise<SourceRecord[]> {
   const url = base ? `${base}/api/v1/sources` : "/api/proxy/sources";
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) throw new Error(`Failed to fetch sources: ${res.statusText}`);
+  return res.json();
+}
+
+export async function fetchStatus(): Promise<StatusResponse> {
+  const base = definitionBase();
+  const url = base ? `${base}/api/v1/status` : "/api/proxy/status";
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) throw new Error(`Failed to fetch status: ${res.statusText}`);
   return res.json();
 }

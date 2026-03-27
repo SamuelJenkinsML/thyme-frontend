@@ -6,6 +6,7 @@ import { FeaturesetsTab } from "@/components/catalog/featuresets-tab";
 import { PipelinesTab } from "@/components/catalog/pipelines-tab";
 import { DatasetsTab } from "@/components/catalog/datasets-tab";
 import { CatalogSearch } from "@/components/catalog/catalog-search";
+import { DependencyGraph } from "@/components/catalog/dependency-graph";
 
 export default function CatalogPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -21,6 +22,7 @@ export default function CatalogPage() {
           <TabsTrigger value="featuresets">Featuresets</TabsTrigger>
           <TabsTrigger value="pipelines">Pipelines</TabsTrigger>
           <TabsTrigger value="datasets">Datasets</TabsTrigger>
+          <TabsTrigger value="graph">Graph</TabsTrigger>
         </TabsList>
         <TabsContent value="featuresets" className="mt-4">
           <FeaturesetsTab searchTerm={searchTerm} />
@@ -30,6 +32,9 @@ export default function CatalogPage() {
         </TabsContent>
         <TabsContent value="datasets" className="mt-4">
           <DatasetsTab searchTerm={searchTerm} />
+        </TabsContent>
+        <TabsContent value="graph" className="mt-4">
+          <DependencyGraph />
         </TabsContent>
       </Tabs>
     </div>

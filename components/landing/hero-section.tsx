@@ -2,7 +2,8 @@
 
 import { motion } from "motion/react";
 import { ThymeMascot } from "./thyme-mascot";
-import { ArrowRight, Play } from "lucide-react";
+import { ArrowRight, BookOpen } from "lucide-react";
+import Link from "next/link";
 
 export function HeroSection() {
   return (
@@ -77,29 +78,16 @@ export function HeroSection() {
             transition={{ duration: 0.7, delay: 0.3 }}
             className="flex flex-wrap gap-4"
           >
-            <button className="group bg-[#2E5A1C] text-white px-7 py-3.5 rounded-full flex items-center gap-2 hover:bg-[#3d7425] transition-all hover:shadow-lg hover:shadow-[#2E5A1C]/25 font-[var(--font-dm-sans)] text-base font-semibold">
+            <a href="mailto:sam@realthyme.io" className="group bg-[#2E5A1C] text-white px-7 py-3.5 rounded-full flex items-center gap-2 hover:bg-[#3d7425] transition-all hover:shadow-lg hover:shadow-[#2E5A1C]/25 font-[var(--font-dm-sans)] text-base font-semibold">
               Book a Demo
               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-            </button>
-            <button className="group border-2 border-[#2E5A1C]/20 text-[#2E5A1C] px-7 py-3.5 rounded-full flex items-center gap-2 hover:border-[#2E5A1C]/40 hover:bg-[#2E5A1C]/5 transition-all font-[var(--font-dm-sans)] text-base font-semibold">
-              <Play size={16} className="fill-[#2E5A1C]" />
-              Watch Demo
-            </button>
+            </a>
+            <Link href="/docs" className="group border-2 border-[#2E5A1C]/20 text-[#2E5A1C] px-7 py-3.5 rounded-full flex items-center gap-2 hover:border-[#2E5A1C]/40 hover:bg-[#2E5A1C]/5 transition-all font-[var(--font-dm-sans)] text-base font-semibold">
+              <BookOpen size={16} />
+              Read the Docs
+            </Link>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.7, delay: 0.6 }}
-            className="mt-12 flex items-center gap-6"
-          >
-            <span className="text-[#999] text-[0.8rem] font-[var(--font-dm-sans)]">Trusted by teams at</span>
-            <div className="flex items-center gap-6 opacity-40">
-              {["Stripe", "Airbnb", "Shopify", "Square"].map((name) => (
-                <span key={name} className="text-[#333] text-[0.9rem] font-[var(--font-space-grotesk)] font-semibold">{name}</span>
-              ))}
-            </div>
-          </motion.div>
         </div>
 
         <motion.div

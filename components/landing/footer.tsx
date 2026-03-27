@@ -19,9 +19,9 @@ export function Footer() {
             </p>
           </div>
           {[
-            { title: "Product", links: [{ label: "Features", href: "#features" }, { label: "Architecture", href: "#architecture" }, { label: "Performance", href: "#performance" }, { label: "Pricing", href: "#" }] },
-            { title: "Resources", links: [{ label: "Documentation", href: "/catalog" }, { label: "API Reference", href: "#" }, { label: "Tutorials", href: "#" }, { label: "Blog", href: "#" }] },
-            { title: "Company", links: [{ label: "About", href: "#" }, { label: "Careers", href: "#" }, { label: "Contact", href: "#" }, { label: "Security", href: "#" }] },
+            { title: "Product", links: [{ label: "Features", href: "#features" }, { label: "Architecture", href: "#architecture" }, { label: "Performance", href: "#performance" }] },
+            { title: "Resources", links: [{ label: "Documentation", href: "/docs" }] },
+            { title: "Company", links: [{ label: "Contact", href: "mailto:sam@realthyme.io" }] },
           ].map((col) => (
             <div key={col.title}>
               <h4 className="text-white mb-4 font-[var(--font-space-grotesk)] text-[0.95rem] font-semibold">{col.title}</h4>
@@ -37,10 +37,6 @@ export function Footer() {
         </div>
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <span className="font-[var(--font-dm-sans)] text-[0.85rem]">&copy; 2026 Thyme. All rights reserved.</span>
-          <div className="flex gap-6">
-            <a href="#" className="hover:text-white transition-colors font-[var(--font-dm-sans)] text-[0.85rem]">Privacy</a>
-            <a href="#" className="hover:text-white transition-colors font-[var(--font-dm-sans)] text-[0.85rem]">Terms</a>
-          </div>
         </div>
       </div>
     </footer>

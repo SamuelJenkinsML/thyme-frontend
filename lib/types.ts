@@ -101,3 +101,33 @@ export interface FeatureResponse {
   features: Record<string, unknown>;
   mode: string;
 }
+
+// Status (dependency graph data)
+export interface StatusDataset {
+  name: string;
+  version: number;
+}
+
+export interface StatusPipeline {
+  name: string;
+  version: number;
+  input_datasets: string[];
+  output_dataset: string;
+}
+
+export interface StatusFeatureset {
+  name: string;
+  feature_count: number;
+}
+
+export interface StatusResponse {
+  datasets: StatusDataset[];
+  pipelines: StatusPipeline[];
+  featuresets: StatusFeatureset[];
+  sources: Array<{ dataset: string; connector_type: string }>;
+  jobs: unknown[];
+  backfills: unknown[];
+  latest_commit: Record<string, unknown> | null;
+  recent_events: unknown[];
+  physical_assets: unknown[];
+}
