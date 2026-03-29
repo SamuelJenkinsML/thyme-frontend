@@ -78,7 +78,7 @@ export function HeroSection() {
             transition={{ duration: 0.7, delay: 0.3 }}
             className="flex flex-wrap gap-4"
           >
-            <a href="mailto:sam@realthyme.io" className="group bg-[#2E5A1C] text-white px-7 py-3.5 rounded-full flex items-center gap-2 hover:bg-[#3d7425] transition-all hover:shadow-lg hover:shadow-[#2E5A1C]/25 font-[var(--font-dm-sans)] text-base font-semibold">
+            <a href="mailto:support@realthyme.io" className="group bg-[#2E5A1C] text-white px-7 py-3.5 rounded-full flex items-center gap-2 hover:bg-[#3d7425] transition-all hover:shadow-lg hover:shadow-[#2E5A1C]/25 font-[var(--font-dm-sans)] text-base font-semibold">
               Book a Demo
               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </a>

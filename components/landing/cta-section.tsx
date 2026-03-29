@@ -39,7 +39,7 @@ export function CTASection() {
           </p>
 
           <div className="flex flex-wrap justify-center gap-4">
-            <a href="mailto:sam@realthyme.io" className="group bg-white text-[#2E5A1C] px-8 py-4 rounded-full flex items-center gap-2 hover:bg-[#f0f7e6] transition-all shadow-lg shadow-black/20 font-[var(--font-dm-sans)] text-[1.05rem] font-semibold">
+            <a href="mailto:support@realthyme.io" className="group bg-white text-[#2E5A1C] px-8 py-4 rounded-full flex items-center gap-2 hover:bg-[#f0f7e6] transition-all shadow-lg shadow-black/20 font-[var(--font-dm-sans)] text-[1.05rem] font-semibold">
               Book a Demo
               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </a>

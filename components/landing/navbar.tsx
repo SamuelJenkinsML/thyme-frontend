@@ -29,7 +29,7 @@ export function Navbar() {
           <a href="#architecture" className="text-[#555] hover:text-[#2E5A1C] transition-colors text-[0.95rem]">Architecture</a>
           <a href="#performance" className="text-[#555] hover:text-[#2E5A1C] transition-colors text-[0.95rem]">Performance</a>
           <Link href="/docs" className="text-[#555] hover:text-[#2E5A1C] transition-colors text-[0.95rem]">Docs</Link>
-          <a href="mailto:sam@realthyme.io" className="bg-[#2E5A1C] text-white px-5 py-2 rounded-full hover:bg-[#3d7425] transition-colors text-[0.95rem]">
+          <a href="mailto:support@realthyme.io" className="bg-[#2E5A1C] text-white px-5 py-2 rounded-full hover:bg-[#3d7425] transition-colors text-[0.95rem]">
             Book a Demo
           </a>
         </div>
@@ -45,7 +45,7 @@ export function Navbar() {
           <a href="#architecture" className="text-[#555] py-2" onClick={() => setOpen(false)}>Architecture</a>
           <a href="#performance" className="text-[#555] py-2" onClick={() => setOpen(false)}>Performance</a>
           <Link href="/docs" className="text-[#555] py-2" onClick={() => setOpen(false)}>Docs</Link>
-          <a href="mailto:sam@realthyme.io" className="bg-[#2E5A1C] text-white px-5 py-3 rounded-full mt-2 text-center">Book a Demo</a>
+          <a href="mailto:support@realthyme.io" className="bg-[#2E5A1C] text-white px-5 py-3 rounded-full mt-2 text-center">Book a Demo</a>
         </div>
       )}
     </nav>
