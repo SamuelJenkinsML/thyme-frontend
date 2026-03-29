@@ -24,7 +24,7 @@ export function Navbar() {
           </span>
         </div>
 
-        <div className="hidden md:flex items-center gap-8 font-[var(--font-dm-sans)]">
+        <div className="max-md:hidden flex items-center gap-8 font-[var(--font-dm-sans)]">
           <a href="#features" className="text-[#555] hover:text-[#2E5A1C] transition-colors text-[0.95rem]">Features</a>
           <a href="#architecture" className="text-[#555] hover:text-[#2E5A1C] transition-colors text-[0.95rem]">Architecture</a>
           <a href="#performance" className="text-[#555] hover:text-[#2E5A1C] transition-colors text-[0.95rem]">Performance</a>
@@ -35,13 +35,13 @@ export function Navbar() {
           </a>
         </div>
 
-        <button className="md:hidden text-[#2E5A1C]" onClick={() => setOpen(!open)}>
+        <button className="hidden max-md:block text-[#2E5A1C]" onClick={() => setOpen(!open)}>
           {open ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
       {open && (
-        <div className="md:hidden bg-white/95 backdrop-blur-md border-b border-[#e0e0e0] px-6 pb-6 pt-2 flex flex-col gap-4 font-[var(--font-dm-sans)]">
+        <div className="hidden max-md:flex flex-col gap-4 bg-white/95 backdrop-blur-md border-b border-[#e0e0e0] px-6 pb-6 pt-2 font-[var(--font-dm-sans)]">
           <a href="#features" className="text-[#555] py-2" onClick={() => setOpen(false)}>Features</a>
           <a href="#architecture" className="text-[#555] py-2" onClick={() => setOpen(false)}>Architecture</a>
           <a href="#performance" className="text-[#555] py-2" onClick={() => setOpen(false)}>Performance</a>
