@@ -20,7 +20,7 @@ export function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
           >
-            <div className="inline-flex items-center gap-2 bg-[#2E5A1C]/10 text-[#2E5A1C] px-4 py-1.5 rounded-full mb-6 font-[var(--font-dm-sans)] text-[0.85rem] font-medium">
+            <div className="inline-flex items-center gap-2 bg-[#2E5A1C]/10 text-[#2E5A1C] px-5 py-2 rounded-full mb-6 font-[var(--font-dm-sans)] text-[0.95rem] font-medium">
               <span className="w-2 h-2 bg-[#8BC34A] rounded-full animate-pulse" />
               Defined in Python. Computed in Rust.
             </div>
@@ -31,7 +31,7 @@ export function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1 }}
             className="text-[#1a1a1a] mb-6 font-[var(--font-space-grotesk)] font-bold leading-[1.1]"
-            style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}
+            style={{ fontSize: "clamp(3rem, 5.5vw, 5rem)" }}
           >
             Every feature,{" "}
             <span className="text-[#2E5A1C]">right on</span>
@@ -64,7 +64,7 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="text-[#666] max-w-lg mb-8 font-[var(--font-dm-sans)] text-[1.15rem] leading-[1.7]"
+            className="text-[#666] max-w-xl mb-10 font-[var(--font-dm-sans)] text-[1.25rem] leading-[1.7]"
           >
             Thyme is the streaming feature platform that eliminates training/serving
             skew. Define features once in Python — Thyme compiles them to a
@@ -78,11 +78,11 @@ export function HeroSection() {
             transition={{ duration: 0.7, delay: 0.3 }}
             className="flex flex-wrap gap-4"
           >
-            <a href="mailto:support@realthyme.io" className="group bg-[#2E5A1C] text-white px-7 py-3.5 rounded-full flex items-center gap-2 hover:bg-[#3d7425] transition-all hover:shadow-lg hover:shadow-[#2E5A1C]/25 font-[var(--font-dm-sans)] text-base font-semibold">
+            <a href="mailto:support@realthyme.io" className="group bg-[#2E5A1C] text-white px-8 py-4 rounded-full flex items-center gap-2 hover:bg-[#3d7425] transition-all hover:shadow-lg hover:shadow-[#2E5A1C]/25 font-[var(--font-dm-sans)] text-lg font-semibold">
               Book a Demo
-              <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </a>
-            <Link href="/docs" className="group border-2 border-[#2E5A1C]/20 text-[#2E5A1C] px-7 py-3.5 rounded-full flex items-center gap-2 hover:border-[#2E5A1C]/40 hover:bg-[#2E5A1C]/5 transition-all font-[var(--font-dm-sans)] text-base font-semibold">
+            <Link href="/docs" className="group border-2 border-[#2E5A1C]/20 text-[#2E5A1C] px-8 py-4 rounded-full flex items-center gap-2 hover:border-[#2E5A1C]/40 hover:bg-[#2E5A1C]/5 transition-all font-[var(--font-dm-sans)] text-lg font-semibold">
               <BookOpen size={16} />
               Read the Docs
             </Link>
@@ -136,7 +136,7 @@ export function HeroSection() {
             <div className="text-[#1a1a1a] text-[0.85rem] font-[var(--font-space-grotesk)] font-bold">Zero Skew</div>
           </motion.div>
 
-          <ThymeMascot className="w-64 h-80 relative z-10" />
+          <ThymeMascot className="w-80 h-96 relative z-10" />
         </motion.div>
       </div>
     </section>
