@@ -12,6 +12,13 @@ export default function Layout({ children }: { children: ReactNode }) {
           title: 'Thyme',
           url: '/',
         }}
+        links={[
+          {
+            text: 'SDK',
+            url: 'https://github.com/SamuelJenkinsML/thyme-sdk',
+            external: true,
+          },
+        ]}
       >
         {children}
       </DocsLayout>
