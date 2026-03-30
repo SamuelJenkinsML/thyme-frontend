@@ -1,0 +1,9 @@
+import { NextRequest, NextResponse } from "next/server";
+
+export async function GET(req: NextRequest) {
+  const base = process.env.DEFINITION_SERVICE_URL ?? "http://localhost:8080";
+  const search = req.nextUrl.searchParams.toString();
+  const res = await fetch(`${base}/api/v1/events?${search}`, { cache: "no-store" });
+  const data = await res.json();
+  return NextResponse.json(data, { status: res.status });
+}

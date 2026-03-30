@@ -131,3 +131,15 @@ export interface StatusResponse {
   recent_events: unknown[];
   physical_assets: unknown[];
 }
+
+// Events
+export interface EventRecord {
+  id: string;
+  event_type: string;
+  severity: string;
+  source: string;
+  subject: string;
+  message: string;
+  detail: Record<string, unknown> | null;
+  created_at: string;
+}

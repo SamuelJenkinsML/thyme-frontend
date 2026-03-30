@@ -5,6 +5,7 @@ import { useJobs } from "@/lib/hooks/use-jobs";
 import { useSources } from "@/lib/hooks/use-sources";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { SystemHealth } from "@/components/dashboard/system-health";
+import { EventsFeed } from "@/components/dashboard/events-feed";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BookOpen, Layers, Activity, Database } from "lucide-react";
 
@@ -66,6 +67,8 @@ export default function DashboardPage() {
       <div className="max-w-md">
         <SystemHealth />
       </div>
+
+      <EventsFeed />
     </div>
   );
 }
