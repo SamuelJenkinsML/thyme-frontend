@@ -12,6 +12,34 @@ export function buildDependencyGraph(
   const nodes: Node[] = [];
   const edges: Edge[] = [];
   const edgeSet = new Set<string>();
+  const datasetNames = new Set(status.datasets.map((ds) => ds.name));
+
+  // Source nodes + edges to datasets
+  for (const src of status.sources) {
+    const nodeId = `source-${src.dataset}-${src.connector_type}`;
+    nodes.push({
+      id: nodeId,
+      type: "source",
+      position: { x: 0, y: 0 },
+      data: {
+        label: src.dataset,
+        connectorType: src.connector_type,
+      },
+    });
+
+    if (datasetNames.has(src.dataset)) {
+      const key = `${nodeId}->dataset-${src.dataset}`;
+      if (!edgeSet.has(key)) {
+        edgeSet.add(key);
+        edges.push({
+          id: key,
+          source: nodeId,
+          target: `dataset-${src.dataset}`,
+          animated: true,
+        });
+      }
+    }
+  }
 
   // Dataset nodes
   for (const ds of status.datasets) {
@@ -19,7 +47,11 @@ export function buildDependencyGraph(
       id: `dataset-${ds.name}`,
       type: "dataset",
       position: { x: 0, y: 0 },
-      data: { label: ds.name, href: `/catalog/datasets/${ds.name}` },
+      data: {
+        label: ds.name,
+        href: `/catalog/datasets/${ds.name}`,
+        version: ds.version,
+      },
     });
   }
 
@@ -29,10 +61,16 @@ export function buildDependencyGraph(
       id: `pipeline-${pl.name}`,
       type: "pipeline",
       position: { x: 0, y: 0 },
-      data: { label: pl.name, href: `/catalog/pipelines/${pl.name}` },
+      data: {
+        label: pl.name,
+        href: `/catalog/pipelines/${pl.name}`,
+        version: pl.version,
+        inputCount: pl.input_datasets.length,
+      },
     });
 
     for (const input of pl.input_datasets) {
+      if (!datasetNames.has(input)) continue;
       const key = `dataset-${input}->pipeline-${pl.name}`;
       if (!edgeSet.has(key)) {
         edgeSet.add(key);
@@ -45,7 +83,7 @@ export function buildDependencyGraph(
       }
     }
 
-    if (pl.output_dataset) {
+    if (pl.output_dataset && datasetNames.has(pl.output_dataset)) {
       const key = `pipeline-${pl.name}->dataset-${pl.output_dataset}`;
       if (!edgeSet.has(key)) {
         edgeSet.add(key);
@@ -65,7 +103,11 @@ export function buildDependencyGraph(
       id: `featureset-${fs.name}`,
       type: "featureset",
       position: { x: 0, y: 0 },
-      data: { label: fs.name, href: `/catalog/featuresets/${fs.name}` },
+      data: {
+        label: fs.name,
+        href: `/catalog/featuresets/${fs.name}`,
+        featureCount: fs.feature_count,
+      },
     });
 
     // Find full featureset record for extractor deps
@@ -73,6 +115,7 @@ export function buildDependencyGraph(
     if (full) {
       for (const ext of full.spec.extractors) {
         for (const dep of ext.deps) {
+          if (!datasetNames.has(dep)) continue;
           const key = `dataset-${dep}->featureset-${fs.name}`;
           if (!edgeSet.has(key)) {
             edgeSet.add(key);
@@ -90,7 +133,7 @@ export function buildDependencyGraph(
   // Apply dagre layout
   const g = new dagre.graphlib.Graph();
   g.setDefaultEdgeLabel(() => ({}));
-  g.setGraph({ rankdir: "LR", nodesep: 50, ranksep: 120 });
+  g.setGraph({ rankdir: "LR", nodesep: 70, ranksep: 160 });
 
   for (const node of nodes) {
     g.setNode(node.id, { width: NODE_WIDTH, height: NODE_HEIGHT });

@@ -15,10 +15,11 @@ import "@xyflow/react/dist/style.css";
 import { useStatus } from "@/lib/hooks/use-status";
 import { useFeaturesets } from "@/lib/hooks/use-featuresets";
 import { buildDependencyGraph } from "@/lib/graph";
-import { DatasetNode, PipelineNode, FeaturesetNode } from "./graph-nodes";
+import { SourceNode, DatasetNode, PipelineNode, FeaturesetNode } from "./graph-nodes";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const nodeTypes = {
+  source: SourceNode,
   dataset: DatasetNode,
   pipeline: PipelineNode,
   featureset: FeaturesetNode,
@@ -73,6 +74,7 @@ function GraphInner() {
         <MiniMap
           nodeColor={(node) => {
             switch (node.type) {
+              case "source": return "#10b981";
               case "dataset": return "#3b82f6";
               case "pipeline": return "#a855f7";
               case "featureset": return "#f59e0b";
