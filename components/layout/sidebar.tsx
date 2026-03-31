@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, BookOpen, Search, Activity, Database } from "lucide-react";
+import { LayoutDashboard, BookOpen, Search, Activity, Database, Monitor } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -12,6 +12,7 @@ const navItems = [
   { href: "/inspect", label: "Inspect", icon: Search },
   { href: "/jobs", label: "Jobs", icon: Activity },
   { href: "/sources", label: "Sources", icon: Database },
+  { href: "/monitoring", label: "Monitoring", icon: Monitor },
 ];
 
 interface ServiceHealth {
