@@ -1,9 +1,17 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
-import { fetchSources, fetchJobs } from "@/lib/api/definition";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  fetchStatus,
+  fetchSources,
+  fetchJobs,
+  fetchFeaturesets,
+} from "@/lib/api/definition";
+import { getDownstreamFromDataset } from "@/lib/lineage-utils";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DatasetDetailHeader } from "@/components/catalog/dataset-detail-header";
+import { DatasetRelationships } from "@/components/catalog/dataset-relationships";
+import { DatasetEventsSection } from "@/components/catalog/dataset-events-section";
+import { CodeBlock } from "@/components/ui/code-block";
 
 interface Props {
   params: Promise<{ name: string }>;
@@ -13,13 +21,39 @@ export default async function DatasetDetailPage({ params }: Props) {
   const { name } = await params;
   const decodedName = decodeURIComponent(name);
 
-  const [sources, jobs] = await Promise.all([fetchSources(), fetchJobs()]);
-  const src = sources.find((s) => s.dataset === decodedName);
+  const [status, sources, jobs, featuresetRecords] = await Promise.all([
+    fetchStatus(),
+    fetchSources(),
+    fetchJobs(),
+    fetchFeaturesets(),
+  ]);
 
-  if (!src) notFound();
+  // Find dataset in status (works for both source-backed and pipeline-produced)
+  const dataset = status.datasets.find((ds) => ds.name === decodedName);
+  if (!dataset) notFound();
 
-  const topic = `${src.dataset}_topic`;
+  const src = sources.find((s) => s.dataset === decodedName) ?? null;
+
+  // Compute relationships
+  const downstream = getDownstreamFromDataset(
+    decodedName,
+    status,
+    featuresetRecords,
+  );
+
+  // Find producing pipeline (if this dataset is an output)
+  const producingPipeline =
+    status.pipelines.find((pl) => pl.output_dataset === decodedName) ?? null;
+
+  // Find consuming jobs for additional context
+  const topic = `${decodedName}_topic`;
   const consumingJobs = jobs.filter((j) => j.spec.input_topic === topic);
+
+  // Find pycode from featuresets that depend on this dataset
+  const relatedFeatureset = featuresetRecords.find((fs) =>
+    fs.spec.extractors.some((ext) => ext.deps.includes(decodedName)),
+  );
+  const pycode = relatedFeatureset?.spec.pycode?.source_code;
 
   return (
     <div className="space-y-6">
@@ -27,68 +61,74 @@ export default async function DatasetDetailPage({ params }: Props) {
         items={[
           { label: "Catalog", href: "/catalog" },
           { label: "Datasets", href: "/catalog" },
-          { label: src.dataset },
+          { label: decodedName },
         ]}
       />
 
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">{src.dataset}</h1>
-        <p className="text-sm text-muted-foreground">{src.id}</p>
-      </div>
+      <DatasetDetailHeader dataset={dataset} source={src} />
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Source</CardTitle>
-            <Badge>{src.connector_type}</Badge>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-2 text-sm">
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-            <span className="text-muted-foreground">Topic</span>
-            <span className="font-mono">{topic}</span>
-            <span className="text-muted-foreground">Cursor field</span>
-            <span className="font-mono">{src.cursor_field || "\u2014"}</span>
-            <span className="text-muted-foreground">Poll interval</span>
-            <span className="font-mono">{src.poll_interval || "\u2014"}</span>
-            <span className="text-muted-foreground">Last cursor</span>
-            <span className="font-mono text-xs">{src.cursor_value || "\u2014"}</span>
-          </div>
-        </CardContent>
-      </Card>
+      <DatasetRelationships
+        source={src}
+        consumingPipelines={downstream.pipelines}
+        producingPipeline={producingPipeline}
+        outputDatasets={downstream.outputDatasets}
+        derivedFeaturesets={downstream.featuresets}
+      />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Connector Config</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <pre className="overflow-x-auto rounded-md bg-muted p-4 text-xs font-mono whitespace-pre">
-            {JSON.stringify(src.config, null, 2)}
-          </pre>
-        </CardContent>
-      </Card>
-
-      {consumingJobs.length > 0 && (
+      {/* Connector config */}
+      {src && (
         <Card>
-          <CardHeader>
-            <CardTitle>Consuming Jobs</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm">Connector Configuration</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-1">
-            {consumingJobs.map((j) => {
-              const pipelineName = j.name.replace(/_job$/, "");
-              return (
-                <Link
-                  key={j.id}
-                  href={`/catalog/pipelines/${encodeURIComponent(pipelineName)}`}
-                  className="block font-mono text-sm text-foreground hover:text-primary transition-colors"
-                >
-                  {j.name}
-                </Link>
-              );
-            })}
+          <CardContent>
+            <pre className="overflow-x-auto rounded-md bg-muted p-4 text-xs font-mono whitespace-pre">
+              {JSON.stringify(src.config, null, 2)}
+            </pre>
           </CardContent>
         </Card>
       )}
+
+      {/* Source code definition */}
+      {pycode && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm">Definition</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CodeBlock code={pycode} />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Consuming jobs (additional detail beyond pipelines) */}
+      {consumingJobs.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm">
+              Active Jobs ({consumingJobs.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-2 text-sm">
+              {consumingJobs.map((j) => (
+                <div
+                  key={j.id}
+                  className="flex items-center justify-between rounded-md border border-border/50 px-3 py-2"
+                >
+                  <span className="font-mono">{j.name}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {j.partition_count} partitions
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Events (client component) */}
+      <DatasetEventsSection datasetName={decodedName} />
     </div>
   );
 }
