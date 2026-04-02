@@ -1,5 +1,6 @@
 "use client";
 
+import { signIn } from "next-auth/react";
 import { motion } from "motion/react";
 import {
   Card,
@@ -49,18 +50,14 @@ export default function LoginPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form
-              action="/api/auth/signin/github"
-              method="GET"
-            >
               <button
-                type="submit"
+                type="button"
+                onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
                 className="inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80"
               >
                 <GitHubIcon />
                 Continue with GitHub
               </button>
-            </form>
             <p className="mt-4 text-center text-xs text-muted-foreground">
               Access is restricted to authorized team members.
             </p>
