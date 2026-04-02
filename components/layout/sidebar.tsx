@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, BookOpen, Search, Activity, Database, Monitor } from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
+import { LayoutDashboard, BookOpen, Search, Activity, Database, Monitor, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/catalog", label: "Catalog", icon: BookOpen },
   { href: "/inspect", label: "Inspect", icon: Search },
   { href: "/jobs", label: "Jobs", icon: Activity },
@@ -24,6 +25,7 @@ interface ServiceHealth {
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const [services, setServices] = useState<ServiceHealth[]>([
     { name: "definition-service", port: 8080, url: "/api/proxy/featuresets", healthy: null },
     { name: "query-server", port: 8081, url: "/api/proxy/features", healthy: null },
@@ -60,9 +62,7 @@ export function Sidebar() {
       <nav className="flex flex-col gap-1">
         {navItems.map(({ href, label, icon: Icon }) => {
           const active =
-            href === "/"
-              ? pathname === "/"
-              : pathname === href || pathname.startsWith(href + "/");
+            pathname === href || pathname.startsWith(href + "/");
           return (
             <Link
               key={href}
@@ -98,6 +98,27 @@ export function Sidebar() {
           </div>
         ))}
       </div>
+
+      {session?.user && (
+        <div className="flex items-center gap-2 border-t border-border px-2 pt-3 mt-3">
+          {session.user.image && (
+            <img
+              src={session.user.image}
+              alt=""
+              className="size-6 rounded-full"
+            />
+          )}
+          <span className="truncate text-xs text-foreground">
+            {session.user.name}
+          </span>
+          <button
+            onClick={() => signOut({ callbackUrl: "/login" })}
+            className="ml-auto cursor-pointer text-muted-foreground hover:text-foreground"
+          >
+            <LogOut className="size-3.5" />
+          </button>
+        </div>
+      )}
     </aside>
   );
 }

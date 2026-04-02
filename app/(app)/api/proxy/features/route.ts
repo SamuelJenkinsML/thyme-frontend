@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 import { authHeaders } from "@/lib/api/auth";
 
 export async function GET(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const base = process.env.QUERY_SERVER_URL ?? "http://localhost:8081";
   const search = req.nextUrl.searchParams.toString();
   const res = await fetch(`${base}/features?${search}`, {
