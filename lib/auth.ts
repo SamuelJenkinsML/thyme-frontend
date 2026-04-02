@@ -12,6 +12,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signIn: "/login",
   },
   callbacks: {
+    authorized({ auth }) {
+      return !!auth;
+    },
     signIn({ profile }) {
       if (allowedUsers.length === 0) return true;
       const username = (profile?.login as string | undefined)?.toLowerCase();
