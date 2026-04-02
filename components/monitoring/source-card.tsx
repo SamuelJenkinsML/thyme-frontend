@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import type { SourceRecord } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, ArrowUpRight } from "lucide-react";
 
 const cdcColors: Record<string, string> = {
   append: "default",
@@ -53,7 +54,7 @@ export function SourceCard({ source: src }: SourceCardProps) {
           )}
         </div>
 
-        <div>
+        <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="sm"
@@ -67,12 +68,19 @@ export function SourceCard({ source: src }: SourceCardProps) {
             )}
             Config
           </Button>
-          {configExpanded && (
-            <pre className="mt-1 overflow-x-auto rounded-md bg-muted p-2 text-xs font-mono whitespace-pre">
-              {JSON.stringify(src.config, null, 2)}
-            </pre>
-          )}
+          <Link
+            href={`/catalog/sources/${encodeURIComponent(src.id)}`}
+            className="ml-auto flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            View Details
+            <ArrowUpRight className="h-3 w-3" />
+          </Link>
         </div>
+        {configExpanded && (
+          <pre className="overflow-x-auto rounded-md bg-muted p-2 text-xs font-mono whitespace-pre">
+            {JSON.stringify(src.config, null, 2)}
+          </pre>
+        )}
       </CardContent>
     </Card>
   );

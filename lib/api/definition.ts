@@ -50,12 +50,14 @@ export async function fetchEvents(params?: {
   limit?: number;
   severity?: string;
   event_type?: string;
+  subject?: string;
 }): Promise<EventRecord[]> {
   const base = definitionBase();
   const qs = new URLSearchParams();
   if (params?.limit) qs.set("limit", String(params.limit));
   if (params?.severity) qs.set("severity", params.severity);
   if (params?.event_type) qs.set("event_type", params.event_type);
+  if (params?.subject) qs.set("subject", params.subject);
   const query = qs.toString();
   const suffix = query ? `?${query}` : "";
   const url = base ? `${base}/api/v1/events${suffix}` : `/api/proxy/events${suffix}`;
