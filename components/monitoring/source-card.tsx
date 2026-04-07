@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronRight, ArrowUpRight } from "lucide-react";
+import { maskConfig } from "@/components/catalog/source-config-viewer";
 
 const cdcColors: Record<string, string> = {
   append: "default",
@@ -78,7 +79,7 @@ export function SourceCard({ source: src }: SourceCardProps) {
         </div>
         {configExpanded && (
           <pre className="overflow-x-auto rounded-md bg-muted p-2 text-xs font-mono whitespace-pre">
-            {JSON.stringify(src.config, null, 2)}
+            {JSON.stringify(maskConfig(src.config, false), null, 2)}
           </pre>
         )}
       </CardContent>

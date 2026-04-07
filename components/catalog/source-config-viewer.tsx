@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, EyeOff, Settings } from "lucide-react";
 
-const SENSITIVE_KEYS = new Set([
+export const SENSITIVE_KEYS = new Set([
   "password",
   "credentials_json",
   "sasl_password",
@@ -13,7 +13,7 @@ const SENSITIVE_KEYS = new Set([
   "token",
 ]);
 
-function maskConfig(
+export function maskConfig(
   config: Record<string, unknown>,
   reveal: boolean,
 ): Record<string, unknown> {

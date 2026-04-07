@@ -12,6 +12,7 @@ import { DatasetDetailHeader } from "@/components/catalog/dataset-detail-header"
 import { DatasetRelationships } from "@/components/catalog/dataset-relationships";
 import { DatasetEventsSection } from "@/components/catalog/dataset-events-section";
 import { CodeBlock } from "@/components/ui/code-block";
+import { SourceConfigViewer } from "@/components/catalog/source-config-viewer";
 
 interface Props {
   params: Promise<{ name: string }>;
@@ -76,18 +77,7 @@ export default async function DatasetDetailPage({ params }: Props) {
       />
 
       {/* Connector config */}
-      {src && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm">Connector Configuration</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <pre className="overflow-x-auto rounded-md bg-muted p-4 text-xs font-mono whitespace-pre">
-              {JSON.stringify(src.config, null, 2)}
-            </pre>
-          </CardContent>
-        </Card>
-      )}
+      {src && <SourceConfigViewer config={src.config} />}
 
       {/* Source code definition */}
       {pycode && (
