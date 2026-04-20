@@ -63,3 +63,16 @@ Uses TanStack React Query (`@tanstack/react-query`). The `QueryClientProvider` i
 ### Domain Types
 
 All domain types are in `lib/types.ts`: `FeaturesetRecord`, `JobRecord`, `SourceRecord`, `FeatureQuery`/`FeatureResponse`, and pipeline operator union types.
+
+## Kanban — Cross-Repo Task Tracking
+
+All Thyme task tracking lives in `~/Projects/thyme-docs/09-kanban/`. Tickets are individual markdown files in `09-kanban/tickets/TH-NNN.md` with YAML frontmatter (status, priority, repo, type, etc.).
+
+**When to interact with the board:**
+- **After fixing a bug or completing a feature**: Find the matching ticket (grep for the bug ID or feature name in `~/Projects/thyme-docs/09-kanban/tickets/`) and set `status: done`, update `updated:` date. Then run `bash ~/Projects/thyme-docs/scripts/sync-board.sh` to update the Visual Board.
+- **When you discover a new bug or gap**: Create a new ticket — read the highest TH-NNN in the tickets folder, write TH-{N+1}.md with frontmatter. Set `repo: thyme-frontend`. Then run `bash ~/Projects/thyme-docs/scripts/sync-board.sh`.
+- **When starting work on a ticket**: Set `status: in-progress` and `assignee: claude`. Then run `bash ~/Projects/thyme-docs/scripts/sync-board.sh`.
+
+**Ticket frontmatter fields**: ticket-id, title, type (bug|feature|docs|infra|chore), repo, component, priority (p0-p3), status (backlog|todo|in-progress|review|done|cancelled), assignee, effort (xs-xl), created, updated, due, tags, related.
+
+**Do not** create tickets for trivial fixes (typos, formatting). Only track work that represents meaningful bugs, features, or tasks.

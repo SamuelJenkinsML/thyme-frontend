@@ -1,59 +1,94 @@
 ---
 title: Why Thyme
-description: The problem every ML team hits — and how Thyme solves it.
+description: One definition, two runtimes. The five things Thyme gets right.
 ---
 
-## The problem every ML team hits
+## One definition, two runtimes
 
-You train a model offline on historical data. The offline metrics look great. You deploy it. Within weeks, production accuracy drops — not because the model is wrong, but because the features it sees in production are computed differently than the features it trained on.
+Most streaming feature systems maintain two pipelines: a batch job to compute training features over history, and a streaming job to keep serving features fresh. The two drift. A fix in one does not propagate to the other. The model you evaluated offline is not the model you're serving.
 
-This is **training/serving skew**. It's the most common silent killer of production ML systems.
+Thyme runs one pipeline. The same `@pipeline` definition produces state that is queried two ways — online for inference, point-in-time for training. There is no second pipeline to drift against.
 
----
-
-## Where skew comes from
-
-### Separate batch and streaming pipelines
-
-Most teams compute training features in a batch job (Spark, dbt, SQL) and serving features in a real-time system (Flink, custom microservices). These pipelines diverge. A bug fix in one doesn't propagate to the other. The logic drifts.
-
-### Hand-rolled feature stores
-
-Without a unified abstraction, teams copy-paste aggregation logic between their batch ETL and their streaming jobs. Any change needs to be made in two places — and usually only gets made in one.
-
-### Stale features at serving time
-
-Batch pipelines run on schedules: hourly, daily. A user's last transaction was 4 minutes ago. Your model sees their average spend from yesterday's batch job. You're serving predictions based on data that's hours old.
+The rest of this page is the consequences of that one design choice.
 
 ---
 
-## How Thyme solves it
+## 1. Kappa, not lambda
 
-### One definition, two modes
+Thyme is a kappa-architecture system: every feature is the output of a streaming aggregation, end of story. Historical training features are not a separate thing — they are the same aggregation answered at an earlier event-time.
 
-You write a feature once in Python. Thyme compiles it to:
+- No batch ETL to maintain
+- No reconciliation job to keep the two in sync
+- No "the batch pipeline computed `avg_7d` differently" tickets
 
-- **Streaming aggregation** — a continuously-running Rust process that keeps values fresh as events arrive
-- **Point-in-time lookup** — the same logic applied to historical data at any past timestamp for offline training
+You write the feature once. The engine keeps it fresh forever. Training and serving read the same state.
 
-There is one source of truth. The online and offline paths are guaranteed consistent.
+---
 
-### Declarative, not operational
+## 2. Event-time correctness
 
-You declare *what* a feature is, not *how* to run it. You don't manage Kafka consumers, RocksDB compaction, or checkpoint recovery. Thyme handles the infrastructure layer; you own the feature logic.
+Every record in Thyme carries an event time. The state store is keyed by `(entity, event_time)`. Online queries return the latest value; point-in-time queries pass `ts=` and get the value as it would have been served at that moment.
 
-### Real-time by default
+```bash
+# Online
+curl "http://.../features?featureset=UserFeatures&uid=user_42"
 
-The engine is written in Rust and runs continuously. Feature values are updated within milliseconds of new events arriving. You don't choose between freshness and simplicity — you get both.
+# Point-in-time (training)
+curl "http://.../features?featureset=UserFeatures&uid=user_42&ts=2024-01-15T12:00:00Z"
+```
+
+Because both paths read the same state through the same extractor code, a training dataset generated this way is what the model actually saw at that moment. This is structural, not a convention you enforce in review.
+
+---
+
+## 3. Exactly-once semantics
+
+Every pipeline tick commits as a single atomic unit: a RocksDB `WriteBatch` (output state, internal accumulator state, input offset) and a transactional Kafka produce. On restart the engine restores state from a checkpoint and replays from the committed offset. No duplicates, no lost events, no partial state.
+
+You do not have to think about this. You do not have to write idempotency tokens on your aggregations. Exactly-once is what the platform gives you.
+
+---
+
+## 4. Sub-millisecond reads
+
+The query server runs the extractor DAG via PyO3 directly inside the Rust process, reading aggregated state from a local RocksDB secondary. No network hop to fetch state. No sidecar. No JVM.
+
+- P50 server-side latency: **under 1 ms** (0.66–2.23 ms measured in production on AWS)
+- Throughput: **thousands of events/sec per partition**, limited by your Kafka throughput, not Thyme
+
+Latency this low means you can use Thyme on the hot path of real-time scoring — not just precomputation.
+
+---
+
+## 5. Declarative, not operational
+
+You declare *what* a feature is, in Python:
+
+```python
+@dataset(index=True)
+class UserStats:
+    user_id: str = field(key=True)
+    ts:      datetime = field(timestamp=True)
+    avg_amount_7d: float
+
+    @pipeline(version=1)
+    @inputs(Transaction)
+    def compute(cls, t):
+        return t.groupby("user_id").aggregate(
+            avg_amount_7d=Avg(of="amount", window="7d"),
+        )
+```
+
+You do not manage Kafka consumer groups, RocksDB compaction, partition leasing, checkpoint upload, watermark advancement, or late-event handling. The engine does. Your job is the feature logic; Thyme's job is running it at scale.
 
 ---
 
 ## Business outcomes
 
-**Faster ML iteration** — Define a new feature, commit it, and it's live. No pipeline deployment, no backfill coordination, no ops ticket.
+**Faster ML iteration.** Define a new feature, commit it, and it's live. No pipeline deployment, no backfill coordination, no ops ticket.
 
-**Fewer production incidents** — Training/serving parity is structural, not a convention you have to enforce manually.
+**Fewer production incidents.** Training/serving parity is structural. It is not a convention you enforce manually and it is not a place new engineers can make a mistake.
 
-**Smaller infrastructure footprint** — One system replaces the batch ETL, the streaming job, and the custom serving layer.
+**Smaller infrastructure footprint.** One system replaces the batch ETL, the streaming job, and the custom serving layer.
 
-**Safe schema evolution** — Features have integer IDs. You can add, rename, and version features without breaking downstream consumers.
+**Safe schema evolution.** Features carry integer IDs. You can add, rename, and version features without breaking downstream consumers.

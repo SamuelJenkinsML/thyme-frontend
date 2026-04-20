@@ -1,0 +1,48 @@
+---
+title: Read & Write Paths
+description: Two paths, one definition. How Thyme keeps online and offline features consistent.
+---
+
+Thyme runs two paths over the same feature definition. The **write path** continuously ingests events, applies windowed aggregations, and stores state keyed by entity and event time. The **read path** answers queries — online and point-in-time — by reading that same state and running extractors on top.
+
+<ReadWriteDiagram />
+
+The hinge between them is RocksDB: a local, event-time-keyed state store written transactionally by the engine and read non-blocking by the query server. Because both paths share this state — not a copy of it, not a reconciled view of it — online serving and offline training see the same numbers.
+
+---
+
+## Write path
+
+The write path is always running. It is not a batch job; there is no schedule.
+
+1. **Sources.** Every dataset has a source — streaming (Kafka, Kinesis) or polling (Postgres, Iceberg, S3, BigQuery, Snowflake). Polling sources track a cursor field and publish new rows onto a per-dataset Kafka topic as they arrive.
+2. **Raw Dataset.** The landing zone for each source. Event time and entity key are extracted here so all downstream operators see canonical records.
+3. **Windowed Pipeline.** Your `@pipeline` decorator defines `groupby` + `aggregate` over one or more time windows. Supported operators are `Sum`, `Count`, `Avg`, `Min`, `Max`, and `ApproxPercentile`. Sum/Count/Avg are invertible — old records falling out of a window can be subtracted without a recompute. ApproxPercentile uses tiled t-digest sketches, so percentile rank is ready at query time, not computed on the fly.
+4. **Aggregated Dataset.** The pipeline's output is itself a queryable, event-time-keyed dataset. This is what your featureset reads from.
+5. **Commit.** Each pipeline tick writes atomically — RocksDB `WriteBatch` (output state, internal accumulator state, offset) plus a transactional Kafka produce — so the system has exactly-once semantics end-to-end.
+
+<Callout type="info">
+You do not manage Kafka consumers, topic partitions, watermark advancement, late-event handling, or checkpoint recovery. You declare the feature; the engine runs it.
+</Callout>
+
+---
+
+## Read path
+
+The read path runs on demand, against the same state the write path produced.
+
+1. **Query Server.** An HTTP service on `:8081` receives a featureset query. Optional `ts=` makes the query point-in-time; omitted, it serves the latest value.
+2. **Extractor DAG.** Your `@extractor` functions form a DAG. The server resolves dependencies, topologically sorts them, and runs them via PyO3 directly inside the Rust process — not in a separate Python worker, not over a network hop.
+3. **Featureset response.** Composed features are returned as JSON. P50 server-side latency is well under 1 millisecond in production, because all state lives in a local RocksDB secondary with no network reads.
+
+---
+
+## Why this shape
+
+The write path and the read path share one source of truth. Neither is a projection of the other. That is the structural reason training/serving skew doesn't exist in Thyme:
+
+- A training job issuing a point-in-time query hits the same state, through the same extractor code, as an online request issued during inference.
+- There is no batch snapshot to reconcile against a streaming job; there is no streaming job to reconcile against a batch snapshot. There is one pipeline, two modes of query.
+- New features go live as soon as the pipeline advances. No backfill coordination, no offline-online deployment dance.
+
+If you want to go deeper into the mechanics — partition leasing, six-phase batch processing, checkpoint recovery — see [How Thyme Works](/docs/architecture/how-it-works).

@@ -1,4 +1,4 @@
 {
   "title": "Reference",
-  "pages": ["decorators", "aggregations", "cli"]
+  "pages": ["decorators", "aggregations", "sources", "cli"]
 }

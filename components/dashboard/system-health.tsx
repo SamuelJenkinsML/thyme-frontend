@@ -11,8 +11,8 @@ interface ServiceStatus {
 
 export function SystemHealth() {
   const [services, setServices] = useState<ServiceStatus[]>([
-    { name: "definition-service", url: "/api/proxy/featuresets", healthy: null },
-    { name: "query-server", url: "/api/proxy/features", healthy: null },
+    { name: "definition-service", url: "/api/proxy/status", healthy: null },
+    { name: "query-server", url: "/api/proxy/query-health", healthy: null },
   ]);
 
   useEffect(() => {
@@ -20,7 +20,7 @@ export function SystemHealth() {
       const results = await Promise.all(
         services.map(async (svc) => {
           try {
-            const res = await fetch(svc.url, { method: "HEAD" });
+            const res = await fetch(svc.url);
             return { ...svc, healthy: res.ok || res.status === 405 };
           } catch {
             return { ...svc, healthy: false };

@@ -88,17 +88,38 @@ Debezium mode handles `INSERT`, `UPDATE`, and `DELETE` operations from the envel
 
 ## Connectors
 
-### `IcebergSource`
+Connectors split into two families: **streaming** sources consume continuously from a message bus, **polling** sources read incrementally from a table using a cursor field.
 
-Reads from an Apache Iceberg table.
+### Streaming
+
+| Connector | Use for |
+|-----------|---------|
+| `KafkaSource` | Topics on Apache Kafka |
+| `KinesisSource` | AWS Kinesis streams |
+
+Streaming sources ignore `every` — they consume as fast as the engine can drain the topic.
+
+### Polling
+
+| Connector | Use for |
+|-----------|---------|
+| `IcebergSource` | Apache Iceberg tables |
+| `PostgresSource` | Postgres tables (incremental via cursor) |
+| `S3Source` | Partitioned files on S3 |
+| `BigQuerySource` | BigQuery tables |
+| `SnowflakeSource` | Snowflake tables |
+
+Polling sources read rows where `cursor > last_seen`, publish them onto the dataset's Kafka topic, and advance the cursor.
+
+### Example: Iceberg
 
 ```python
 from thyme.connectors import IcebergSource
 
 IcebergSource(
-    catalog="prod",    # Iceberg catalog name
-    database="events", # database/namespace
-    table="transactions",  # table name
+    catalog="prod",
+    database="events",
+    table="transactions",
 )
 ```
 
@@ -108,6 +129,4 @@ IcebergSource(
 | `database` | `str` | Database or namespace |
 | `table` | `str` | Table name |
 
-<Callout type="info">
-Additional connector types (Kafka, S3, PostgreSQL) are planned for future releases.
-</Callout>
+See the [source reference](/docs/reference/sources) for full parameter details on every connector.

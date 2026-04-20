@@ -1,13 +1,13 @@
 ---
 title: Pipelines
-description: Windowed aggregations that continuously transform datasets.
+description: Continuous windowed aggregations that are always on.
 ---
 
-A pipeline is a windowed aggregation that continuously transforms one dataset into another. The engine executes pipelines in real time as events arrive.
+A pipeline is the thing that turns raw events into feature state. It is a windowed aggregation that runs continuously — not on a schedule, not in response to a deploy. Once you commit it, it is on, forever, until you change it.
 
-## Defining a pipeline
+A pipeline reads one or more input datasets, groups their events by entity, applies one or more time-windowed aggregations, and writes the result into a new dataset. That output dataset is what your featureset reads at query time.
 
-Pipelines are defined as methods on the *output* dataset class, decorated with `@pipeline` and `@inputs`:
+Here is the smallest possible example:
 
 ```python
 from thyme.pipeline import pipeline, inputs, Avg, Count
@@ -31,6 +31,8 @@ class UserStats:
         )
 ```
 
+Notice: the pipeline is defined *on* the output dataset. The output class declares what the pipeline produces; the method declares how.
+
 ---
 
 ## `@inputs`
@@ -39,16 +41,16 @@ class UserStats:
 
 ```python
 @inputs(Transaction)           # single input
-@inputs(Transaction, Click)    # multiple inputs (join)
+@inputs(Transaction, Click)    # multiple inputs (temporal join)
 ```
 
 The decorator passes an instance of each input type as positional arguments to the pipeline method.
 
 ---
 
-## The builder pattern
+## The builder
 
-The pipeline body uses a fluent builder to declare the computation:
+The pipeline body uses a fluent builder to declare the computation. It is **lazy** — it returns a description of the DAG, not data. No records are processed at import or commit time.
 
 ### `.groupby(*keys)`
 
@@ -61,7 +63,7 @@ t.groupby("user_id", "product_category")  # composite group key
 
 ### `.aggregate(**kwargs)`
 
-Applies named aggregations. Each keyword argument becomes a field in the output dataset. The right-hand side is an aggregation operator:
+Applies named aggregations. Each keyword argument becomes a field in the output dataset:
 
 ```python
 .aggregate(
@@ -70,21 +72,28 @@ Applies named aggregations. Each keyword argument becomes a field in the output 
 )
 ```
 
-The method body is **lazy**: it returns a `PipelineNode` description of the computation. No data is processed at import or commit time. The engine compiles the DAG and executes it as a streaming job.
+### `.join(other, on=..., fields=[...])`
+
+Enriches events by temporally joining another input dataset. The join returns, for each event, the latest value of `other` as of that event's timestamp — so training and serving see the same enrichment.
 
 ---
 
 ## Aggregation operators
 
-| Operator | Description |
-|----------|-------------|
-| `Avg(of, window)` | Rolling mean of a numeric field |
-| `Count(of, window)` | Rolling count of events |
-| `Sum(of, window)` | Rolling sum of a numeric field |
-| `Min(of, window)` | Rolling minimum of a numeric field |
-| `Max(of, window)` | Rolling maximum of a numeric field |
+| Operator | Description | Memory |
+|----------|-------------|--------|
+| `Sum(of, window)` | Rolling sum of a numeric field | O(1) — invertible |
+| `Count(of, window)` | Rolling count of events | O(1) — invertible |
+| `Avg(of, window)` | Rolling mean of a numeric field | O(1) — invertible |
+| `Min(of, window)` | Rolling minimum of a numeric field | O(window) — sorted set |
+| `Max(of, window)` | Rolling maximum of a numeric field | O(window) — sorted set |
+| `ApproxPercentile(of, window, pct)` | Percentile rank via tiled t-digest sketches | O(tiles) |
 
-See [Aggregations reference](/docs/reference/aggregations) for full parameter details.
+**Invertible** operators store only the running total and count. When an old record falls out of the window, they subtract without recomputing. This is why `Sum`/`Count`/`Avg` over a 180-day window costs the same memory as over a one-hour window.
+
+**Non-invertible** operators (`Min`/`Max`/`ApproxPercentile`) use sorted sets or sketches to track enough state to answer the query without scanning the window.
+
+See the [aggregations reference](/docs/reference/aggregations) for full parameter details.
 
 ---
 
@@ -92,14 +101,17 @@ See [Aggregations reference](/docs/reference/aggregations) for full parameter de
 
 Windows are specified as strings: `"7d"` (7 days), `"24h"` (24 hours), `"30m"` (30 minutes).
 
-All windows use **event time**, not processing time. This means:
+All windows use **event time**, not processing time. That means:
 
 - An event timestamped yesterday is counted in yesterday's window, regardless of when it arrived.
 - Late events (within the `disorder` tolerance set on the source) are included correctly.
 - Historical backfills produce the same results as real-time processing.
+- A point-in-time query at `ts=T` returns the windowed aggregation as it would have been computed at `T`.
+
+This is the structural reason training features and serving features agree.
 
 ---
 
-## Pipeline versioning
+## Versioning
 
-`@pipeline(version=N)` tracks schema evolution for the pipeline's output. Increment when you change the set of aggregations or their semantics.
+`@pipeline(version=N)` tracks schema evolution for the pipeline's output. Increment when you change the set of aggregations or their semantics. The engine handles migration; your downstream consumers keep working.

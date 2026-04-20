@@ -3,6 +3,8 @@
 import { FloatingParticles } from "@/components/landing/floating-particles";
 import { Navbar } from "@/components/landing/navbar";
 import { HeroSection } from "@/components/landing/hero-section";
+import { PipelineShowcaseSection } from "@/components/landing/pipeline-showcase-section";
+import { ProblemSection } from "@/components/landing/problem-section";
 import { FeaturesSection } from "@/components/landing/features-section";
 import { ArchitectureSection } from "@/components/landing/architecture-section";
 import { PerformanceSection } from "@/components/landing/performance-section";
@@ -15,6 +17,8 @@ export default function LandingPage() {
       <FloatingParticles />
       <Navbar />
       <HeroSection />
+      <PipelineShowcaseSection />
+      <ProblemSection />
       <FeaturesSection />
       <ArchitectureSection />
       <PerformanceSection />

@@ -66,10 +66,9 @@ export function HeroSection() {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="text-[#666] max-w-xl mb-10 font-[var(--font-dm-sans)] text-[1.25rem] leading-[1.7]"
           >
-            Thyme is the streaming feature platform that eliminates training/serving
-            skew. Define features once in Python — Thyme compiles them to a
+            Thyme is the streaming feature platform that serves features ultra-fresh. Define features once in Python - Thyme compiles them to a
             high-throughput Rust engine for real-time serving and point-in-time
-            correct offline training.
+            correct offline training. 
           </motion.p>
 
           <motion.div

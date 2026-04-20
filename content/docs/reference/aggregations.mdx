@@ -1,6 +1,6 @@
 ---
 title: Aggregations Reference
-description: Complete reference for windowed aggregation operators.
+description: Every windowed aggregation operator, its signature, and its memory profile.
 ---
 
 Aggregation operators are used inside `.aggregate()` calls within a `@pipeline` method. Each operator computes a rolling windowed statistic over the events in an input dataset.
@@ -32,20 +32,37 @@ All windows use event time, not processing time.
 
 ---
 
+## At a glance
+
+| Operator | Invertible? | Memory | Output |
+|----------|-------------|--------|--------|
+| `Sum` | yes | O(1) | same as input |
+| `Count` | yes | O(1) | `int` |
+| `Avg` | yes | O(1) | `float` |
+| `Min` | no — sorted set | O(window) | same as input |
+| `Max` | no — sorted set | O(window) | same as input |
+| `ApproxPercentile` | no — t-digest tiles | O(tiles) | `float` |
+
+**Invertible** operators maintain only the running total and count. When an old record expires out of the window, the engine subtracts its contribution without a recompute. This means `Sum`/`Count`/`Avg` over a 180-day window cost the same memory per entity as over a one-minute window.
+
+**Non-invertible** operators store enough extra state to answer the query without rescanning the window. `Min`/`Max` use sorted sets with tombstones; `ApproxPercentile` uses tiled t-digest sketches and computes the answer at write time so the read is a single float lookup.
+
+---
+
 ## Operators
 
-### `Avg`
+### `Sum`
 
-Rolling mean of a numeric field.
+Rolling sum of a numeric field.
 
 ```python
-from thyme.pipeline import Avg
+from thyme.pipeline import Sum
 
-avg_spend_7d=Avg(of="amount", window="7d")
+total_spend_7d=Sum(of="amount", window="7d")
 ```
 
 - `of`: numeric field (`float` or `int`)
-- Returns: `float`
+- Returns: same type as the input field
 
 ---
 
@@ -64,18 +81,18 @@ txn_count_30d=Count(of="user_id", window="30d")
 
 ---
 
-### `Sum`
+### `Avg`
 
-Rolling sum of a numeric field.
+Rolling mean of a numeric field.
 
 ```python
-from thyme.pipeline import Sum
+from thyme.pipeline import Avg
 
-total_spend_7d=Sum(of="amount", window="7d")
+avg_spend_7d=Avg(of="amount", window="7d")
 ```
 
 - `of`: numeric field (`float` or `int`)
-- Returns: same type as the input field
+- Returns: `float`
 
 ---
 
@@ -92,6 +109,8 @@ min_amount_30d=Min(of="amount", window="30d")
 - `of`: numeric field (`float` or `int`)
 - Returns: same type as the input field
 
+Backed by a keyed sorted set in RocksDB. Memory is O(distinct values in the window).
+
 ---
 
 ### `Max`
@@ -107,6 +126,26 @@ max_amount_7d=Max(of="amount", window="7d")
 - `of`: numeric field (`float` or `int`)
 - Returns: same type as the input field
 
+Same structure as `Min`, inverted.
+
+---
+
+### `ApproxPercentile`
+
+Percentile rank of an incoming value against its own windowed distribution.
+
+```python
+from thyme.pipeline import ApproxPercentile
+
+price_pct_rank_180d=ApproxPercentile(of="price", window="180d", pct=99)
+```
+
+- `of`: numeric field (`float` or `int`)
+- `pct`: the percentile to compute (0–100)
+- Returns: `float` — the value at the given percentile, OR the rank of the latest record, depending on configuration
+
+Backed by tiled t-digest sketches. The window is divided into fixed-duration tiles; each tile stores a sketch; window queries merge the live tiles. Tiles fall out of the window individually in O(1), so a 180-day window is not meaningfully more expensive than a 7-day window.
+
 ---
 
 ## Complete example
@@ -121,6 +160,7 @@ class UserStats:
     txn_count_30d:  int
     max_amount_7d:  float
     min_amount_7d:  float
+    p99_amount_30d: float
 
     @pipeline(version=1)
     @inputs(Transaction)
@@ -133,6 +173,7 @@ class UserStats:
                  txn_count_30d=Count(of="user_id", window="30d"),
                  max_amount_7d=Max(of="amount", window="7d"),
                  min_amount_7d=Min(of="amount", window="7d"),
+                 p99_amount_30d=ApproxPercentile(of="amount", window="30d", pct=99),
              )
         )
 ```

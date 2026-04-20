@@ -3,6 +3,7 @@ import defaultComponents from 'fumadocs-ui/mdx';
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Callout } from 'fumadocs-ui/components/callout';
 import { Card, Cards } from 'fumadocs-ui/components/card';
+import { ReadWriteDiagram } from '@/components/diagrams/read-write-diagram';
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -13,5 +14,6 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     Callout,
     Card,
     Cards,
+    ReadWriteDiagram,
   };
 }

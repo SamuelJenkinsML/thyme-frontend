@@ -3,13 +3,9 @@
   "pages": [
     "index",
     "why-thyme",
-    "---Getting Started---",
     "getting-started",
-    "---Concepts---",
     "concepts",
-    "---Reference---",
     "reference",
-    "---Architecture---",
     "architecture"
   ]
 }
