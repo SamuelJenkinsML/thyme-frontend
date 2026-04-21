@@ -28,34 +28,28 @@ export const readWritePath: ReadWriteGraph = {
     },
     {
       kind: "transform",
-      label: "Windowed Pipeline",
-      sublabel: "Sum · Count · Avg · Min · Max · ApproxPercentile",
-    },
-    {
-      kind: "store",
-      label: "Aggregated Dataset",
-      sublabel: "produced by @pipeline",
+      label: "Pipeline",
+      sublabel: "Sum · Count · Avg · Min · Max",
     },
   ],
   hinge: {
     kind: "store",
-    label: "RocksDB state",
-    sublabel: "event-time keyed · exactly-once",
+    label: "Aggregated Dataset",
+    sublabel: "event-time · exactly-once",
   },
   readFlow: [
     {
       kind: "transform",
       label: "Query Server",
-      sublabel: ":8081 · HTTP",
     },
     {
       kind: "transform",
-      label: "Extractor DAG",
-      sublabel: "PyO3 · composes features",
+      label: "Extractor",
+      sublabel: "composes features",
     },
     {
       kind: "serve",
-      label: "Featureset response",
+      label: "Response",
       sublabel: "online · point-in-time",
     },
   ],

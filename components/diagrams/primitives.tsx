@@ -55,7 +55,53 @@ export const EDGE_STROKE = "rgba(139,195,74,0.85)";
 export const EDGE_TRACK = "rgba(139,195,74,0.18)";
 export const EDGE_ARROW = "rgba(139,195,74,0.7)";
 
-export function StraightEdge() {
+export function StraightEdge({
+  direction = "vertical",
+}: {
+  direction?: "vertical" | "horizontal";
+}) {
+  if (direction === "horizontal") {
+    return (
+      <div className="flex items-center shrink-0">
+        <svg
+          width="36"
+          height="40"
+          viewBox="0 0 36 40"
+          aria-hidden
+          className="overflow-visible"
+        >
+          <line x1="0" y1="20" x2="28" y2="20" stroke={EDGE_TRACK} strokeWidth="1.5" />
+          <line
+            x1="0"
+            y1="20"
+            x2="28"
+            y2="20"
+            stroke={EDGE_STROKE}
+            strokeWidth="1.5"
+            strokeDasharray="3 7"
+            strokeLinecap="round"
+          >
+            <animate
+              attributeName="stroke-dashoffset"
+              from="0"
+              to="-20"
+              dur="0.9s"
+              repeatCount="indefinite"
+            />
+          </line>
+          <path
+            d="M 24 15 L 32 20 L 24 25"
+            stroke={EDGE_ARROW}
+            strokeWidth="1.5"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+    );
+  }
+
   return (
     <div className="flex justify-center">
       <svg
@@ -97,7 +143,111 @@ export function StraightEdge() {
   );
 }
 
-export function JoinEdge() {
+export function QueryEdge() {
+  return (
+    <div className="flex flex-col items-center justify-center shrink-0 px-1">
+      <span className="font-mono text-[0.55rem] tracking-[0.2em] text-emerald-300/60 mb-1">
+        HTTP
+      </span>
+      <svg
+        width="48"
+        height="24"
+        viewBox="0 0 48 24"
+        aria-hidden
+        className="overflow-visible"
+      >
+        <line x1="8" y1="12" x2="44" y2="12" stroke={EDGE_TRACK} strokeWidth="1.5" />
+        <line
+          x1="8"
+          y1="12"
+          x2="44"
+          y2="12"
+          stroke={EDGE_STROKE}
+          strokeWidth="1.5"
+          strokeDasharray="3 7"
+          strokeLinecap="round"
+        >
+          <animate
+            attributeName="stroke-dashoffset"
+            from="0"
+            to="20"
+            dur="0.9s"
+            repeatCount="indefinite"
+          />
+        </line>
+        <path
+          d="M 12 7 L 4 12 L 12 17"
+          stroke={EDGE_ARROW}
+          strokeWidth="1.5"
+          fill="none"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </div>
+  );
+}
+
+export function JoinEdge({
+  direction = "vertical",
+}: {
+  direction?: "vertical" | "horizontal";
+}) {
+  if (direction === "horizontal") {
+    const paths = [
+      "M 0 50 Q 28 50 44 100 L 54 100",
+      "M 0 150 Q 28 150 44 100 L 54 100",
+    ];
+    return (
+      <div className="relative self-stretch w-14 shrink-0">
+        <svg
+          className="absolute inset-0 w-full h-full overflow-visible"
+          viewBox="0 0 60 200"
+          preserveAspectRatio="none"
+          aria-hidden
+        >
+          {paths.map((d, i) => (
+            <Fragment key={i}>
+              <path
+                d={d}
+                stroke={EDGE_TRACK}
+                strokeWidth="1.5"
+                fill="none"
+                vectorEffect="non-scaling-stroke"
+              />
+              <path
+                d={d}
+                stroke={EDGE_STROKE}
+                strokeWidth="1.5"
+                strokeDasharray="3 7"
+                strokeLinecap="round"
+                fill="none"
+                vectorEffect="non-scaling-stroke"
+              >
+                <animate
+                  attributeName="stroke-dashoffset"
+                  from="0"
+                  to="-20"
+                  dur="0.9s"
+                  repeatCount="indefinite"
+                />
+              </path>
+            </Fragment>
+          ))}
+          <path
+            d="M 48 92 L 58 100 L 48 108"
+            stroke={EDGE_ARROW}
+            strokeWidth="1.5"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            vectorEffect="non-scaling-stroke"
+          />
+        </svg>
+      </div>
+    );
+  }
+
   const paths = [
     "M 50 0 Q 50 28 100 44 L 100 54",
     "M 150 0 Q 150 28 100 44 L 100 54",
