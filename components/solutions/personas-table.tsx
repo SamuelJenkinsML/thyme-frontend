@@ -9,7 +9,7 @@ export function PersonasTable({
   personas: NonNullable<CaseStudy["personas"]>;
 }) {
   return (
-    <section className="py-24 bg-[#fafcf7]">
+    <section className="py-24 bg-[#f4efe2]">
       <div className="max-w-5xl mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -17,7 +17,7 @@ export function PersonasTable({
           viewport={{ once: true, margin: "-50px" }}
           className="mb-10 max-w-3xl"
         >
-          <span className="inline-block text-[#6B9B37] mb-3 font-[var(--font-dm-sans)] text-[0.85rem] font-semibold tracking-[0.1em] uppercase">
+          <span className="inline-block text-[#2E5A1C] mb-3 font-[var(--font-dm-sans)] text-[0.85rem] font-semibold tracking-[0.1em] uppercase">
             Smoke test personas
           </span>
           <h2
@@ -37,7 +37,7 @@ export function PersonasTable({
         >
           <table className="w-full text-left">
             <thead>
-              <tr className="bg-[#fafcf7] border-b border-[#eee]">
+              <tr className="bg-[#f4efe2] border-b border-[#eee]">
                 <th className="px-6 py-4 font-[var(--font-space-grotesk)] text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#555]">
                   Entity
                 </th>
@@ -57,7 +57,7 @@ export function PersonasTable({
                     i < personas.length - 1 ? "border-b border-[#f4f4f4]" : ""
                   }
                 >
-                  <td className="px-6 py-4 font-mono text-[0.9rem] text-[#2E5A1C]">
+                  <td className="px-6 py-4 font-mono text-[0.9rem] text-[#1f3d13]">
                     {p.entity}
                   </td>
                   <td className="px-6 py-4 font-[var(--font-dm-sans)] text-[0.95rem] text-[#555]">

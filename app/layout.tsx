@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Space_Grotesk, DM_Sans } from "next/font/google";
+import { Geist, Geist_Mono, Space_Grotesk, DM_Sans, Newsreader } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 
@@ -23,10 +23,22 @@ const dmSans = DM_Sans({
   subsets: ["latin"],
 });
 
+const newsreader = Newsreader({
+  variable: "--font-newsreader",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+});
+
 export const metadata: Metadata = {
   title: "Thyme — The Streaming Feature Platform",
   description:
     "Define features in Python, serve them in real-time with a Rust engine. Thyme eliminates training/serving skew with point-in-time correct feature computation.",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon-dark.svg", type: "image/svg+xml", media: "(prefers-color-scheme: dark)" },
+    ],
+  },
   openGraph: {
     title: "Thyme — The Streaming Feature Platform",
     description:
@@ -49,7 +61,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} ${dmSans.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} ${dmSans.variable} ${newsreader.variable} antialiased`}>
         <Providers>
           {children}
         </Providers>

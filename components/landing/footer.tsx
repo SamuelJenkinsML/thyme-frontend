@@ -1,20 +1,17 @@
 import Link from "next/link";
+import { ThymeMascot } from "./thyme-mascot";
 
 export function Footer() {
   return (
-    <footer className="bg-[#111] text-white/60 py-16">
+    <footer className="bg-thyme-ink text-thyme-cream/60 py-16">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid md:grid-cols-4 gap-10 mb-12">
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <svg viewBox="0 0 32 32" className="w-7 h-7">
-                <circle cx="16" cy="16" r="15" fill="#6B9B37" />
-                <path d="M16 6 Q14 14 10 18 Q16 15 16 6Z" fill="#B5E655" />
-                <path d="M16 6 Q18 14 22 18 Q16 15 16 6Z" fill="#8BC34A" />
-              </svg>
-              <span className="text-white font-[var(--font-space-grotesk)] text-[1.2rem] font-bold">thyme</span>
+            <div className="flex items-center gap-2 mb-4 text-thyme-cream">
+              <ThymeMascot size={28} />
+              <span className="text-thyme-cream font-[var(--font-space-grotesk)] text-[1.2rem] font-bold">thyme</span>
             </div>
-            <p className="font-[var(--font-dm-sans)] text-[0.9rem] leading-[1.7]">
+            <p className="font-body text-[0.9rem] leading-[1.7]">
               The real-time feature platform for machine learning teams.
             </p>
           </div>
@@ -24,19 +21,19 @@ export function Footer() {
             { title: "Company", links: [{ label: "Contact", href: "mailto:sam@realthyme.io" }] },
           ].map((col) => (
             <div key={col.title}>
-              <h4 className="text-white mb-4 font-[var(--font-space-grotesk)] text-[0.95rem] font-semibold">{col.title}</h4>
+              <h4 className="text-thyme-cream mb-4 font-[var(--font-space-grotesk)] text-[0.95rem] font-semibold">{col.title}</h4>
               <ul className="space-y-2">
                 {col.links.map((link) => (
                   <li key={link.label}>
-                    <Link href={link.href} className="hover:text-white transition-colors font-[var(--font-dm-sans)] text-[0.9rem]">{link.label}</Link>
+                    <Link href={link.href} className="hover:text-thyme-cream transition-colors font-body text-[0.9rem]">{link.label}</Link>
                   </li>
                 ))}
               </ul>
             </div>
           ))}
         </div>
-        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <span className="font-[var(--font-dm-sans)] text-[0.85rem]">&copy; 2026 Thyme. All rights reserved.</span>
+        <div className="border-t border-thyme-cream/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+          <span className="font-body text-[0.85rem]">&copy; 2026 Thyme. All rights reserved.</span>
         </div>
       </div>
     </footer>

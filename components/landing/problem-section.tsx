@@ -32,7 +32,7 @@ function ProblemCard({ problem, index }: { problem: (typeof problems)[0]; index:
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
-      className="group relative bg-white rounded-3xl p-8 border border-[#eee] hover:border-[#8BC34A]/40 transition-all hover:shadow-xl hover:shadow-[#8BC34A]/5 cursor-default"
+      className="group relative bg-thyme-cream-2 rounded-3xl p-8 border border-thyme-rule hover:border-thyme-ink/30 transition-all hover:shadow-xl hover:shadow-thyme-ink/5 cursor-default"
     >
       <div
         className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5"
@@ -40,10 +40,10 @@ function ProblemCard({ problem, index }: { problem: (typeof problems)[0]; index:
       >
         <problem.icon size={22} style={{ color: problem.color }} />
       </div>
-      <h3 className="text-[#1a1a1a] mb-3 font-[var(--font-space-grotesk)] text-[1.2rem] font-semibold">
+      <h3 className="text-thyme-ink mb-3 font-[var(--font-space-grotesk)] text-[1.2rem] font-semibold">
         {problem.title}
       </h3>
-      <p className="text-[#777] font-[var(--font-dm-sans)] text-[0.95rem] leading-[1.7]">
+      <p className="text-thyme-ink/70 font-body text-[0.95rem] leading-[1.7]">
         {problem.desc}
       </p>
     </motion.div>
@@ -52,7 +52,7 @@ function ProblemCard({ problem, index }: { problem: (typeof problems)[0]; index:
 
 export function ProblemSection() {
   return (
-    <section id="problem" className="py-28 relative bg-white">
+    <section id="problem" className="py-28 relative bg-thyme-cream">
       <div className="max-w-7xl mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -60,16 +60,16 @@ export function ProblemSection() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <span className="inline-block text-[#6B9B37] mb-3 font-[var(--font-dm-sans)] text-[0.9rem] font-semibold tracking-[0.1em] uppercase">
+          <span className="inline-block text-thyme-leaf mb-3 font-body text-[0.9rem] font-semibold tracking-[0.1em] uppercase">
             The Problem
           </span>
           <h2
-            className="text-[#1a1a1a] mb-4 font-[var(--font-space-grotesk)] font-bold"
+            className="text-thyme-ink mb-4 font-display font-normal tracking-[-0.02em]"
             style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)" }}
           >
             ML infrastructure is painful
           </h2>
-          <p className="text-[#777] max-w-2xl mx-auto font-[var(--font-dm-sans)] text-[1.1rem] leading-[1.7]">
+          <p className="text-thyme-ink/70 max-w-2xl mx-auto font-body text-[1.1rem] leading-[1.7]">
             Every team building real-time ML hits the same wall. Training features and
             serving features drift apart, and accuracy quietly erodes in production.
           </p>
@@ -88,13 +88,13 @@ export function ProblemSection() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="text-center mt-16"
         >
-          <p className="text-[#1a1a1a] font-[var(--font-dm-sans)] text-[1.15rem] leading-[1.7] mb-4">
+          <p className="text-thyme-ink font-body text-[1.15rem] leading-[1.7] mb-4">
             Thyme runs one pipeline. Training and serving read the same state — skew is
             structurally impossible, not a convention you enforce in review.
           </p>
           <Link
             href="/docs/why-thyme"
-            className="inline-flex items-center gap-2 text-[#6B9B37] hover:text-[#2E5A1C] font-[var(--font-dm-sans)] text-[1rem] font-semibold transition-colors"
+            className="inline-flex items-center gap-2 text-thyme-ink-2 hover:text-thyme-ink font-body text-[1rem] font-semibold transition-colors"
           >
             Read the full story
             <ArrowRight size={16} />

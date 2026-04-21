@@ -5,14 +5,14 @@ import type { CaseStudy } from "@/lib/case-studies/types";
 
 export function ProblemBlock({ problem }: { problem: CaseStudy["problem"] }) {
   return (
-    <section className="py-24 bg-[#fafcf7]">
+    <section className="py-24 bg-[#f4efe2]">
       <div className="max-w-5xl mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-50px" }}
         >
-          <span className="inline-block text-[#6B9B37] mb-3 font-[var(--font-dm-sans)] text-[0.85rem] font-semibold tracking-[0.1em] uppercase">
+          <span className="inline-block text-[#2E5A1C] mb-3 font-[var(--font-dm-sans)] text-[0.85rem] font-semibold tracking-[0.1em] uppercase">
             The challenge
           </span>
           <h2

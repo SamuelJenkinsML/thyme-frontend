@@ -20,7 +20,7 @@ const features = [
     icon: Database,
     title: "Zero Training/Serving Skew",
     desc: "One definition, two modes. The same feature logic runs in both streaming aggregation and offline point-in-time lookups — no divergence, no silent accuracy drops.",
-    color: "#6B9B37",
+    color: "#1f3d13",
   },
   {
     icon: GitBranch,
@@ -49,7 +49,7 @@ function FeatureCard({ feature, index }: { feature: (typeof features)[0]; index:
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
-      className="group relative bg-white rounded-3xl p-8 border border-[#eee] hover:border-[#8BC34A]/40 transition-all hover:shadow-xl hover:shadow-[#8BC34A]/5 cursor-default"
+      className="group relative bg-thyme-cream-2 rounded-3xl p-8 border border-thyme-rule hover:border-thyme-ink/30 transition-all hover:shadow-xl hover:shadow-thyme-ink/5 cursor-default"
     >
       <div
         className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5"
@@ -57,10 +57,10 @@ function FeatureCard({ feature, index }: { feature: (typeof features)[0]; index:
       >
         <feature.icon size={22} style={{ color: feature.color }} />
       </div>
-      <h3 className="text-[#1a1a1a] mb-3 font-[var(--font-space-grotesk)] text-[1.2rem] font-semibold">
+      <h3 className="text-thyme-ink mb-3 font-[var(--font-space-grotesk)] text-[1.2rem] font-semibold">
         {feature.title}
       </h3>
-      <p className="text-[#777] font-[var(--font-dm-sans)] text-[0.95rem] leading-[1.7]">
+      <p className="text-thyme-ink/70 font-body text-[0.95rem] leading-[1.7]">
         {feature.desc}
       </p>
     </motion.div>
@@ -69,7 +69,7 @@ function FeatureCard({ feature, index }: { feature: (typeof features)[0]; index:
 
 export function FeaturesSection() {
   return (
-    <section id="features" className="py-28 relative bg-[#fafcf7]">
+    <section id="features" className="py-28 relative bg-thyme-cream">
       <div className="max-w-7xl mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -77,16 +77,16 @@ export function FeaturesSection() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <span className="inline-block text-[#6B9B37] mb-3 font-[var(--font-dm-sans)] text-[0.9rem] font-semibold tracking-[0.1em] uppercase">
+          <span className="inline-block text-thyme-leaf mb-3 font-body text-[0.9rem] font-semibold tracking-[0.1em] uppercase">
             Features
           </span>
           <h2
-            className="text-[#1a1a1a] mb-4 font-[var(--font-space-grotesk)] font-bold"
+            className="text-thyme-ink mb-4 font-display font-normal tracking-[-0.02em]"
             style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)" }}
           >
             Everything your ML pipeline needs
           </h2>
-          <p className="text-[#777] max-w-2xl mx-auto font-[var(--font-dm-sans)] text-[1.1rem] leading-[1.7]">
+          <p className="text-thyme-ink/70 max-w-2xl mx-auto font-body text-[1.1rem] leading-[1.7]">
             From feature computation to serving, Thyme handles the entire lifecycle
             so your team can focus on building great models.
           </p>

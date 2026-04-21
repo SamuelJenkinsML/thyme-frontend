@@ -15,7 +15,7 @@ export function RelatedCaseStudies({ studies }: { studies: CaseStudy[] }) {
           viewport={{ once: true, margin: "-50px" }}
           className="mb-10"
         >
-          <span className="inline-block text-[#6B9B37] mb-3 font-[var(--font-dm-sans)] text-[0.85rem] font-semibold tracking-[0.1em] uppercase">
+          <span className="inline-block text-[#2E5A1C] mb-3 font-[var(--font-dm-sans)] text-[0.85rem] font-semibold tracking-[0.1em] uppercase">
             Keep reading
           </span>
           <h2

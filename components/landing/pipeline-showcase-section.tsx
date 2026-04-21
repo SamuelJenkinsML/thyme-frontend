@@ -36,7 +36,7 @@ function AccordionRow({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.4, delay: index * 0.1 }}
-      className="border-b border-white/10"
+      className="border-b border-thyme-cream/10"
     >
       <button
         type="button"
@@ -44,13 +44,13 @@ function AccordionRow({
         className="w-full flex items-center justify-between gap-4 py-5 text-left group"
         aria-expanded={isOpen}
       >
-        <span className="text-white font-[var(--font-space-grotesk)] text-[1.15rem] font-semibold group-hover:text-[#8BC34A] transition-colors">
+        <span className="text-thyme-cream font-[var(--font-space-grotesk)] text-[1.15rem] font-semibold group-hover:text-thyme-leaf transition-colors">
           {item.title}
         </span>
         <motion.span
           animate={{ rotate: isOpen ? 45 : 0 }}
           transition={{ duration: 0.2 }}
-          className="flex-shrink-0 w-7 h-7 rounded-full border border-white/20 flex items-center justify-center text-white/60 group-hover:text-[#8BC34A] group-hover:border-[#8BC34A]/40 transition-colors"
+          className="flex-shrink-0 w-7 h-7 rounded-full border border-thyme-cream/20 flex items-center justify-center text-thyme-cream/60 group-hover:text-thyme-leaf group-hover:border-thyme-leaf/40 transition-colors"
         >
           <Plus size={16} />
         </motion.span>
@@ -64,7 +64,7 @@ function AccordionRow({
             transition={{ duration: 0.25 }}
             className="overflow-hidden"
           >
-            <p className="pb-5 pr-10 text-white/70 font-[var(--font-dm-sans)] text-[0.95rem] leading-[1.7]">
+            <p className="pb-5 pr-10 text-thyme-cream/70 font-body text-[0.95rem] leading-[1.7]">
               {item.body}
             </p>
           </motion.div>
@@ -78,7 +78,7 @@ export function PipelineShowcaseSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section id="pipelines" className="py-28 bg-[#0f2a1f] relative">
+    <section id="pipelines" className="py-28 bg-thyme-ink relative">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
           <motion.div
@@ -86,22 +86,22 @@ export function PipelineShowcaseSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <span className="inline-block text-[#8BC34A] mb-4 font-[var(--font-dm-sans)] text-[0.9rem] font-semibold tracking-[0.1em] uppercase">
+            <span className="inline-block text-thyme-leaf mb-4 font-body text-[0.9rem] font-semibold tracking-[0.1em] uppercase">
               Developer Experience
             </span>
             <h2
-              className="text-white mb-4 font-[var(--font-space-grotesk)] font-bold"
+              className="text-thyme-cream mb-4 font-display font-normal tracking-[-0.02em]"
               style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.6rem)" }}
             >
               Define your features in idiomatic Python
             </h2>
-            <p className="text-white/70 font-[var(--font-dm-sans)] text-[1.05rem] leading-[1.7] mb-8">
+            <p className="text-thyme-cream/70 font-body text-[1.05rem] leading-[1.7] mb-8">
               Powerful{" "}
-              <span className="text-[#8BC34A]">data engineering workflows</span>,
+              <span className="text-thyme-leaf">data engineering workflows</span>,
               without the infrastructure headaches. Powered by Rust.
             </p>
 
-            <div className="border-t border-white/10">
+            <div className="border-t border-thyme-cream/10">
               {items.map((item, i) => (
                 <AccordionRow
                   key={item.title}
@@ -121,8 +121,8 @@ export function PipelineShowcaseSection() {
             transition={{ delay: 0.2 }}
             className="lg:sticky lg:top-24"
           >
-            <div className="bg-[#0a1a12] rounded-2xl overflow-hidden shadow-2xl border border-white/5">
-              <div className="flex items-center gap-2 px-5 py-3 border-b border-white/10">
+            <div className="bg-[#0a1a12] rounded-2xl overflow-hidden shadow-2xl border border-thyme-cream/5">
+              <div className="flex items-center gap-2 px-5 py-3 border-b border-thyme-cream/10">
                 <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
                 <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
                 <div className="w-3 h-3 rounded-full bg-[#28c840]" />

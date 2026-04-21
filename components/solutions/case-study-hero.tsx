@@ -27,7 +27,7 @@ export function CaseStudyHero({ study }: { study: CaseStudy }) {
         aria-hidden
         className="absolute pointer-events-none rounded-full blur-3xl"
         style={{
-          backgroundColor: "#8BC34A",
+          backgroundColor: "#6B9B37",
           width: "360px",
           height: "360px",
           top: "40px",
@@ -96,9 +96,9 @@ export function CaseStudyHero({ study }: { study: CaseStudy }) {
           {study.heroMetrics.map((metric) => (
             <div
               key={metric.label}
-              className="bg-[#fafcf7] border border-[#e9f2d9] rounded-2xl px-5 py-3"
+              className="bg-[#f4efe2] border border-[#e9f2d9] rounded-2xl px-5 py-3"
             >
-              <div className="text-[#2E5A1C] font-[var(--font-space-grotesk)] text-[1.4rem] font-bold leading-none">
+              <div className="text-[#1f3d13] font-[var(--font-space-grotesk)] text-[1.4rem] font-bold leading-none">
                 {metric.value}
               </div>
               <div className="text-[#777] font-[var(--font-dm-sans)] text-[0.8rem] mt-1">
@@ -116,7 +116,7 @@ export function CaseStudyHero({ study }: { study: CaseStudy }) {
         >
           <a
             href="mailto:support@realthyme.io"
-            className="group bg-[#2E5A1C] text-white px-7 py-3.5 rounded-full flex items-center gap-2 hover:bg-[#3d7425] transition-all font-[var(--font-dm-sans)] text-[1rem] font-semibold"
+            className="group bg-[#1f3d13] text-white px-7 py-3.5 rounded-full flex items-center gap-2 hover:bg-[#2E5A1C] transition-all font-[var(--font-dm-sans)] text-[1rem] font-semibold"
           >
             Book a demo
             <ArrowRight

@@ -17,7 +17,7 @@ export function CapabilitiesGrid({
           viewport={{ once: true, margin: "-50px" }}
           className="mb-12 max-w-3xl"
         >
-          <span className="inline-block text-[#6B9B37] mb-3 font-[var(--font-dm-sans)] text-[0.85rem] font-semibold tracking-[0.1em] uppercase">
+          <span className="inline-block text-[#2E5A1C] mb-3 font-[var(--font-dm-sans)] text-[0.85rem] font-semibold tracking-[0.1em] uppercase">
             At a glance
           </span>
           <h2
@@ -36,9 +36,9 @@ export function CapabilitiesGrid({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.4, delay: i * 0.06 }}
-              className="bg-[#fafcf7] border border-[#e9f2d9] rounded-2xl p-6"
+              className="bg-[#f4efe2] border border-[#e9f2d9] rounded-2xl p-6"
             >
-              <div className="text-[#2E5A1C] font-[var(--font-space-grotesk)] text-[1.25rem] font-bold leading-tight">
+              <div className="text-[#1f3d13] font-[var(--font-space-grotesk)] text-[1.25rem] font-bold leading-tight">
                 {c.value}
               </div>
               <div className="text-[#777] font-[var(--font-dm-sans)] text-[0.9rem] mt-2">

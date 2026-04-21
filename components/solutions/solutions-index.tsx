@@ -10,7 +10,7 @@ export function SolutionsIndex() {
     <>
       <section className="pt-36 pb-16 bg-white">
         <div className="max-w-6xl mx-auto px-6">
-          <span className="inline-block text-[#6B9B37] mb-4 font-[var(--font-dm-sans)] text-[0.9rem] font-semibold tracking-[0.1em] uppercase">
+          <span className="inline-block text-[#2E5A1C] mb-4 font-[var(--font-dm-sans)] text-[0.9rem] font-semibold tracking-[0.1em] uppercase">
             By use case
           </span>
           <h1

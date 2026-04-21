@@ -22,7 +22,7 @@ export function CaseStudyCard({
     >
       <Link
         href={`/solutions/${study.slug}`}
-        className="group relative flex flex-col h-full bg-white rounded-3xl p-8 border border-[#eee] hover:border-[#8BC34A]/40 transition-all hover:shadow-xl hover:shadow-[#8BC34A]/5"
+        className="group relative flex flex-col h-full bg-white rounded-3xl p-8 border border-[#eee] hover:border-[#6B9B37]/40 transition-all hover:shadow-xl hover:shadow-[#6B9B37]/5"
       >
         <div className="flex items-center gap-3 mb-5">
           <div
@@ -50,15 +50,15 @@ export function CaseStudyCard({
           {study.heroMetrics.map((metric) => (
             <span
               key={metric.label}
-              className="inline-flex items-baseline gap-1.5 bg-[#fafcf7] border border-[#e9f2d9] rounded-full px-3 py-1.5 font-[var(--font-dm-sans)] text-[0.8rem]"
+              className="inline-flex items-baseline gap-1.5 bg-[#f4efe2] border border-[#e9f2d9] rounded-full px-3 py-1.5 font-[var(--font-dm-sans)] text-[0.8rem]"
             >
-              <span className="font-semibold text-[#2E5A1C]">{metric.value}</span>
+              <span className="font-semibold text-[#1f3d13]">{metric.value}</span>
               <span className="text-[#777]">{metric.label}</span>
             </span>
           ))}
         </div>
 
-        <span className="inline-flex items-center gap-2 text-[#6B9B37] group-hover:text-[#2E5A1C] font-[var(--font-dm-sans)] text-[0.95rem] font-semibold transition-colors">
+        <span className="inline-flex items-center gap-2 text-[#2E5A1C] group-hover:text-[#1f3d13] font-[var(--font-dm-sans)] text-[0.95rem] font-semibold transition-colors">
           Read the case study
           <ArrowRight
             size={16}

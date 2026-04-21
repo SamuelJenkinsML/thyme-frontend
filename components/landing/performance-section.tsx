@@ -33,7 +33,7 @@ function AnimatedNumber({ target, suffix = "", prefix = "" }: { target: number; 
   return (
     <div ref={ref}>
       <span
-        className="font-[var(--font-space-grotesk)] font-bold text-[#2E5A1C]"
+        className="font-[var(--font-space-grotesk)] font-bold text-thyme-ink"
         style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)" }}
       >
         {prefix}{value}{suffix}
@@ -51,7 +51,7 @@ const stats = [
 
 export function PerformanceSection() {
   return (
-    <section id="performance" className="py-28 bg-gradient-to-b from-[#f0f7e6] to-white relative">
+    <section id="performance" className="py-28 bg-thyme-cream relative">
       <div className="max-w-7xl mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -59,16 +59,16 @@ export function PerformanceSection() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <span className="inline-block text-[#6B9B37] mb-3 font-[var(--font-dm-sans)] text-[0.9rem] font-semibold tracking-[0.1em] uppercase">
+          <span className="inline-block text-thyme-leaf mb-3 font-body text-[0.9rem] font-semibold tracking-[0.1em] uppercase">
             Performance
           </span>
           <h2
-            className="text-[#1a1a1a] mb-4 font-[var(--font-space-grotesk)] font-bold"
+            className="text-thyme-ink mb-4 font-display font-normal tracking-[-0.02em]"
             style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)" }}
           >
             Built for simplicity and speed
           </h2>
-          <p className="text-[#777] max-w-2xl mx-auto font-[var(--font-dm-sans)] text-[1.1rem] leading-[1.7]">
+          <p className="text-thyme-ink/70 max-w-2xl mx-auto font-body text-[1.1rem] leading-[1.7]">
             Thyme compiles Python feature definitions to a Rust streaming engine.
             Low latency, zero skew, and a three-command deployment workflow.
           </p>
@@ -82,10 +82,10 @@ export function PerformanceSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="text-center bg-white rounded-3xl p-8 border border-[#eee] hover:border-[#8BC34A]/40 transition-all hover:shadow-lg"
+              className="text-center bg-thyme-cream-2 rounded-3xl p-8 border border-thyme-rule hover:border-thyme-ink/30 transition-all hover:shadow-lg"
             >
               <AnimatedNumber target={stat.value} suffix={stat.suffix} prefix={stat.prefix} />
-              <p className="text-[#777] mt-2 font-[var(--font-dm-sans)] text-[0.95rem]">
+              <p className="text-thyme-ink/70 mt-2 font-body text-[0.95rem]">
                 {stat.label}
               </p>
             </motion.div>
@@ -99,8 +99,8 @@ export function PerformanceSection() {
           transition={{ delay: 0.3 }}
           className="mt-16 max-w-3xl mx-auto"
         >
-          <div className="bg-[#1a1a2e] rounded-2xl overflow-hidden shadow-2xl">
-            <div className="flex items-center gap-2 px-5 py-3 border-b border-white/10">
+          <div className="bg-thyme-ink rounded-2xl overflow-hidden shadow-2xl shadow-thyme-ink/15">
+            <div className="flex items-center gap-2 px-5 py-3 border-b border-thyme-cream/10">
               <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
               <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
               <div className="w-3 h-3 rounded-full bg-[#28c840]" />
@@ -152,7 +152,7 @@ export function PerformanceSection() {
               </code>
             </pre>
           </div>
-          <p className="text-center text-[#999] mt-4 font-[var(--font-dm-sans)] text-[0.85rem]">
+          <p className="text-center text-thyme-ink/60 mt-4 font-body text-[0.85rem]">
             Define features in Python. Deploy with thyme commit. Serve in milliseconds.
           </p>
         </motion.div>

@@ -19,7 +19,7 @@ export function CodeBlock({
           viewport={{ once: true, margin: "-50px" }}
           className="mb-8"
         >
-          <span className="inline-block text-[#8BC34A] mb-3 font-[var(--font-dm-sans)] text-[0.85rem] font-semibold tracking-[0.1em] uppercase">
+          <span className="inline-block text-[#6B9B37] mb-3 font-[var(--font-dm-sans)] text-[0.85rem] font-semibold tracking-[0.1em] uppercase">
             The definition
           </span>
           <h2

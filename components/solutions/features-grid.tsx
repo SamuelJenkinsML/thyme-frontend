@@ -9,7 +9,7 @@ export function FeaturesGrid({
   features: CaseStudy["features"];
 }) {
   return (
-    <section className="py-24 bg-[#fafcf7]">
+    <section className="py-24 bg-[#f4efe2]">
       <div className="max-w-6xl mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -17,7 +17,7 @@ export function FeaturesGrid({
           viewport={{ once: true, margin: "-50px" }}
           className="mb-12 max-w-3xl"
         >
-          <span className="inline-block text-[#6B9B37] mb-3 font-[var(--font-dm-sans)] text-[0.85rem] font-semibold tracking-[0.1em] uppercase">
+          <span className="inline-block text-[#2E5A1C] mb-3 font-[var(--font-dm-sans)] text-[0.85rem] font-semibold tracking-[0.1em] uppercase">
             What it uses
           </span>
           <h2
@@ -36,9 +36,9 @@ export function FeaturesGrid({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.4, delay: i * 0.08 }}
-              className="bg-white rounded-2xl p-6 border border-[#eee] hover:border-[#8BC34A]/40 transition-colors"
+              className="bg-white rounded-2xl p-6 border border-[#eee] hover:border-[#6B9B37]/40 transition-colors"
             >
-              <code className="inline-block bg-[#0f2a1f] text-[#8BC34A] px-3 py-1 rounded-md font-mono text-[0.85rem] mb-3">
+              <code className="inline-block bg-[#0f2a1f] text-[#6B9B37] px-3 py-1 rounded-md font-mono text-[0.85rem] mb-3">
                 {feature.name}
               </code>
               <p className="text-[#555] font-[var(--font-dm-sans)] text-[0.95rem] leading-[1.7]">

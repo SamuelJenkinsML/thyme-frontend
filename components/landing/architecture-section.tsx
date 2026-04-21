@@ -2,15 +2,16 @@
 
 import { motion } from "motion/react";
 import { ReadWriteDiagram } from "@/components/diagrams/read-write-diagram";
+import { ThymeMascot } from "./thyme-mascot";
 
 export function ArchitectureSection() {
   return (
-    <section id="architecture" className="py-28 bg-white relative overflow-hidden">
+    <section id="architecture" className="py-28 bg-thyme-cream relative overflow-hidden">
       <div
-        className="absolute inset-0 opacity-[0.03]"
+        className="absolute inset-0 opacity-[0.04]"
         style={{
           backgroundImage:
-            "linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)",
+            "linear-gradient(#1f3d13 1px, transparent 1px), linear-gradient(90deg, #1f3d13 1px, transparent 1px)",
           backgroundSize: "40px 40px",
         }}
       />
@@ -22,16 +23,16 @@ export function ArchitectureSection() {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <span className="inline-block text-[#6B9B37] mb-3 font-[var(--font-dm-sans)] text-[0.9rem] font-semibold tracking-[0.1em] uppercase">
+          <span className="inline-block text-thyme-leaf mb-3 font-body text-[0.9rem] font-semibold tracking-[0.1em] uppercase">
             Architecture
           </span>
           <h2
-            className="text-[#1a1a1a] mb-4 font-[var(--font-space-grotesk)] font-bold"
+            className="text-thyme-ink mb-4 font-display font-normal tracking-[-0.02em]"
             style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)" }}
           >
             Two paths, one definition
           </h2>
-          <p className="text-[#777] max-w-2xl mx-auto font-[var(--font-dm-sans)] text-[1.1rem] leading-[1.7]">
+          <p className="text-thyme-ink/70 max-w-2xl mx-auto font-body text-[1.1rem] leading-[1.7]">
             A streaming write path keeps features fresh; a query-time read path composes
             them for your model. Both paths read the same event-time-keyed state, so
             training and serving cannot drift.
@@ -55,12 +56,10 @@ export function ArchitectureSection() {
           transition={{ delay: 0.3 }}
           className="flex justify-center mt-8"
         >
-          <div className="inline-flex items-center gap-2 bg-[#2E5A1C] text-white px-6 py-3 rounded-full shadow-lg shadow-[#2E5A1C]/20">
-            <svg viewBox="0 0 24 24" className="w-5 h-5">
-              <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="1.5" />
-              <path d="M12 4 Q11 9 8 12 Q12 10 12 4Z" fill="#8BC34A" />
-              <path d="M12 4 Q13 9 16 12 Q12 10 12 4Z" fill="#B5E655" />
-            </svg>
+          <div className="inline-flex items-center gap-2 bg-thyme-ink text-thyme-cream px-6 py-3 rounded-full shadow-lg shadow-thyme-ink/20">
+            <span className="inline-flex items-center justify-center text-thyme-cream">
+              <ThymeMascot size={20} />
+            </span>
             <span className="font-[var(--font-space-grotesk)] text-[0.9rem] font-semibold">
               Powered by Thyme
             </span>

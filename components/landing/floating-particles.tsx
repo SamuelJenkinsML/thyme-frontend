@@ -36,7 +36,7 @@ export function FloatingParticles() {
         size: 4 + Math.random() * 8,
         speedX: (Math.random() - 0.5) * 0.3,
         speedY: -0.2 - Math.random() * 0.3,
-        opacity: 0.1 + Math.random() * 0.2,
+        opacity: 0.06 + Math.random() * 0.1,
         type: Math.random() > 0.7 ? "clock" : "leaf",
       });
     }
@@ -44,7 +44,7 @@ export function FloatingParticles() {
     const drawLeaf = (x: number, y: number, size: number, opacity: number) => {
       ctx.save();
       ctx.globalAlpha = opacity;
-      ctx.fillStyle = "#8BC34A";
+      ctx.fillStyle = "#1f3d13";
       ctx.beginPath();
       ctx.ellipse(x, y, size * 1.5, size * 0.7, Math.PI / 4, 0, Math.PI * 2);
       ctx.fill();
@@ -54,7 +54,7 @@ export function FloatingParticles() {
     const drawClock = (x: number, y: number, size: number, opacity: number) => {
       ctx.save();
       ctx.globalAlpha = opacity;
-      ctx.strokeStyle = "#6B9B37";
+      ctx.strokeStyle = "#1f3d13";
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.arc(x, y, size, 0, Math.PI * 2);
