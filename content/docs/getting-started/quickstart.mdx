@@ -81,20 +81,44 @@ thyme commit features.py
 
 ## 3. Query features
 
+Use the CLI (no Python needed):
+
 ```bash
-curl "http://localhost:8081/features?featureset=UserFeatures&uid=user_42"
+thyme query features:UserFeatures -e user_42
+```
+
+```
+┏━━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃ uid      ┃ avg_spend_7d  ┃ txn_count_30d ┃
+┡━━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ user_42  │ 47.32         │ 18            │
+└──────────┴───────────────┴───────────────┘
+Query run: 7b3e4c...
+Results: http://localhost:3000/query-runs/7b3e4c...
+```
+
+Or via HTTP if you prefer:
+
+```bash
+curl "http://localhost:8081/features?featureset=UserFeatures&entity_id=user_42"
 ```
 
 ```json
 {
-  "uid": "user_42",
-  "avg_spend_7d": 47.32,
-  "txn_count_30d": 18
+  "entity_type": "UserFeatures",
+  "entity_id": "user_42",
+  "features": {
+    "avg_spend_7d": 47.32,
+    "txn_count_30d": 18
+  },
+  "mode": "featureset"
 }
 ```
+
+Set `THYME_FRONTEND_URL=http://localhost:3000` (or your deployed URL) and the CLI will print a clickable `Results:` link to the **Query Run** page in the UI, where you can see latency, hit rate, and replay the query.
 
 ---
 
 <Callout type="info" title="Next steps">
-See [First Feature](/docs/getting-started/first-feature) for a detailed walkthrough of each concept, or jump to [Concepts](/docs/concepts) to understand the building blocks.
+See [First Feature](/docs/getting-started/first-feature) for a detailed walkthrough of each concept, [Query Runs](/docs/concepts/query-runs) for the audit trail, or jump to [Concepts](/docs/concepts) to understand the building blocks.
 </Callout>

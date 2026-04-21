@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
-import { LayoutDashboard, BookOpen, Search, Activity, Database, Monitor, LogOut } from "lucide-react";
+import { LayoutDashboard, BookOpen, Search, Activity, Database, Monitor, LogOut, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -12,6 +12,7 @@ const navItems = [
   { href: "/catalog", label: "Catalog", icon: BookOpen },
   { href: "/inspect", label: "Inspect", icon: Search },
   { href: "/jobs", label: "Jobs", icon: Activity },
+  { href: "/query-runs", label: "Query Runs", icon: Play },
   { href: "/sources", label: "Sources", icon: Database },
   { href: "/monitoring", label: "Monitoring", icon: Monitor },
 ];

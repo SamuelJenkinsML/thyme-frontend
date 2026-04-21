@@ -92,3 +92,5 @@ You do not manage Kafka consumer groups, RocksDB compaction, partition leasing, 
 **Smaller infrastructure footprint.** One system replaces the batch ETL, the streaming job, and the custom serving layer.
 
 **Safe schema evolution.** Features carry integer IDs. You can add, rename, and version features without breaking downstream consumers.
+
+**Audited queries by default.** Every CLI or SDK query is recorded as a [Query Run](/docs/concepts/query-runs) in the web UI — latency, hit rate, API key fingerprint, entities touched. No extra instrumentation required.

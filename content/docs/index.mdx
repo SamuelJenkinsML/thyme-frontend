@@ -73,10 +73,13 @@ Then deploy:
 thyme commit features.py
 ```
 
-And query:
+And query — every call appears in the UI as a [Query Run](/docs/concepts/query-runs) with latency, hit rate, and replay:
 
 ```bash
-curl "http://localhost:8081/features?featureset=UserFeatures&uid=user_42"
+thyme query features:UserFeatures -e user_42
+# ...table...
+# Query run: 7b3e4c...
+# Results: http://localhost:3000/query-runs/7b3e4c...
 ```
 
 ---
@@ -84,5 +87,6 @@ curl "http://localhost:8081/features?featureset=UserFeatures&uid=user_42"
 <Cards>
 <Card title="Why Thyme?" href="/docs/why-thyme" description="The five things the platform gets right." />
 <Card title="Read & Write Paths" href="/docs/architecture/read-write-paths" description="How the two query modes share one state." />
+<Card title="Query Runs" href="/docs/concepts/query-runs" description="Every CLI and SDK query is recorded and replayable." />
 <Card title="Get Started" href="/docs/getting-started/installation" description="Install the SDK and commit your first featureset." />
 </Cards>

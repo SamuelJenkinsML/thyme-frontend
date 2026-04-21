@@ -3,7 +3,24 @@ title: CLI Reference
 description: Reference for the thyme command-line interface.
 ---
 
-The `thyme` CLI has two commands: `version` and `commit`.
+The `thyme` CLI is the primary way to commit feature definitions, inspect platform state, and query features from the terminal.
+
+**Commands at a glance:**
+
+| Command | Purpose |
+|---------|---------|
+| [`version`](#thyme-version) | Print the installed SDK version |
+| [`commit`](#thyme-commit) | Send feature definitions to the control plane |
+| [`status`](#thyme-status) | Show system status (services, definitions, jobs) |
+| [`logs`](#thyme-logs) | Tail service events |
+| [`discover`](#thyme-discover) | LLM-powered feature discovery from a source |
+| [`login`](#thyme-login) / [`logout`](#thyme-logout) | Store / clear credentials |
+| [`query`](#thyme-query) | Online feature query (single or batch) |
+| [`query-offline`](#thyme-query-offline) | Historical / batch feature query with timestamps |
+| [`lookup`](#thyme-lookup) | Raw dataset point lookup |
+| [`inspect`](#thyme-inspect) | System metadata or single-featureset detail |
+
+After every query command, Thyme prints a `Query run: <id>` footer. When the frontend URL is configured (see [Configuration](#configuration)), a `Results: <url>` line is also printed, linking directly to the run in the web UI where you can see metadata and replay the query.
 
 ---
 
@@ -26,61 +43,187 @@ Imports a feature module, serializes all registered definitions, and sends them 
 thyme commit [OPTIONS] [PATH]
 ```
 
-### Arguments
-
-| Argument | Description |
-|----------|-------------|
-| `PATH` | Path to a Python file containing feature definitions (e.g. `features.py`) |
-
-### Options
-
 | Option | Short | Env var | Default | Description |
 |--------|-------|---------|---------|-------------|
-| `--module MODULE` | `-m` | — | — | Import by dotted module path instead of file path (e.g. `myproject.features`) |
-| `--dry-run` | — | — | `False` | Print the serialized payload instead of POSTing |
-| `--output FILE` | — | — | — | Write dry-run payload to a file (requires `--dry-run`) |
+| `PATH` (positional) | — | — | — | Python file with feature definitions |
+| `--module MODULE` | `-m` | — | — | Import by dotted module path instead |
+| `--dry-run` | — | — | `False` | Print the payload instead of POSTing |
+| `--output FILE` | — | — | — | Write dry-run payload to a file |
 | `--api-url URL` | — | `THYME_API_URL` | `http://localhost:8080/api/v1/commit` | Control plane URL |
 
-Either `PATH` or `--module` must be provided, but not both.
-
----
-
-### Examples
-
-**Commit from a file path:**
 ```bash
 thyme commit features.py
-```
-
-**Commit from a module path:**
-```bash
 thyme commit -m myproject.features
-```
-
-**Dry run — print payload to stdout:**
-```bash
-thyme commit features.py --dry-run
-```
-
-**Dry run — write payload to file:**
-```bash
 thyme commit features.py --dry-run --output payload.json
 ```
 
-**Commit to a non-default control plane:**
+---
+
+## `thyme status`
+
+Shows service health, committed definitions, and recent jobs.
+
 ```bash
-thyme commit features.py --api-url https://thyme.internal/api/v1/commit
-# or via environment variable:
-THYME_API_URL=https://thyme.internal/api/v1/commit thyme commit features.py
+thyme status [--json] [--api-url URL] [--query-url URL]
+```
+
+Pass `--json` to emit a machine-readable blob (useful in scripts).
+
+---
+
+## `thyme logs`
+
+Tails recent service events from the definition-service. Useful for watching a fresh commit land.
+
+```bash
+thyme logs [--limit N] [--severity warn|error|info] [--event-type TYPE]
 ```
 
 ---
 
-### Output
+## `thyme discover`
 
-On success:
-```
-Committed 2 dataset(s), 1 pipeline(s), 1 featureset(s), 1 source(s) to http://localhost:8080/api/v1/commit
+LLM-powered feature discovery. Point it at a data source and it drafts a Thyme feature module.
+
+```bash
+thyme discover --source iceberg --table sales.orders --use-case fraud
 ```
 
-On error, the error message is printed to stderr and the exit code is non-zero.
+See `thyme discover --help` for the full option set.
+
+---
+
+## `thyme login` / `thyme logout`
+
+Store and clear credentials at `~/.thyme/credentials`:
+
+```bash
+thyme login --api-key <token> --api-base https://thyme.internal
+thyme logout
+```
+
+---
+
+## `thyme query`
+
+Online feature query. Auto-routes to a single GET when one `--entity` is supplied, or a batch POST when multiple are.
+
+```bash
+thyme query FEATURESET_REF [OPTIONS]
+```
+
+`FEATURESET_REF` uses the `module:ClassName` form (e.g. `myproject.features:UserFeatures`).
+
+| Option | Short | Env var | Default | Description |
+|--------|-------|---------|---------|-------------|
+| `--entity VALUE` | `-e` | — | — | Entity ID (repeatable; supports `@file.txt` and comma splits) |
+| `--module PATH` | `-m` | — | — | Import module from a file path instead of a dotted name |
+| `--format FMT` | `-f` | — | `table` | `table`, `json`, `csv`, `parquet`, `arrow` |
+| `--output PATH` | `-o` | — | — | Output file (required for `parquet`/`arrow`) |
+| `--limit N` | — | — | `50` | Truncation for table display |
+| `--query-url URL` | — | `THYME_QUERY_URL` | `http://localhost:8081` | Query-server URL |
+| `--api-key KEY` | — | `THYME_API_KEY` | — | Bearer token |
+
+```bash
+thyme query myproject.features:UserFeatures -e user_42
+thyme query myproject.features:UserFeatures -e user_1 -e user_2 -e user_3
+thyme query myproject.features:UserFeatures -e @ids.txt --format parquet -o out.parquet
+```
+
+---
+
+## `thyme query-offline`
+
+Historical / batch feature query with per-row timestamps — the workflow you use to build training data.
+
+```bash
+thyme query-offline FEATURESET_REF [--input FILE | -e ID --at TS ...] [OPTIONS]
+```
+
+Two input modes:
+
+1. **File** (recommended): `--input rows.{parquet,csv,jsonl}` with columns `entity_id` + `timestamp` (configurable via `--entity-column` / `--timestamp-column`).
+2. **Inline flags**: repeated `-e ID --at ISO-8601` pairs for ad-hoc runs.
+
+These are mutually exclusive — the CLI errors if both are supplied.
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--input FILE` (`-i`) | — | `.parquet`, `.csv`, `.tsv`, or `.jsonl` |
+| `--entity VALUE` (`-e`) | — | Ad-hoc entity ID (pairs with `--at`) |
+| `--at TIMESTAMP` | — | ISO-8601 timestamp; 1:1 with `-e` |
+| `--entity-column NAME` | `entity_id` | Column in `--input` |
+| `--timestamp-column NAME` | `timestamp` | Column in `--input` |
+| `--batch-size N` | `5000` | Rows per request |
+| `--format FMT` (`-f`) | `table` | As above |
+| `--output PATH` (`-o`) | — | As above |
+
+```bash
+thyme query-offline myproject.features:UserFeatures \
+  --input training_rows.parquet \
+  --entity-column user_id --timestamp-column event_ts
+
+thyme query-offline myproject.features:UserFeatures \
+  -e user_1 --at 2026-04-01T00:00:00Z \
+  -e user_2 --at 2026-04-01T00:00:00Z
+```
+
+---
+
+## `thyme lookup`
+
+Direct dataset point lookup — returns a raw row from RocksDB state, skipping the extractor pipeline.
+
+```bash
+thyme lookup DATASET_REF -e ENTITY_ID [--at ISO-8601] [--format table|json]
+```
+
+```bash
+thyme lookup myproject.features:Purchase -e txn_42
+thyme lookup myproject.features:Purchase -e txn_42 --at 2026-04-01T00:00:00Z
+```
+
+---
+
+## `thyme inspect`
+
+Prints system metadata (when called without arguments — mirrors `thyme status`), or detailed metadata for a single featureset.
+
+```bash
+thyme inspect                                          # system-wide
+thyme inspect myproject.features:UserFeatures          # one featureset
+thyme inspect myproject.features:UserFeatures --json   # raw JSON
+```
+
+---
+
+## Configuration
+
+Every command reads config in priority order:
+
+1. CLI flags (e.g. `--query-url`, `--api-key`)
+2. Environment variables (`THYME_QUERY_URL`, `THYME_API_KEY`, `THYME_API_URL`, **`THYME_FRONTEND_URL`**)
+3. `.thyme.yaml` in the current directory
+4. `~/.thyme.yaml`
+5. Stored credentials from `thyme login` (`~/.thyme/credentials`)
+6. Built-in defaults (localhost)
+
+### `THYME_FRONTEND_URL`
+
+Set this to the base URL of your Thyme web UI (e.g. `http://localhost:3000` for local dev, your internal URL for infra). When set, query commands print a clickable `Results:` link to the query-run detail page.
+
+```bash
+export THYME_FRONTEND_URL=http://localhost:3000
+thyme query myproject.features:UserFeatures -e user_42
+# ...table...
+# Query run: 7b3e4c...
+# Results: http://localhost:3000/query-runs/7b3e4c...
+```
+
+See [Query Runs](/docs/concepts/query-runs) for what the UI shows.
+
+---
+
+### Error behaviour
+
+On any error — missing entity, auth failure, server down — each command writes a message to stderr and exits with code `1`. Success is always exit code `0`.

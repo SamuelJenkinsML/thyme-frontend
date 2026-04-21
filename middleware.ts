@@ -18,6 +18,7 @@ export const config = {
     "/catalog/:path*",
     "/inspect/:path*",
     "/jobs/:path*",
+    "/query-runs/:path*",
     "/sources/:path*",
     "/monitoring/:path*",
     "/api/proxy/:path*",

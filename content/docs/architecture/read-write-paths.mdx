@@ -34,6 +34,7 @@ The read path runs on demand, against the same state the write path produced.
 1. **Query Server.** An HTTP service on `:8081` receives a featureset query. Optional `ts=` makes the query point-in-time; omitted, it serves the latest value.
 2. **Extractor DAG.** Your `@extractor` functions form a DAG. The server resolves dependencies, topologically sorts them, and runs them via PyO3 directly inside the Rust process — not in a separate Python worker, not over a network hop.
 3. **Featureset response.** Composed features are returned as JSON. P50 server-side latency is well under 1 millisecond in production, because all state lives in a local RocksDB secondary with no network reads.
+4. **Query-run record.** After responding, the server spawns a detached task that writes a metadata-only row to the `query_runs` table in Postgres and returns the run's UUID on the `X-Query-Run-Id` response header. The SDK surfaces this as `ThymeResult.query_run_id`; the CLI prints a `Results:` link to the web UI. Persistence is best-effort — a failed INSERT never fails the user's query. See [Query Runs](/docs/concepts/query-runs) for what's captured and what isn't.
 
 ---
 

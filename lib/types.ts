@@ -143,3 +143,29 @@ export interface EventRecord {
   detail: Record<string, unknown> | null;
   created_at: string;
 }
+
+// Query runs — metadata-only audit records of every CLI/SDK query.
+export type QueryRunKind = "online" | "batch" | "offline" | "lookup";
+
+export interface QueryRun {
+  id: string;
+  featureset: string;
+  entity_ids: string[];
+  requested_timestamp: string | null;
+  kind: QueryRunKind | string;
+  row_count: number;
+  hit_count: number;
+  latency_ms: number;
+  api_key_fingerprint: string | null;
+  error: string | null;
+  created_at: string;
+}
+
+export interface QueryRunsListResponse {
+  runs: QueryRun[];
+}
+
+export interface ReplayResponse {
+  kind: string;
+  result: unknown;
+}

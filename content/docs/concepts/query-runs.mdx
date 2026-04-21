@@ -1,0 +1,68 @@
+---
+title: Query Runs
+description: Every CLI or SDK query is recorded as an auditable query run, viewable in the web UI.
+---
+
+Every time you call `thyme query`, `thyme query-offline`, `thyme lookup`, or any equivalent `ThymeClient` method, Thyme records a **query run** — a compact audit record of the call. Query runs appear in the web UI under **Query Runs** and give you a shared history of what's been queried, how fast, and whether it returned data.
+
+This matches what Chalk, Tecton, and other feature platforms offer out of the box: a platform-level trail of queries for debugging, audit, and incident investigation.
+
+## What is captured
+
+A query run stores **metadata only**. Feature values are **not** persisted — this keeps records small, keeps sensitive data out of Postgres, and gives an unambiguous answer to "how long do query results live?" (they don't).
+
+| Field | Description |
+|-------|-------------|
+| `id` | UUID assigned by the query-server on completion |
+| `featureset` | Target featureset name (or entity type, for raw lookups) |
+| `entity_ids` | All entity IDs the call touched |
+| `requested_timestamp` | As-of timestamp for offline / lookup queries |
+| `kind` | `online`, `batch`, `offline`, or `lookup` |
+| `row_count` | Rows returned |
+| `hit_count` | Rows that returned a non-empty payload |
+| `latency_ms` | Total server-side latency |
+| `api_key_fingerprint` | First 8 chars of SHA256(api_key) — correlates activity without exposing the token |
+| `error` | Populated when the query failed |
+| `created_at` | Server time |
+
+## Where they come from
+
+When the query-server receives a call on `/features`, `/features/batch`, or `/features/offline`, it:
+
+1. Runs the query and builds the response.
+2. Generates a UUID for the run.
+3. Returns `X-Query-Run-Id: <uuid>` on the HTTP response.
+4. Spawns a detached task to INSERT the metadata into Postgres. **If persistence fails, the user's query still succeeds** — the audit trail is best-effort.
+
+The SDK captures the header on every response and exposes it as `ThymeResult.query_run_id`. The CLI prints a `Query run: <id>` footer and, when `THYME_FRONTEND_URL` is set, a `Results: <url>` link.
+
+## Using the UI
+
+Navigate to **Query Runs** in the sidebar:
+
+- The **list** page shows the 100 most recent runs across the platform. Filter by featureset to narrow the view.
+- The **detail** page shows the full metadata for one run, the error (if any), and a **Replay** button.
+
+### Replay
+
+Because feature values aren't stored, the detail page offers a **Replay** button. Clicking it re-executes the original query using the stored inputs (featureset, entity IDs, requested timestamp) and renders the current result inline. Replay does **not** create a new query-run record by default — it's intended for "show me what this entity's features look like *now*."
+
+## Retention
+
+Query runs live in the `query_runs` Postgres table. There's no built-in TTL — prune with a scheduled SQL job if long-term storage isn't needed. A typical policy is 30–90 days.
+
+```sql
+DELETE FROM query_runs WHERE created_at < now() - interval '30 days';
+```
+
+## When to use them
+
+- **Debugging**: "Why did my dashboard show stale numbers at 3pm?" → find the run, check the latency and hit count.
+- **Audit**: "Which API key queried `UserFeatures` last week?" → filter by featureset, then look at the `api_key_fingerprint` column.
+- **Correlation**: paste a `Query run: <id>` from a CLI log straight into the URL bar (`<frontend>/query-runs/<id>`).
+
+## What's *not* here
+
+- **Streaming ingestion events** — those live under **Jobs** and `/logs`.
+- **Commit history** — see **Catalog** or `thyme status`.
+- **System events / alerts** — see the Definition Service's service events table.
