@@ -19,6 +19,7 @@ The `thyme` CLI is the primary way to commit feature definitions, inspect platfo
 | [`query-offline`](#thyme-query-offline) | Historical / batch feature query with timestamps |
 | [`lookup`](#thyme-lookup) | Raw dataset point lookup |
 | [`inspect`](#thyme-inspect) | System metadata or single-featureset detail |
+| [`codegen python`](#thyme-codegen-python) | Generate `.pyi` stubs for typed feature queries |
 
 After every query command, Thyme prints a `Query run: <id>` footer. When the frontend URL is configured (see [Configuration](#configuration)), a `Results: <url>` line is also printed, linking directly to the run in the web UI where you can see metadata and replay the query.
 
@@ -194,6 +195,37 @@ thyme inspect                                          # system-wide
 thyme inspect myproject.features:UserFeatures          # one featureset
 thyme inspect myproject.features:UserFeatures --json   # raw JSON
 ```
+
+---
+
+## `thyme codegen python`
+
+Introspects your `@featureset` and `@dataset` classes and emits `.pyi` stub files so type-checkers (mypy, pyright, pylance) can narrow `ThymeClient.query` / `query_batch` / `query_offline` / `lookup` — and their `MockContext` counterparts — by featureset. Autocomplete on row attributes, type errors on typos, no guesswork.
+
+```bash
+thyme codegen python --out DIR [--path FILE | -m MODULE] [--force]
+```
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--out DIR` | — | Output directory for generated stubs (created if missing) |
+| `--path FILE` | — | Path to a Python file containing feature definitions |
+| `--module MODULE` | `-m` | Import by dotted module path instead |
+| `--force` | — | Overwrite an existing output directory and prune stale `*.pyi` files |
+
+```bash
+thyme codegen python --path features.py --out stubs/
+thyme codegen python -m myproject.features --out myproject/_stubs/
+thyme codegen python --path features.py --out stubs/ --force
+```
+
+One `.pyi` is emitted per featureset and per dataset, plus an `__init__.pyi` that re-exports each row class. Point your type-checker at the output directory (e.g. `mypy.ini`'s `mypy_path` or `pyrightconfig.json`'s `extraPaths`), or re-export the stubs from your own package's `__init__.pyi`.
+
+<Callout type="info">
+**Runtime behaviour is unchanged.** `.pyi` files are read only by type-checkers — Python does not load them at runtime. The query hot path stays Arrow / Polars throughout, so stub generation adds no latency, no memory footprint, and no dependency surface to the running SDK.
+</Callout>
+
+The stubs reflect whatever is registered when the input module is imported. Regenerate after editing featureset / dataset declarations to keep narrowing accurate.
 
 ---
 
