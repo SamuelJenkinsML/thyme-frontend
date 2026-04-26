@@ -84,8 +84,8 @@ export function PipelinesTab({ searchTerm = "" }: PipelinesTabProps) {
                   {operators.length > 0 && (
                     <Badge variant="ghost" className="text-[10px]">{operators.length} ops</Badge>
                   )}
-                  {spec.pipeline_spec?.disorder && (
-                    <Badge variant="outline">disorder {spec.pipeline_spec.disorder}</Badge>
+                  {spec.pipeline_spec?.max_lateness && (
+                    <Badge variant="outline">max_lateness {spec.pipeline_spec.max_lateness}</Badge>
                   )}
                 </div>
               </CardContent>

@@ -104,7 +104,7 @@ Windows are specified as strings: `"7d"` (7 days), `"24h"` (24 hours), `"30m"` (
 All windows use **event time**, not processing time. That means:
 
 - An event timestamped yesterday is counted in yesterday's window, regardless of when it arrived.
-- Late events (within the `disorder` tolerance set on the source) are included correctly.
+- Late events (within the `max_lateness` tolerance set on the source) are included correctly.
 - Historical backfills produce the same results as real-time processing.
 - A point-in-time query at `ts=T` returns the windowed aggregation as it would have been computed at `T`.
 

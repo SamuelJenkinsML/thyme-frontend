@@ -51,7 +51,7 @@ from thyme import (
 config = Config.load()
 orders_source = config.postgres_source(table="orders")
 
-@source(orders_source, cursor="timestamp", every="5s", disorder="1h")
+@source(orders_source, cursor="timestamp", every="5s", max_lateness="1h")
 @dataset(version=1)
 class Order:
     user_id: str = field(key=True)
@@ -195,7 +195,7 @@ from thyme import (
 config = Config.load()
 bookings_source = config.postgres_source(table="product_bookings")
 
-@source(bookings_source, cursor="timestamp", every="5s", disorder="1h")
+@source(bookings_source, cursor="timestamp", every="5s", max_lateness="1h")
 @dataset(version=1)
 class ProductBooking:
     product_id: str = field(key=True)
@@ -343,7 +343,7 @@ click_source = KinesisSource(
 )
 profile_source = config.postgres_source(table="user_profiles")
 
-@source(click_source, disorder="1h")
+@source(click_source, max_lateness="1h")
 @dataset(version=1)
 class ClickEvent:
     user_id: str = field(key=True)

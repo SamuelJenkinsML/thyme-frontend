@@ -12,7 +12,7 @@ A source ingests events from an external system into a Thyme dataset. See [Sourc
     connector,
     cursor="ts",
     every="1m",
-    disorder="5m",
+    max_lateness="5m",
     cdc="append",
 )
 @dataset(index=True)
@@ -24,7 +24,7 @@ class Transaction: ...
 | `connector` | connector object | required | The data source to read from |
 | `cursor` | `str` | `""` | Field used for incremental reads (polling only) |
 | `every` | `str` | `""` | Poll interval: `"1m"`, `"5m"`, `"1h"` (polling only) |
-| `disorder` | `str` | `""` | Maximum late-arrival tolerance: `"5m"`, `"1h"`, `"1d"` |
+| `max_lateness` | `str` | `""` | Maximum late-arrival tolerance: `"5m"`, `"1h"`, `"1d"` |
 | `cdc` | `str` | `"append"` | Change data capture mode — see below |
 
 Streaming sources consume continuously and ignore `every` / `cursor`.

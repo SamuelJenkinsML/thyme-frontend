@@ -53,10 +53,10 @@ export function DatasetRelationships({
                 <Badge variant="secondary">{source.cdc}</Badge>
               </div>
             )}
-            {source.disorder && (
+            {source.max_lateness && (
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Disorder</span>
-                <span className="font-mono">{source.disorder}</span>
+                <span className="text-muted-foreground">Max lateness</span>
+                <span className="font-mono">{source.max_lateness}</span>
               </div>
             )}
             {source.cursor_value && (

@@ -42,7 +42,7 @@ export function JobsTable() {
           <TableHead>Input Topic</TableHead>
           <TableHead>Output Topic</TableHead>
           <TableHead className="text-right">Partitions</TableHead>
-          <TableHead>Disorder</TableHead>
+          <TableHead>Max lateness</TableHead>
           <TableHead className="text-right">Operators</TableHead>
         </TableRow>
       </TableHeader>
@@ -70,8 +70,8 @@ export function JobsTable() {
               </TableCell>
               <TableCell className="text-right">{job.partition_count}</TableCell>
               <TableCell>
-                {spec.pipeline_spec?.disorder ? (
-                  <Badge variant="outline">{spec.pipeline_spec.disorder}</Badge>
+                {spec.pipeline_spec?.max_lateness ? (
+                  <Badge variant="outline">{spec.pipeline_spec.max_lateness}</Badge>
                 ) : (
                   <span className="text-muted-foreground">{"\u2014"}</span>
                 )}

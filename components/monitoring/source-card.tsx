@@ -47,10 +47,10 @@ export function SourceCard({ source: src }: SourceCardProps) {
           <span className="font-mono truncate" title={src.cursor_value}>
             {src.cursor_value || "\u2014"}
           </span>
-          {src.disorder && (
+          {src.max_lateness && (
             <>
-              <span className="text-muted-foreground">Disorder</span>
-              <span className="font-mono">{src.disorder}</span>
+              <span className="text-muted-foreground">Max lateness</span>
+              <span className="font-mono">{src.max_lateness}</span>
             </>
           )}
         </div>

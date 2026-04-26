@@ -214,7 +214,7 @@ from thyme.connectors import IcebergSource, source
     IcebergSource(catalog="prod", database="events", table="transactions"),
     cursor="ts",
     every="1m",
-    disorder="5m",
+    max_lateness="5m",
     cdc="append",
 )
 @dataset(index=True)
@@ -228,5 +228,5 @@ class MyDataset: ...
 | `connector` | connector object | required | The source connector instance |
 | `cursor` | `str` | `""` | Incremental cursor field name |
 | `every` | `str` | `""` | Poll interval (`"1m"`, `"5m"`, `"1h"`) |
-| `disorder` | `str` | `""` | Late-arrival tolerance (`"5m"`, `"1h"`, `"1d"`) |
+| `max_lateness` | `str` | `""` | Late-arrival tolerance (`"5m"`, `"1h"`, `"1d"`) |
 | `cdc` | `str` | `"append"` | CDC mode: `"append"`, `"upsert"`, or `"debezium"` |

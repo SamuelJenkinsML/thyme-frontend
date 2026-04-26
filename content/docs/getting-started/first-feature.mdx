@@ -39,7 +39,7 @@ from thyme.connectors import IcebergSource, source
     IcebergSource(catalog="prod", database="events", table="transactions"),
     cursor="ts",      # incremental column
     every="1m",       # poll interval
-    disorder="5m",    # max late-arrival tolerance
+    max_lateness="5m",    # max late-arrival tolerance
     cdc="append",     # insert-only stream
 )
 @dataset(index=True)
@@ -47,7 +47,7 @@ class Transaction:
     ...
 ```
 
-The `disorder` parameter sets the watermark. Events arriving more than 5 minutes behind the current watermark are discarded. This keeps windowed aggregations correct without waiting forever.
+The `max_lateness` parameter sets the watermark. Events arriving more than 5 minutes behind the current watermark are discarded. This keeps windowed aggregations correct without waiting forever.
 
 ---
 

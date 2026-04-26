@@ -16,7 +16,7 @@ from thyme.connectors import IcebergSource, source
     IcebergSource(catalog="prod", database="events", table="transactions"),
     cursor="ts",
     every="1m",
-    disorder="5m",
+    max_lateness="5m",
     cdc="append",
 )
 @dataset(index=True)
@@ -35,7 +35,7 @@ class Transaction:
 | `connector` | connector object | required | The data source to read from |
 | `cursor` | `str` | `""` | Field used for incremental reads (high-water mark) |
 | `every` | `str` | `""` | Poll interval: `"1m"`, `"5m"`, `"1h"` |
-| `disorder` | `str` | `""` | Maximum late-arrival tolerance: `"5m"`, `"1h"`, `"1d"` |
+| `max_lateness` | `str` | `""` | Maximum late-arrival tolerance: `"5m"`, `"1h"`, `"1d"` |
 | `cdc` | `str` | `"append"` | Change data capture mode (see below) |
 
 ### `cursor`
@@ -46,9 +46,9 @@ The field the engine uses to track progress. On each poll, the engine fetches ro
 
 How often the engine polls the source. Format: integer + unit (`m` minutes, `h` hours, `d` days).
 
-### `disorder`
+### `max_lateness`
 
-The maximum expected delay between event time and ingestion time. Events arriving later than `(current_watermark - disorder)` are discarded. This bound lets the engine advance the watermark and emit results without waiting forever.
+The maximum expected delay between event time and ingestion time. Events arriving later than `(current_watermark - max_lateness)` are discarded. This bound lets the engine advance the watermark and emit results without waiting forever.
 
 Set this conservatively — too small and you lose late events; too large and your features are unnecessarily delayed.
 

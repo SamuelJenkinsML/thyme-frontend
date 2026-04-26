@@ -50,8 +50,8 @@ export default async function PipelineDetailPage({ params }: Props) {
           </div>
           <div className="flex gap-2">
             <Badge variant="secondary">{job.partition_count} partitions</Badge>
-            {spec.pipeline_spec?.disorder && (
-              <Badge variant="outline">disorder {spec.pipeline_spec.disorder}</Badge>
+            {spec.pipeline_spec?.max_lateness && (
+              <Badge variant="outline">max_lateness {spec.pipeline_spec.max_lateness}</Badge>
             )}
           </div>
           <p className="text-xs text-muted-foreground font-mono">

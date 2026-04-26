@@ -62,7 +62,7 @@ export interface JobSpec {
   replaylog_topic: string;
   pipeline_spec: {
     operators: PipelineOperator[];
-    disorder?: string;
+    max_lateness?: string;
   };
 }
 
@@ -83,7 +83,7 @@ export interface SourceRecord {
   cursor_field: string;
   poll_interval: string;
   cursor_value: string;
-  disorder?: string;
+  max_lateness?: string;
   cdc?: string;
 }
 

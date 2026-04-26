@@ -41,10 +41,10 @@ export function SourceDetailHeader({ source }: SourceDetailHeaderProps) {
             <span className="font-mono">{source.poll_interval}</span>
           </div>
         )}
-        {source.disorder && (
+        {source.max_lateness && (
           <div>
-            <span className="text-muted-foreground/60">Disorder:</span>{" "}
-            <span className="font-mono">{source.disorder}</span>
+            <span className="text-muted-foreground/60">Max lateness:</span>{" "}
+            <span className="font-mono">{source.max_lateness}</span>
           </div>
         )}
       </div>
