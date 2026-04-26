@@ -53,17 +53,15 @@ export default async function FeaturesetDetailPage({ params }: Props) {
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Type</TableHead>
-                <TableHead>ID</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {features.map((f) => (
-                <TableRow key={f.id}>
+                <TableRow key={f.name}>
                   <TableCell className="font-mono">{f.name}</TableCell>
                   <TableCell>
                     <Badge variant="outline">{f.dtype}</Badge>
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{f.id}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

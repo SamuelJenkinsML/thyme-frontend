@@ -9,7 +9,12 @@ export interface PyCodeDef {
 export interface FeatureDef {
   name: string;
   dtype: string;
-  id: number;
+}
+
+export interface LookupInfo {
+  dataset_name: string;
+  field_name: string;
+  default?: string | number | boolean | null;
 }
 
 export interface ExtractorDef {
@@ -18,6 +23,8 @@ export interface ExtractorDef {
   outputs: string[];
   deps: string[];
   pycode?: PyCodeDef;
+  kind?: "PY_FUNC" | "LOOKUP";
+  lookup_info?: LookupInfo;
 }
 
 export interface FeaturesetSpec {

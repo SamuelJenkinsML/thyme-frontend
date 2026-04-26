@@ -50,13 +50,13 @@ export function makeFraudFeaturesets(): FeaturesetRecord[] {
       spec: {
         name: "FraudSignals",
         features: [
-          { name: "user_id", dtype: "str", id: 1 },
-          { name: "order_count_1h", dtype: "int", id: 2 },
-          { name: "order_count_24h", dtype: "int", id: 3 },
-          { name: "total_spend_24h", dtype: "float", id: 4 },
-          { name: "total_spend_7d", dtype: "float", id: 5 },
-          { name: "max_order_amount_7d", dtype: "float", id: 6 },
-          { name: "is_suspicious", dtype: "bool", id: 7 },
+          { name: "user_id", dtype: "str" },
+          { name: "order_count_1h", dtype: "int" },
+          { name: "order_count_24h", dtype: "int" },
+          { name: "total_spend_24h", dtype: "float" },
+          { name: "total_spend_7d", dtype: "float" },
+          { name: "max_order_amount_7d", dtype: "float" },
+          { name: "is_suspicious", dtype: "bool" },
         ],
         extractors: [
           {
@@ -121,12 +121,12 @@ export function makeRideshareFeaturesets(): FeaturesetRecord[] {
       spec: {
         name: "PricingSignals",
         features: [
-          { name: "zone_id", dtype: "str", id: 1 },
-          { name: "ride_count_1h", dtype: "int", id: 2 },
-          { name: "avg_surge_1h", dtype: "float", id: 3 },
-          { name: "avg_wait_1h", dtype: "float", id: 4 },
-          { name: "avg_temp_at_ride", dtype: "float", id: 5 },
-          { name: "needs_surge", dtype: "bool", id: 6 },
+          { name: "zone_id", dtype: "str" },
+          { name: "ride_count_1h", dtype: "int" },
+          { name: "avg_surge_1h", dtype: "float" },
+          { name: "avg_wait_1h", dtype: "float" },
+          { name: "avg_temp_at_ride", dtype: "float" },
+          { name: "needs_surge", dtype: "bool" },
         ],
         extractors: [
           {
