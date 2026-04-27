@@ -4,12 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
-import { LayoutDashboard, BookOpen, Search, Activity, Database, Monitor, LogOut, Play } from "lucide-react";
+import { LayoutDashboard, BookOpen, GitBranch, Search, Activity, Database, Monitor, LogOut, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/catalog", label: "Catalog", icon: BookOpen },
+  { href: "/lineage", label: "Lineage", icon: GitBranch },
   { href: "/inspect", label: "Inspect", icon: Search },
   { href: "/jobs", label: "Jobs", icon: Activity },
   { href: "/query-runs", label: "Query Runs", icon: Play },
