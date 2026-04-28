@@ -3,7 +3,7 @@ title: Feature Versioning & Schema Evolution
 description: How to evolve datasets, pipelines, and featuresets without breaking online consumers or training pipelines.
 ---
 
-Feature definitions evolve. You add a column, change a window, switch an aggregation, or re-key a dataset. Thyme's versioning model is designed so most evolutions are non-breaking — but a few changes still require coordination. This guide is the playbook.
+Feature definitions evolve. You add a column, change a window, switch an aggregation, or re-key a dataset. Thyme's versioning model is designed so most evolutions are non-breaking - but a few changes still require coordination. This guide is the playbook.
 
 ## The version field
 
@@ -18,7 +18,7 @@ class UserOrderStats: ...
 def compute_stats(cls, orders): ...
 ```
 
-Featuresets are name-keyed — they don't carry a version field. Featureset evolution is governed by the underlying datasets and extractor definitions.
+Featuresets are name-keyed - they don't carry a version field. Featureset evolution is governed by the underlying datasets and extractor definitions.
 
 ## Non-breaking changes
 
@@ -32,7 +32,7 @@ These can be made on the same `version` and committed without coordination:
 
 In all of these, online consumers continue to receive the existing fields without disruption while the new field/feature/extractor backfills.
 
-## Breaking changes — bump the version
+## Breaking changes - bump the version
 
 Bump the `version` integer on the dataset (or pipeline) whenever you change the *meaning* or *shape* of existing fields. Examples:
 
@@ -48,7 +48,7 @@ When you bump the version:
 2. Update featureset references (`feature(ref=...)`) to point at the new version.
 3. Once your model code reads only the new version, retire the old one with a follow-up commit.
 
-This pattern lets you migrate without a flag day — old serving paths keep working until the cutover.
+This pattern lets you migrate without a flag day - old serving paths keep working until the cutover.
 
 ## Renaming a feature without breaking consumers
 
@@ -69,19 +69,19 @@ Switching a source connector (e.g. moving from polling Postgres to streaming Kaf
 3. **Switch consumers** (featuresets) to reference the new pipeline's output dataset.
 4. **Retire the old dataset/pipeline/source** after consumers move.
 
-The lineage UI's blast-radius mode (see [Lineage](/docs/concepts/lineage)) is helpful here — click the dataset and visually confirm what depends on it before retiring.
+The lineage UI's blast-radius mode (see [Lineage](/docs/concepts/lineage)) is helpful here - click the dataset and visually confirm what depends on it before retiring.
 
 ## Backfill semantics
 
 Bumping a `version` triggers a backfill on commit for polling sources. The engine reads from the source's beginning (or from the configured backfill range) and rebuilds aggregated state for the new version.
 
-Backfills run alongside live ingestion — they don't pause online queries. While a backfill is running, point-in-time queries against timestamps within the backfill window return the value the new version *will* have once the backfill completes.
+Backfills run alongside live ingestion - they don't pause online queries. While a backfill is running, point-in-time queries against timestamps within the backfill window return the value the new version *will* have once the backfill completes.
 
-For streaming sources, backfill on commit is not currently supported — rely on the live ingestion path for streaming-sourced datasets.
+For streaming sources, backfill on commit is not currently supported - rely on the live ingestion path for streaming-sourced datasets.
 
 ## Recommended workflow
 
 1. **Sketch the change.** Is it additive (new field/feature) or structural (different meaning)?
 2. **If additive:** modify in place, commit, verify the new field/feature appears in queries.
 3. **If structural:** bump `version`, dual-run, migrate consumers, retire old version.
-4. **Always verify in the lineage UI** before committing structural changes — confirm the blast radius matches what you expect.
+4. **Always verify in the lineage UI** before committing structural changes - confirm the blast radius matches what you expect.

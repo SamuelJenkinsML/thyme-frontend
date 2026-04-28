@@ -1,6 +1,6 @@
 ---
 title: PostgresSource
-description: Polling connector for Postgres tables — incremental reads via a cursor field.
+description: Polling connector for Postgres tables - incremental reads via a cursor field.
 ---
 
 `PostgresSource` reads from a Postgres table incrementally, tracking a cursor field (typically a `timestamp` or auto-incrementing `id`) and fetching only new rows on each poll.
@@ -35,7 +35,7 @@ class Order:
 
 | Parameter | Required | Default / env var | Description |
 |-----------|----------|-------------------|-------------|
-| `table` | **Yes** | — | Table name |
+| `table` | **Yes** | - | Table name |
 | `host` | No | `THYME_POSTGRES_HOST` (`"localhost"`) | Postgres host |
 | `port` | No | `THYME_POSTGRES_PORT` (`5432`) | Postgres port |
 | `database` | No | `THYME_POSTGRES_DATABASE` | Database name |
@@ -51,7 +51,7 @@ class Order:
 | `cdc="append"` *(default)* | Each row is a new event. Use for insert-only tables (transaction logs, event streams). |
 | `cdc="upsert"` | Each row is the latest state for its key. Use for tables that update in place (user profiles, inventory snapshots). |
 
-`cdc="debezium"` is **not** supported on `PostgresSource` directly — for full INSERT/UPDATE/DELETE CDC, run a Debezium connector against your Postgres WAL and consume via Kafka.
+`cdc="debezium"` is **not** supported on `PostgresSource` directly - for full INSERT/UPDATE/DELETE CDC, run a Debezium connector against your Postgres WAL and consume via Kafka.
 
 ## Limits
 

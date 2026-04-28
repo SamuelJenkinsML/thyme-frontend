@@ -11,7 +11,7 @@ description: Polling connector for JSON or JSONL files in an S3 bucket.
 - Periodic exports from data warehouses dumped into S3 prefixes
 - Bridge to a system that already lands JSON files in S3
 
-For Parquet or CSV in S3, prefer landing the data into Iceberg and using [`IcebergSource`](/docs/integrations/iceberg) — it supports schema evolution and incremental reads natively.
+For Parquet or CSV in S3, prefer landing the data into Iceberg and using [`IcebergSource`](/docs/integrations/iceberg) - it supports schema evolution and incremental reads natively.
 
 ## Example
 
@@ -33,7 +33,7 @@ class Event:
 
 | Parameter | Required | Default / env var | Description |
 |-----------|----------|-------------------|-------------|
-| `bucket` | **Yes** | — | S3 bucket name |
+| `bucket` | **Yes** | - | S3 bucket name |
 | `prefix` | No | `""` | Key prefix filter (per-dataset, not env-defaulted) |
 | `region` | No | `THYME_S3_REGION` (`"us-east-1"`) | AWS region |
 
@@ -45,12 +45,12 @@ Uses the engine pod's IAM identity (irsa, instance role). The role must have `s3
 
 The connector handles both:
 
-- **JSON** — one JSON object per file
-- **JSONL** — one JSON object per line, multiple records per file
+- **JSON** - one JSON object per file
+- **JSONL** - one JSON object per line, multiple records per file
 
 Each record's fields are mapped to the dataset's typed fields. The dataset's `timestamp=True` field must be present and parseable as ISO-8601, epoch seconds, or a `datetime`.
 
 ## Limits
 
 - Files within the prefix should be append-only. Updating an existing object after it has been read is not detected.
-- New files are surfaced when their key sorts lexicographically after the last seen key — design your prefix layout accordingly (e.g. `events/2026/03/15/...`).
+- New files are surfaced when their key sorts lexicographically after the last seen key - design your prefix layout accordingly (e.g. `events/2026/03/15/...`).

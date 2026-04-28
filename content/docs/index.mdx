@@ -3,7 +3,7 @@ title: Thyme
 description: Real-time ML features. Defined in Python. Computed in Rust.
 ---
 
-Thyme is a streaming feature platform for ML engineers. You write features once in Python — Thyme compiles them to a high-throughput Rust engine that keeps them fresh in real time and serves them over the same code path for both online inference and point-in-time training.
+Thyme is a streaming feature platform for ML engineers. You write features once in Python - Thyme compiles them to a high-throughput Rust engine that keeps them fresh in real time and serves them over the same code path for both online inference and point-in-time training.
 
 <ReadWriteDiagram />
 
@@ -65,7 +65,7 @@ Then deploy:
 thyme commit features.py
 ```
 
-And query — every call appears in the UI as a [Query Run](/docs/concepts/query-runs) with latency, hit rate, and replay:
+And query - every call appears in the UI as a [Query Run](/docs/concepts/query-runs) with latency, hit rate, and replay:
 
 ```bash
 thyme query features:UserFeatures -e user_42
@@ -80,13 +80,13 @@ thyme query features:UserFeatures -e user_42
 
 The site is structured around the canonical feature-platform shape. Different readers want different paths through it:
 
-**ML engineers building features** — start with [Concepts](/docs/concepts) to understand datasets, pipelines, featuresets, and extractors. Then read [Define features](/docs/reference/decorators) and [Aggregations](/docs/reference/aggregations). When you're ready to write tests, [Testing](/docs/testing) covers `MockContext`.
+**ML engineers building features** - start with [Concepts](/docs/concepts) to understand datasets, pipelines, featuresets, and extractors. Then read [Define features](/docs/reference/decorators) and [Aggregations](/docs/reference/aggregations). When you're ready to write tests, [Testing](/docs/testing) covers `MockContext`.
 
-**Platform engineers and operators** — start with [Operations → Deployment](/docs/operations/deployment), then [Monitoring](/docs/operations/monitoring). [Architecture → Durability & Consistency](/docs/architecture/durability-and-consistency) explains the guarantees you can rely on.
+**Platform engineers and operators** - start with [Operations → Deployment](/docs/operations/deployment), then [Monitoring](/docs/operations/monitoring). [Architecture → Durability & Consistency](/docs/architecture/durability-and-consistency) explains the guarantees you can rely on.
 
-**Evaluators** — start with [Why Thyme](/docs/why-thyme) for the comparison table, then walk one of the [Case Studies](/docs/case-studies/fraud-detection) end to end.
+**Evaluators** - start with [Why Thyme](/docs/why-thyme) for the comparison table, then walk one of the [Case Studies](/docs/case-studies/fraud-detection) end to end.
 
-**Anyone trying it for the first time** — go to [Getting Started → Installation](/docs/getting-started/installation), then run through the [Interactive Tour](/docs/getting-started/interactive-tour) once your administrator has given you a hosted instance URL and API key.
+**Anyone trying it for the first time** - go to [Getting Started → Installation](/docs/getting-started/installation), then run through the [Interactive Tour](/docs/getting-started/interactive-tour) once your administrator has given you a hosted instance URL and API key.
 
 ---
 
@@ -95,6 +95,6 @@ The site is structured around the canonical feature-platform shape. Different re
 <Card title="Read & Write Paths" href="/docs/architecture/read-write-paths" description="How the two query modes share one state." />
 <Card title="Query Runs" href="/docs/concepts/query-runs" description="Every CLI and SDK query is recorded and replayable." />
 <Card title="Get Started" href="/docs/getting-started/installation" description="Install the SDK and commit your first featureset." />
-<Card title="Interactive Tour" href="/docs/getting-started/interactive-tour" description="A guided walkthrough of the running app — catalog, inspect, jobs, lineage." />
+<Card title="Interactive Tour" href="/docs/getting-started/interactive-tour" description="A guided walkthrough of the running app - catalog, inspect, jobs, lineage." />
 <Card title="Case Studies" href="/docs/case-studies/fraud-detection" description="Three production deployments with benchmarks." />
 </Cards>

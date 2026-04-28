@@ -3,7 +3,7 @@ title: Durability & Consistency Guarantees
 description: What Thyme promises about exactly-once processing, watermarks, and lateness handling.
 ---
 
-This page lists the guarantees Thyme makes to feature authors and consumers — the contracts you can rely on when building features, model training pipelines, and online inference paths. It deliberately avoids implementation details; the goal is to make the *behaviour* unambiguous.
+This page lists the guarantees Thyme makes to feature authors and consumers - the contracts you can rely on when building features, model training pipelines, and online inference paths. It deliberately avoids implementation details; the goal is to make the *behaviour* unambiguous.
 
 ## Exactly-once processing
 
@@ -15,7 +15,7 @@ This means:
 - **No drops.** A successfully-ingested event will eventually reflect in feature values.
 - **Atomic state advancement.** A pipeline tick either fully commits (output state, internal accumulators, and source progress) or none of it does. There is no partial state visible to the read path.
 
-In practice, this is what makes online and offline queries return the same numbers — see [Online vs offline parity](#online-vs-offline-parity).
+In practice, this is what makes online and offline queries return the same numbers - see [Online vs offline parity](#online-vs-offline-parity).
 
 ## Event time, not arrival time
 
@@ -31,7 +31,7 @@ Each source declares a `max_lateness` (e.g. `"1h"`). This is the **bound on how 
 
 - Records arriving within `max_lateness` of their event time **are** incorporated.
 - Records arriving later than `max_lateness` past their event time **are dropped from the windowed aggregation**. Late drops are a metric, not an error.
-- The watermark — the boundary past which a window is closed — advances based on observed event times, throttled by `max_lateness`.
+- The watermark - the boundary past which a window is closed - advances based on observed event times, throttled by `max_lateness`.
 
 Choose `max_lateness` to match the worst-case ingestion delay you expect from your source. A larger value tolerates more lateness but delays window closure; a smaller value closes windows sooner but risks dropping legitimately late events.
 
@@ -41,24 +41,24 @@ The online query path and the point-in-time (offline / training) query path read
 
 - A training job issuing a point-in-time query for `ts=T` returns the same featureset values that an online query at wall-clock time `T` would have returned.
 - There is no separate batch pipeline reconciled against a streaming pipeline. There is one pipeline, two query modes.
-- This is the structural reason training/serving skew does not occur in Thyme — not a property of careful reconciliation, but a property of having a single source of truth.
+- This is the structural reason training/serving skew does not occur in Thyme - not a property of careful reconciliation, but a property of having a single source of truth.
 
 ## Aggregation operator semantics
 
 | Operator | Window semantics |
 |---------|-----------------|
-| `Count` | Number of events in window. Invertible — old events drop in O(1). |
+| `Count` | Number of events in window. Invertible - old events drop in O(1). |
 | `Sum` | Sum of a field across events in window. Invertible. |
 | `Avg` | Mean of a field across events in window. Invertible (computed from `Sum / Count`). |
-| `Min` | Minimum of a field in window. *(Not currently recommended for production — prefer `Count` / `Sum` / `Avg`.)* |
-| `Max` | Maximum of a field in window. *(Not currently recommended for production — prefer `Count` / `Sum` / `Avg`.)* |
+| `Min` | Minimum of a field in window. *(Not currently recommended for production - prefer `Count` / `Sum` / `Avg`.)* |
+| `Max` | Maximum of a field in window. *(Not currently recommended for production - prefer `Count` / `Sum` / `Avg`.)* |
 | `ApproxPercentile` | Percentile rank of a field's recent value within the window distribution. Pre-computed at write time; constant-time at read time. |
 
 Invertible operators (`Count`, `Sum`, `Avg`) advance windows incrementally without rescanning historical data, so 7-day windows cost roughly the same as 1-hour windows.
 
 ## What is *not* guaranteed
 
-- **Strict ordering across partitions.** Within a single entity key, event-time ordering is preserved end-to-end. Across partitions, there is no global ordering guarantee — and feature semantics never depend on one.
+- **Strict ordering across partitions.** Within a single entity key, event-time ordering is preserved end-to-end. Across partitions, there is no global ordering guarantee - and feature semantics never depend on one.
 - **Synchronous read-after-write within a single millisecond of ingestion.** Aggregations advance per pipeline tick, not per event. Feature freshness is bounded by the platform's configured batch size and broker throughput.
 - **Cross-featureset transactions.** Each featureset is independent; there is no atomic multi-featureset write barrier.
 
@@ -66,4 +66,4 @@ Invertible operators (`Count`, `Sum`, `Avg`) advance windows incrementally witho
 
 After an engine restart or pod replacement, processing resumes from the last committed source position. Records between the last commit and the crash are reprocessed, and exactly-once semantics ensure no double-counting in the materialized state.
 
-There is no offline "rebuild" step required after a restart — the engine simply picks up where it left off.
+There is no offline "rebuild" step required after a restart - the engine simply picks up where it left off.

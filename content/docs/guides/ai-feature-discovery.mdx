@@ -7,10 +7,10 @@ description: Use thyme discover to automatically generate feature definitions fr
 
 ## How it works
 
-1. **Schema introspection** — The CLI connects to your data source and samples rows to infer the schema (column names, types, sample values).
-2. **LLM code generation** — An Anthropic Claude model generates Thyme SDK code based on the schema and your stated use case.
-3. **Validation** — The generated code is validated by importing it and checking for registry errors.
-4. **Output** — Code is printed to stdout or written to a file.
+1. **Schema introspection** - The CLI connects to your data source and samples rows to infer the schema (column names, types, sample values).
+2. **LLM code generation** - An Anthropic Claude model generates Thyme SDK code based on the schema and your stated use case.
+3. **Validation** - The generated code is validated by importing it and checking for registry errors.
+4. **Output** - Code is printed to stdout or written to a file.
 
 ## Example: Fraud detection from Postgres
 
@@ -59,7 +59,7 @@ thyme discover \
 
 - **Provide an `--entity-key` hint** when the entity key isn't obvious from the schema.
 - **Use `--sample-n`** to control how many rows are sampled for schema inference (default: 5).
-- **Review before committing** — always review generated code before `thyme commit`.
+- **Review before committing** - always review generated code before `thyme commit`.
 - **Use `--auto-commit`** with `--output` to generate and deploy in one step (for quick prototyping only).
 - **Set `ANTHROPIC_API_KEY`** in your environment or pass `--api-key`.
 

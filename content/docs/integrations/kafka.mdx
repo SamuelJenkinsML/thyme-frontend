@@ -1,6 +1,6 @@
 ---
 title: KafkaSource
-description: Streaming connector for Apache Kafka topics — continuous consumption with SASL/SSL auth and Debezium CDC support.
+description: Streaming connector for Apache Kafka topics - continuous consumption with SASL/SSL auth and Debezium CDC support.
 ---
 
 `KafkaSource` consumes from an Apache Kafka topic continuously. As a streaming connector, it ignores `cursor` and `every`.
@@ -33,7 +33,7 @@ class Order:
 
 | Parameter | Required | Default / env var | Description |
 |-----------|----------|-------------------|-------------|
-| `topic` | **Yes** | — | Topic name |
+| `topic` | **Yes** | - | Topic name |
 | `brokers` | No | `THYME_KAFKA_BROKERS` | Comma-separated broker addresses |
 | `security_protocol` | No | `THYME_KAFKA_SECURITY_PROTOCOL` (`"PLAINTEXT"`) | `PLAINTEXT`, `SSL`, `SASL_PLAINTEXT`, `SASL_SSL` |
 | `sasl_mechanism` | No | `THYME_KAFKA_SASL_MECHANISM` | SASL mechanism (`PLAIN`, `SCRAM-SHA-256`, etc.) |
@@ -81,5 +81,5 @@ KafkaSource(
 | `cdc="debezium"` | Messages are Debezium envelopes (`before`, `after`, `op`). Honors `INSERT`/`UPDATE`/`DELETE`. |
 
 <Callout type="warn">
-Setting `cursor` or `every` on `KafkaSource` raises a validation error — streaming connectors consume continuously and don't poll.
+Setting `cursor` or `every` on `KafkaSource` raises a validation error - streaming connectors consume continuously and don't poll.
 </Callout>

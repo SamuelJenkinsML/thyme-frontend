@@ -5,7 +5,7 @@ description: HTTP endpoints exposed by the definition service and query server.
 
 Thyme exposes two HTTP services. The **definition service** holds your committed featuresets, jobs, and sources; the **query server** answers feature lookups and serves query-run audit data.
 
-The Thyme CLI and Python SDK call these endpoints under the hood, so you typically don't need to call them directly. This page documents the contract for cases where you do — building dashboards, debugging in production, or integrating Thyme with other systems.
+The Thyme CLI and Python SDK call these endpoints under the hood, so you typically don't need to call them directly. This page documents the contract for cases where you do - building dashboards, debugging in production, or integrating Thyme with other systems.
 
 ## Base URLs
 
@@ -32,7 +32,7 @@ Invalid or missing tokens return `401`. See [Authentication](/docs/reference/aut
 
 ### `POST /api/v1/commit`
 
-Submits a new commit — a complete set of featureset, pipeline, and source definitions to register or update.
+Submits a new commit - a complete set of featureset, pipeline, and source definitions to register or update.
 
 This is the endpoint `thyme commit features.py` posts to. The request body is a structured payload produced by importing a Python feature module and serializing the registered definitions; in practice you should always go through the SDK rather than constructing this payload by hand.
 
@@ -66,7 +66,7 @@ Returns every committed source.
 
 ### `GET /api/v1/status`
 
-Returns a single combined snapshot of all platform state — datasets, pipelines, featuresets, sources, jobs, backfills, the latest commit, and recent events. Useful for dashboards that want everything in one round-trip.
+Returns a single combined snapshot of all platform state - datasets, pipelines, featuresets, sources, jobs, backfills, the latest commit, and recent events. Useful for dashboards that want everything in one round-trip.
 
 **Response:** `200 OK` with:
 
@@ -151,13 +151,13 @@ Liveness probe. Returns `200 OK` with `{"status": "ok"}` when the query server i
 
 ### `GET /query-runs`
 
-Lists query-run audit records — every CLI or SDK query is recorded here. Useful for building activity feeds, latency dashboards, and audit trails.
+Lists query-run audit records - every CLI or SDK query is recorded here. Useful for building activity feeds, latency dashboards, and audit trails.
 
 **Response:** `200 OK` with `{"runs": [...]}`. Each run has:
 
 | Field | Type | Description |
 |------|------|-------------|
-| `id` | string | UUID — same value returned on `X-Query-Run-Id` |
+| `id` | string | UUID - same value returned on `X-Query-Run-Id` |
 | `featureset` | string | Featureset queried |
 | `entity_ids` | string[] | Entities queried |
 | `requested_timestamp` | string \| null | The `timestamp` parameter (point-in-time queries only) |
@@ -179,7 +179,7 @@ Returns a single query-run record by ID.
 
 ### `POST /query-runs/{id}/replay`
 
-Re-runs a captured query — useful for reproducing a production result against the live state.
+Re-runs a captured query - useful for reproducing a production result against the live state.
 
 **Response:** `200 OK` with `{"kind": "...", "result": ...}` mirroring the original response shape.
 
@@ -195,7 +195,7 @@ Errors return a JSON body of the form:
 
 | Status | Meaning |
 |-------|---------|
-| `400` | Malformed request — missing required parameter, bad JSON body, invalid timestamp |
+| `400` | Malformed request - missing required parameter, bad JSON body, invalid timestamp |
 | `401` | Missing or invalid bearer token |
 | `404` | Featureset / job / source / query-run not found |
-| `5xx` | Server-side failure — capture the response body and surface to your Thyme administrator. |
+| `5xx` | Server-side failure - capture the response body and surface to your Thyme administrator. |

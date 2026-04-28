@@ -7,7 +7,7 @@ description: One definition, two runtimes. The five things Thyme gets right.
 
 Most streaming feature systems maintain two pipelines: a batch job to compute training features over history, and a streaming job to keep serving features fresh. The two drift. A fix in one does not propagate to the other. The model you evaluated offline is not the model you're serving.
 
-Thyme runs one pipeline. The same `@pipeline` definition produces state that is queried two ways — online for inference, point-in-time for training. There is no second pipeline to drift against.
+Thyme runs one pipeline. The same `@pipeline` definition produces state that is queried two ways - online for inference, point-in-time for training. There is no second pipeline to drift against.
 
 The rest of this page is the consequences of that one design choice.
 
@@ -15,7 +15,7 @@ The rest of this page is the consequences of that one design choice.
 
 ## 1. Kappa, not lambda
 
-Thyme is a kappa-architecture system: every feature is the output of a streaming aggregation, end of story. Historical training features are not a separate thing — they are the same aggregation answered at an earlier event-time.
+Thyme is a kappa-architecture system: every feature is the output of a streaming aggregation, end of story. Historical training features are not a separate thing - they are the same aggregation answered at an earlier event-time.
 
 - No batch ETL to maintain
 - No reconciliation job to keep the two in sync
@@ -56,7 +56,7 @@ The query server runs the extractor DAG in-process and reads aggregated state fr
 - P50 server-side latency: **under 1 ms** (0.66–2.23 ms measured in production on AWS)
 - Throughput: **thousands of events/sec per partition**, limited by your Kafka throughput, not Thyme
 
-Latency this low means you can use Thyme on the hot path of real-time scoring — not just precomputation.
+Latency this low means you can use Thyme on the hot path of real-time scoring - not just precomputation.
 
 ---
 
@@ -91,9 +91,9 @@ You do not manage Kafka consumer groups, state-store maintenance, partition reba
 
 **Smaller infrastructure footprint.** One system replaces the batch ETL, the streaming job, and the custom serving layer.
 
-**Safe schema evolution.** You can add, rename, and version features without breaking downstream consumers — see [Feature Versioning](/docs/guides/feature-versioning).
+**Safe schema evolution.** You can add, rename, and version features without breaking downstream consumers - see [Feature Versioning](/docs/guides/feature-versioning).
 
-**Audited queries by default.** Every CLI or SDK query is recorded as a [Query Run](/docs/concepts/query-runs) in the web UI — latency, hit rate, API key fingerprint, entities touched. No extra instrumentation required.
+**Audited queries by default.** Every CLI or SDK query is recorded as a [Query Run](/docs/concepts/query-runs) in the web UI - latency, hit rate, API key fingerprint, entities touched. No extra instrumentation required.
 
 ---
 
@@ -114,8 +114,8 @@ Thyme is one of several feature platforms in the streaming-feature space. The cl
 
 Two things to call out:
 
-1. **Kappa, not lambda.** Thyme, Tecton, and Fennel all support streaming aggregations, but only Thyme guarantees online/offline parity *structurally* — the same pipeline answers both query types from the same materialized state. Tecton and Fennel reconcile a batch pipeline against a streaming pipeline and bear the operational cost of that reconciliation.
+1. **Kappa, not lambda.** Thyme, Tecton, and Fennel all support streaming aggregations, but only Thyme guarantees online/offline parity *structurally* - the same pipeline answers both query types from the same materialized state. Tecton and Fennel reconcile a batch pipeline against a streaming pipeline and bear the operational cost of that reconciliation.
 
 2. **Sub-millisecond reads on the hot path.** Thyme is designed for online inference: P50 server-side latency is consistently under 1 ms in production benchmarks. Most managed feature stores hit comparable latency only on their paid online-serving tiers.
 
-For real-world walkthroughs of each architectural choice, see the [Case Studies](/docs/case-studies/fraud-detection) section — three production deployments at different points on the EPS / latency / feature-complexity spectrum.
+For real-world walkthroughs of each architectural choice, see the [Case Studies](/docs/case-studies/fraud-detection) section - three production deployments at different points on the EPS / latency / feature-complexity spectrum.

@@ -1,6 +1,6 @@
 ---
 title: IcebergSource
-description: Polling connector for Apache Iceberg tables — schema-evolved, incremental reads.
+description: Polling connector for Apache Iceberg tables - schema-evolved, incremental reads.
 ---
 
 `IcebergSource` reads from an Apache Iceberg table. Iceberg's snapshot model gives the connector incremental, append-aware reads with schema-evolution support out of the box.
@@ -31,7 +31,7 @@ class Transaction:
 
 | Parameter | Required | Default / env var | Description |
 |-----------|----------|-------------------|-------------|
-| `table` | **Yes** | — | Table name |
+| `table` | **Yes** | - | Table name |
 | `catalog` | No | `THYME_ICEBERG_CATALOG` | Iceberg catalog name |
 | `database` | No | `THYME_ICEBERG_DATABASE` | Database / namespace |
 
@@ -39,17 +39,17 @@ class Transaction:
 
 Authentication depends on your catalog backend:
 
-- **Glue catalog** — uses the engine pod's AWS identity (irsa, instance role)
-- **REST / Nessie / Polaris catalog** — pass credentials via the `THYME_ICEBERG_*` env vars on the engine
-- **HMS / Hive Metastore** — Kerberos or LDAP credentials via env
+- **Glue catalog** - uses the engine pod's AWS identity (irsa, instance role)
+- **REST / Nessie / Polaris catalog** - pass credentials via the `THYME_ICEBERG_*` env vars on the engine
+- **HMS / Hive Metastore** - Kerberos or LDAP credentials via env
 
 Storage credentials (for the underlying object store) follow the same env-driven pattern as [`S3JsonSource`](/docs/integrations/s3-json).
 
 ## Schema evolution
 
-Iceberg-native schema evolution (add column, rename column, widen type) is honoured. New columns added to the source table appear as nullable fields in newly-arriving events. Removing a field from your `@dataset` while keeping it in the source table is safe — Thyme ignores untyped columns.
+Iceberg-native schema evolution (add column, rename column, widen type) is honoured. New columns added to the source table appear as nullable fields in newly-arriving events. Removing a field from your `@dataset` while keeping it in the source table is safe - Thyme ignores untyped columns.
 
 ## Limits
 
 - The cursor field must be a column the writer guarantees is non-decreasing. A wall-clock `ts` column written at insert time is the typical choice.
-- Iceberg row-level deletes (`v2` delete files) are honoured by the connector but interact with `cdc="upsert"` semantics — verify behaviour against your specific writer.
+- Iceberg row-level deletes (`v2` delete files) are honoured by the connector but interact with `cdc="upsert"` semantics - verify behaviour against your specific writer.

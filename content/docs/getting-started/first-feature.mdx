@@ -109,9 +109,9 @@ class UserFeatures:
         return row["avg_amount_7d"], row["txn_count_30d"]
 ```
 
-- `feature(id=N)` — integer IDs are required. They provide a stable identity across renames and schema changes.
-- `@extractor_inputs` — the features this extractor needs as input (resolved by the query planner).
-- `@extractor_outputs` — the features this extractor produces.
+- `feature(id=N)` - integer IDs are required. They provide a stable identity across renames and schema changes.
+- `@extractor_inputs` - the features this extractor needs as input (resolved by the query planner).
+- `@extractor_outputs` - the features this extractor produces.
 - The extractor body runs in Python at query time, inside the query server.
 
 ---

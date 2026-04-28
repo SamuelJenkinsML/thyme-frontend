@@ -5,13 +5,13 @@ description: Real-time purchase intent for a 500M-visitor travel marketplace usi
 
 ## The problem
 
-A travel marketplace with 500M monthly visitors lists thousands of experiences — adventure tours, food walks, cultural immersions, wellness retreats. Users browse, click, linger, bounce. The business question is continuous: **right now, which users are about to book?**
+A travel marketplace with 500M monthly visitors lists thousands of experiences - adventure tours, food walks, cultural immersions, wellness retreats. Users browse, click, linger, bounce. The business question is continuous: **right now, which users are about to book?**
 
 That signal drives search ranking, personalized CTAs, and inventory allocation. It has to separate three kinds of users in milliseconds:
 
-- **Active browsers** — many clicks in the last hour, deep dwell time, pace accelerating
-- **Casual scrollers** — a handful of short glances before they leave
-- **Dormant returners** — quiet for a day, used to be active last week
+- **Active browsers** - many clicks in the last hour, deep dwell time, pace accelerating
+- **Casual scrollers** - a handful of short glances before they leave
+- **Dormant returners** - quiet for a day, used to be active last week
 
 Batch pipelines that refresh hourly can't answer this. By the time the aggregation lands, the user is gone.
 
@@ -21,20 +21,20 @@ The clickstream is big and noisy: **5,000 events/sec sustained**, peaking at **1
 
 Naive approaches all miss:
 
-- **Batch in Snowflake/Spark** — too slow; creates training-serving skew between daily training data and streaming serving features
-- **Redis counters** — require hand-rolled windowed aggregation; no temporal joins; awkward to scale with user cardinality
-- **Analytics warehouses (Redshift, BigQuery)** — not built for streaming ingestion paired with sub-5 ms point lookups
+- **Batch in Snowflake/Spark** - too slow; creates training-serving skew between daily training data and streaming serving features
+- **Redis counters** - require hand-rolled windowed aggregation; no temporal joins; awkward to scale with user cardinality
+- **Analytics warehouses (Redshift, BigQuery)** - not built for streaming ingestion paired with sub-5 ms point lookups
 
-What you actually need is **windowed aggregations across 1h, 24h, 7d, temporal-joined against user profiles, producing a composite intent signal — at ranking-request latency, with zero offline/online drift**.
+What you actually need is **windowed aggregations across 1h, 24h, 7d, temporal-joined against user profiles, producing a composite intent signal - at ranking-request latency, with zero offline/online drift**.
 
 ## Why Thyme's architecture fits
 
 Thyme's kappa architecture pulls this into a single pipeline definition:
 
-- **Temporal joins** — every click is enriched with the user's profile *as of the click's timestamp*, not the latest profile. Guarantees training data matches online serving.
-- **Invertible operators** — `Count` and `Sum` evict expired window contents in O(1). 7-day windows aren't meaningfully more expensive than 1-hour windows.
-- **Derived extractors at query time** — composite signals like `is_high_intent` are Python, executed at read time over the pre-aggregated values. No extra storage, no pre-materialization.
-- **One definition, both paths** — the same `features.py` serves online ranking and offline training sets.
+- **Temporal joins** - every click is enriched with the user's profile *as of the click's timestamp*, not the latest profile. Guarantees training data matches online serving.
+- **Invertible operators** - `Count` and `Sum` evict expired window contents in O(1). 7-day windows aren't meaningfully more expensive than 1-hour windows.
+- **Derived extractors at query time** - composite signals like `is_high_intent` are Python, executed at read time over the pre-aggregated values. No extra storage, no pre-materialization.
+- **One definition, both paths** - the same `features.py` serves online ranking and offline training sets.
 
 ## The Thyme solution
 
@@ -115,7 +115,7 @@ class UserEngagementStats:
 class DiscoverySignals:
     user_id: str = feature()
 
-    # Raw aggregations — auto-generated lookup extractors share state reads
+    # Raw aggregations - auto-generated lookup extractors share state reads
     # across all eight features.
     event_count_1h:    int   = feature(ref=UserEngagementStats.event_count_1h)
     event_count_24h:   int   = feature(ref=UserEngagementStats.event_count_24h)
@@ -184,9 +184,9 @@ class DiscoverySignals:
 
 The composite extractor fires when all three hold:
 
-- `engagement_velocity > 2` — clicking at least 2× faster than their 24-hour baseline
-- `avg_dwell_sec_1h ≥ 30` — actually reading listings, not scrolling
-- `activity_trend_7d > 1` — more active today than their weekly average
+- `engagement_velocity > 2` - clicking at least 2× faster than their 24-hour baseline
+- `avg_dwell_sec_1h ≥ 30` - actually reading listings, not scrolling
+- `activity_trend_7d > 1` - more active today than their weekly average
 
 All three are computed in Python at query time over the pre-aggregated state.
 
@@ -198,7 +198,7 @@ All three are computed in Python at query time over the pre-aggregated state.
 |--------|----------------|--------------|---------------------|----------------|
 | `u_active_browser` | 20 | ~30s | ~16.0 | `true` |
 | `u_casual_visitor` | 2 | ~4s | ~baseline | `false` |
-| `u_dormant_returner` | 0 | — | 0.0 | `false` |
+| `u_dormant_returner` | 0 | - | 0.0 | `false` |
 
 `u_dormant_returner` retains 20 events in the 7-day window. As soon as they return, `engagement_velocity` and `is_high_intent` update inside the next flush.
 

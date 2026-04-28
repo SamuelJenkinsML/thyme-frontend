@@ -49,7 +49,7 @@ const TERMS = {
   queryRun: {
     label: "Query Run",
     gloss:
-      "An audit record of a CLI or SDK query — entity IDs, latency, hit count, API key fingerprint, error.",
+      "An audit record of a CLI or SDK query - entity IDs, latency, hit count, API key fingerprint, error.",
     href: "/docs/concepts/query-runs",
   },
 } as const;

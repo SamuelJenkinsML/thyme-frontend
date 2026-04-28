@@ -32,7 +32,7 @@ curl -H "Authorization: Bearer $THYME_API_KEY" \
 `thyme login` stores credentials at `~/.thyme/credentials` (JSON, file permissions `0600`). All subsequent CLI and SDK calls automatically attach the bearer token.
 
 ```bash
-# One-time setup — use the URL and key your administrator gave you
+# One-time setup - use the URL and key your administrator gave you
 thyme login --url https://thyme.your-company.com --api-key tk_your_key
 
 # Subsequent commands authenticate automatically
@@ -41,7 +41,7 @@ thyme status
 thyme logs
 ```
 
-The `THYME_API_KEY` environment variable, if set, **overrides** stored credentials. This is the recommended pattern for CI environments — `thyme login` for an interactive workstation, `THYME_API_KEY` env var for CI.
+The `THYME_API_KEY` environment variable, if set, **overrides** stored credentials. This is the recommended pattern for CI environments - `thyme login` for an interactive workstation, `THYME_API_KEY` env var for CI.
 
 To remove stored credentials:
 

@@ -14,7 +14,7 @@ Four node types, drawn in this order top-to-bottom:
 | Node | What it is |
 |-----|-----------|
 | **Source** | A `@source` connector feeding into a dataset (Postgres, Kafka, Kinesis, Iceberg, …) |
-| **Dataset** | An `@dataset` definition — either a raw landing dataset or the output of a pipeline |
+| **Dataset** | An `@dataset` definition - either a raw landing dataset or the output of a pipeline |
 | **Pipeline** | An `@pipeline`-decorated method on a dataset, computing windowed aggregations |
 | **Featureset** | An `@featureset` exposing model-ready features, possibly with `@extractor` derivations |
 
@@ -25,15 +25,15 @@ Edges run downward:
 - A **pipeline output edge** flows from the pipeline into the dataset it materializes.
 - An **extractor edge** flows from a dataset into a featureset whose extractor reads from it (`feature(ref=Dataset.field)` or an `@extractor` declaring `extractor_inputs`).
 
-Lineage is **definition-time**, not runtime. Every edge is derived from the registered metadata in your committed Python module — there is no per-query timing data on the graph today.
+Lineage is **definition-time**, not runtime. Every edge is derived from the registered metadata in your committed Python module - there is no per-query timing data on the graph today.
 
 ## Why look at lineage
 
 Three common reasons:
 
-1. **Comprehension.** "Where does `is_suspicious` actually come from?" — trace the featureset back through extractors, into the aggregated dataset, into the pipeline, into the raw dataset, into the source.
-2. **Impact analysis.** "If I rename `Order.amount`, what breaks?" — the lineage page's blast-radius mode highlights every downstream pipeline, dataset, and featureset that touches the field.
-3. **Audit.** "Which source produces this featureset?" — useful for data governance, GDPR mapping, and PII flow tracking.
+1. **Comprehension.** "Where does `is_suspicious` actually come from?" - trace the featureset back through extractors, into the aggregated dataset, into the pipeline, into the raw dataset, into the source.
+2. **Impact analysis.** "If I rename `Order.amount`, what breaks?" - the lineage page's blast-radius mode highlights every downstream pipeline, dataset, and featureset that touches the field.
+3. **Audit.** "Which source produces this featureset?" - useful for data governance, GDPR mapping, and PII flow tracking.
 
 ## Blast-radius mode
 
@@ -42,7 +42,7 @@ Click any node to enter **blast-radius mode**. The graph dims to gray and re-hig
 - **Upstream** (everything that feeds the selected node) in one colour
 - **Downstream** (everything the selected node feeds into) in another
 
-This is the fast answer to "what happens if I change this?" — all downstream pipelines and featuresets light up, and you can see at a glance whether the change is local or invasive.
+This is the fast answer to "what happens if I change this?" - all downstream pipelines and featuresets light up, and you can see at a glance whether the change is local or invasive.
 
 Press `Esc` or click the background to exit blast-radius mode.
 
@@ -50,13 +50,13 @@ Press `Esc` or click the background to exit blast-radius mode.
 
 Lineage is a structural graph derived from metadata. It does **not** show:
 
-- **Per-query latency** — see [Query Runs](/docs/concepts/query-runs) for timing data per featureset query.
-- **Throughput / event rate per pipeline** — see [Operations → Monitoring](/docs/operations/monitoring) for Prometheus metrics.
-- **Data volume on edges** — there is no "how many events flowed through this edge" annotation today.
-- **Job health** — see the Jobs page for live job state.
+- **Per-query latency** - see [Query Runs](/docs/concepts/query-runs) for timing data per featureset query.
+- **Throughput / event rate per pipeline** - see [Operations → Monitoring](/docs/operations/monitoring) for Prometheus metrics.
+- **Data volume on edges** - there is no "how many events flowed through this edge" annotation today.
+- **Job health** - see the Jobs page for live job state.
 
 If you need a live operational view of a pipeline rather than its definition, start from the Jobs page and drill in.
 
 ## Updating the graph
 
-Every `thyme commit` regenerates the graph from the new metadata. The lineage UI reads the latest committed snapshot, so your most recent commit is what's drawn — not historical state. If you need to look at a previous commit's graph, query the [REST API](/docs/reference/rest-api) and reconstruct it from the per-commit data.
+Every `thyme commit` regenerates the graph from the new metadata. The lineage UI reads the latest committed snapshot, so your most recent commit is what's drawn - not historical state. If you need to look at a previous commit's graph, query the [REST API](/docs/reference/rest-api) and reconstruct it from the per-commit data.

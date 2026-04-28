@@ -1,6 +1,6 @@
 ---
 title: Unit Testing Pipelines
-description: Test feature pipelines with MockContext — no infrastructure required.
+description: Test feature pipelines with MockContext - no infrastructure required.
 ---
 
 `MockContext` lets you unit test datasets, pipelines, and extractors without running Postgres, Kafka, or any Thyme services. It mirrors the engine's aggregation semantics in pure Python.
@@ -93,9 +93,9 @@ def test_windowed_sum(self):
 
 ## Tips
 
-- **Import your feature module** at the top of the test file — this triggers decorator registration
-- **Each `MockContext()` is independent** — no shared state between tests
-- **Timestamps matter** — use explicit timestamps to control which window events fall into
+- **Import your feature module** at the top of the test file - this triggers decorator registration
+- **Each `MockContext()` is independent** - no shared state between tests
+- **Timestamps matter** - use explicit timestamps to control which window events fall into
 - **`ApproxPercentile`** uses exact percentile rank in tests, so results are deterministic
 
 See the [Testing Reference](/docs/testing) for the full API.

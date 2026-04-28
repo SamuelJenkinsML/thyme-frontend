@@ -50,7 +50,7 @@ How often the engine polls the source. Format: integer + unit (`m` minutes, `h` 
 
 The maximum expected delay between event time and ingestion time. Events arriving later than `(current_watermark - max_lateness)` are discarded. This bound lets the engine advance the watermark and emit results without waiting forever.
 
-Set this conservatively — too small and you lose late events; too large and your features are unnecessarily delayed.
+Set this conservatively - too small and you lose late events; too large and your features are unnecessarily delayed.
 
 ---
 
@@ -97,7 +97,7 @@ Connectors split into two families: **streaming** sources consume continuously f
 | `KafkaSource` | Topics on Apache Kafka |
 | `KinesisSource` | AWS Kinesis streams |
 
-Streaming sources ignore `every` — they consume as fast as the engine can drain the topic.
+Streaming sources ignore `every` - they consume as fast as the engine can drain the topic.
 
 ### Polling
 

@@ -3,11 +3,11 @@ title: Read & Write Paths
 description: Two paths, one definition. How Thyme keeps online and offline features consistent.
 ---
 
-Thyme runs two paths over the same feature definition. The **write path** continuously ingests events, applies windowed aggregations, and stores state keyed by entity and event time. The **read path** answers queries — online and point-in-time — by reading that same state and running extractors on top.
+Thyme runs two paths over the same feature definition. The **write path** continuously ingests events, applies windowed aggregations, and stores state keyed by entity and event time. The **read path** answers queries - online and point-in-time - by reading that same state and running extractors on top.
 
 <ReadWriteDiagram />
 
-Both paths share a single source of truth: the feature store, an event-time-keyed state written transactionally by the engine and read non-blocking by the query server. Because online and offline queries read the same materialized state — not a copy, not a reconciled view — they return the same numbers.
+Both paths share a single source of truth: the feature store, an event-time-keyed state written transactionally by the engine and read non-blocking by the query server. Because online and offline queries read the same materialized state - not a copy, not a reconciled view - they return the same numbers.
 
 ---
 
@@ -15,11 +15,11 @@ Both paths share a single source of truth: the feature store, an event-time-keye
 
 The write path is always running. It is not a batch job; there is no schedule.
 
-1. **Sources.** Every dataset has a source — streaming (Kafka, Kinesis) or polling (Postgres, Iceberg, S3, BigQuery, Snowflake). Polling sources track a cursor field and publish new rows onto a per-dataset Kafka topic as they arrive.
+1. **Sources.** Every dataset has a source - streaming (Kafka, Kinesis) or polling (Postgres, Iceberg, S3, BigQuery, Snowflake). Polling sources track a cursor field and publish new rows onto a per-dataset Kafka topic as they arrive.
 2. **Raw Dataset.** The landing zone for each source. Event time and entity key are extracted here so all downstream operators see canonical records.
-3. **Windowed Pipeline.** Your `@pipeline` decorator defines `groupby` + `aggregate` over one or more time windows. Supported operators are `Sum`, `Count`, `Avg`, `Min`, `Max`, and `ApproxPercentile`. Sum/Count/Avg are invertible — old records falling out of a window can be subtracted without a recompute. ApproxPercentile uses tiled t-digest sketches, so percentile rank is ready at query time, not computed on the fly.
+3. **Windowed Pipeline.** Your `@pipeline` decorator defines `groupby` + `aggregate` over one or more time windows. Supported operators are `Sum`, `Count`, `Avg`, `Min`, `Max`, and `ApproxPercentile`. Sum/Count/Avg are invertible - old records falling out of a window can be subtracted without a recompute. ApproxPercentile uses tiled t-digest sketches, so percentile rank is ready at query time, not computed on the fly.
 4. **Aggregated Dataset.** The pipeline's output is itself a queryable, event-time-keyed dataset. This is what your featureset reads from.
-5. **Commit.** Each pipeline tick commits atomically — output state, internal accumulator state, and source progress advance together, paired with a transactional Kafka produce — giving end-to-end exactly-once semantics.
+5. **Commit.** Each pipeline tick commits atomically - output state, internal accumulator state, and source progress advance together, paired with a transactional Kafka produce - giving end-to-end exactly-once semantics.
 
 <Callout type="info">
 You do not manage Kafka consumers, topic partitions, watermark advancement, late-event handling, or checkpoint recovery. You declare the feature; the engine runs it.
@@ -32,9 +32,9 @@ You do not manage Kafka consumers, topic partitions, watermark advancement, late
 The read path runs on demand, against the same state the write path produced.
 
 1. **Query Server.** An HTTP service receives a featureset query. Optional `ts=` makes the query point-in-time; omitted, it serves the latest value.
-2. **Extractor DAG.** Your `@extractor` functions form a DAG. The server resolves dependencies, topologically sorts them, and runs the Python extractors in-process — no network hop to a separate Python worker.
+2. **Extractor DAG.** Your `@extractor` functions form a DAG. The server resolves dependencies, topologically sorts them, and runs the Python extractors in-process - no network hop to a separate Python worker.
 3. **Featureset response.** Composed features are returned as JSON. P50 server-side latency is well under 1 millisecond in production, because all state is read from a local replica of the feature store with no network reads.
-4. **Query-run record.** After responding, the server spawns a detached task that records a metadata-only audit row and returns the run's UUID on the `X-Query-Run-Id` response header. The SDK surfaces this as `ThymeResult.query_run_id`; the CLI prints a `Results:` link to the web UI. Persistence is best-effort — a failed audit insert never fails the user's query. See [Query Runs](/docs/concepts/query-runs) for what's captured and what isn't.
+4. **Query-run record.** After responding, the server spawns a detached task that records a metadata-only audit row and returns the run's UUID on the `X-Query-Run-Id` response header. The SDK surfaces this as `ThymeResult.query_run_id`; the CLI prints a `Results:` link to the web UI. Persistence is best-effort - a failed audit insert never fails the user's query. See [Query Runs](/docs/concepts/query-runs) for what's captured and what isn't.
 
 ---
 
@@ -46,4 +46,4 @@ The write path and the read path share one source of truth. Neither is a project
 - There is no batch snapshot to reconcile against a streaming job; there is no streaming job to reconcile against a batch snapshot. There is one pipeline, two modes of query.
 - New features go live as soon as the pipeline advances. No backfill coordination, no offline-online deployment dance.
 
-For the contracts this shape gives you — exactly-once processing, watermark and lateness behaviour, online/offline parity — see [Durability & Consistency](/docs/architecture/durability-and-consistency).
+For the contracts this shape gives you - exactly-once processing, watermark and lateness behaviour, online/offline parity - see [Durability & Consistency](/docs/architecture/durability-and-consistency).

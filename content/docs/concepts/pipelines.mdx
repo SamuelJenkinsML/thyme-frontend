@@ -3,7 +3,7 @@ title: Pipelines
 description: Continuous windowed aggregations that are always on.
 ---
 
-A pipeline is the thing that turns raw events into feature state. It is a windowed aggregation that runs continuously — not on a schedule, not in response to a deploy. Once you commit it, it is on, forever, until you change it.
+A pipeline is the thing that turns raw events into feature state. It is a windowed aggregation that runs continuously - not on a schedule, not in response to a deploy. Once you commit it, it is on, forever, until you change it.
 
 A pipeline reads one or more input datasets, groups their events by entity, applies one or more time-windowed aggregations, and writes the result into a new dataset. That output dataset is what your featureset reads at query time.
 
@@ -50,7 +50,7 @@ The decorator passes an instance of each input type as positional arguments to t
 
 ## The builder
 
-The pipeline body uses a fluent builder to declare the computation. It is **lazy** — it returns a description of the DAG, not data. No records are processed at import or commit time.
+The pipeline body uses a fluent builder to declare the computation. It is **lazy** - it returns a description of the DAG, not data. No records are processed at import or commit time.
 
 ### `.groupby(*keys)`
 
@@ -74,7 +74,7 @@ Applies named aggregations. Each keyword argument becomes a field in the output 
 
 ### `.join(other, on=..., fields=[...])`
 
-Enriches events by temporally joining another input dataset. The join returns, for each event, the latest value of `other` as of that event's timestamp — so training and serving see the same enrichment.
+Enriches events by temporally joining another input dataset. The join returns, for each event, the latest value of `other` as of that event's timestamp - so training and serving see the same enrichment.
 
 ---
 
@@ -82,11 +82,11 @@ Enriches events by temporally joining another input dataset. The join returns, f
 
 | Operator | Description | Memory |
 |----------|-------------|--------|
-| `Sum(of, window)` | Rolling sum of a numeric field | O(1) — invertible |
-| `Count(of, window)` | Rolling count of events | O(1) — invertible |
-| `Avg(of, window)` | Rolling mean of a numeric field | O(1) — invertible |
-| `Min(of, window)` | Rolling minimum of a numeric field | O(window) — sorted set |
-| `Max(of, window)` | Rolling maximum of a numeric field | O(window) — sorted set |
+| `Sum(of, window)` | Rolling sum of a numeric field | O(1) - invertible |
+| `Count(of, window)` | Rolling count of events | O(1) - invertible |
+| `Avg(of, window)` | Rolling mean of a numeric field | O(1) - invertible |
+| `Min(of, window)` | Rolling minimum of a numeric field | O(window) - sorted set |
+| `Max(of, window)` | Rolling maximum of a numeric field | O(window) - sorted set |
 | `ApproxPercentile(of, window, pct)` | Percentile rank via tiled t-digest sketches | O(tiles) |
 
 **Invertible** operators store only the running total and count. When an old record falls out of the window, they subtract without recomputing. This is why `Sum`/`Count`/`Avg` over a 180-day window costs the same memory as over a one-hour window.

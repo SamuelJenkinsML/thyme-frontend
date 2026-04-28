@@ -5,9 +5,9 @@ description: E-commerce fraud detection with multi-window aggregation, derived e
 
 ## The problem
 
-E-commerce fraud detection needs to happen at checkout — not in a batch job that runs overnight. When a compromised account starts placing rapid-fire orders or a fraudster's 24-hour spend spikes to 10× the weekly average, the fraud scoring model needs those signals *now*, with sub-second freshness.
+E-commerce fraud detection needs to happen at checkout - not in a batch job that runs overnight. When a compromised account starts placing rapid-fire orders or a fraudster's 24-hour spend spikes to 10× the weekly average, the fraud scoring model needs those signals *now*, with sub-second freshness.
 
-The features that matter are velocity and spend signals across multiple time windows: order count in the last hour, total spend in the last 24 hours, and weekly spend trends. The `is_suspicious` flag — derived from these raw aggregations — needs to reflect reality within seconds of each new order.
+The features that matter are velocity and spend signals across multiple time windows: order count in the last hour, total spend in the last 24 hours, and weekly spend trends. The `is_suspicious` flag - derived from these raw aggregations - needs to reflect reality within seconds of each new order.
 
 ## Why this feature is hard
 
@@ -29,10 +29,10 @@ Most feature platforms use a **lambda architecture**: separate batch and streami
 
 For fraud detection, kappa wins:
 
-- **No dual-pipeline drift** — one pipeline definition, both online and offline serve from the same state
-- **Freshness without reconciliation** — no batch job to wait for, no "approximate" streaming features
-- **Derived features stay consistent** — all inputs are always at the same freshness
-- **Adding a window doesn't multiply pipelines** — add one line, not two pipelines
+- **No dual-pipeline drift** - one pipeline definition, both online and offline serve from the same state
+- **Freshness without reconciliation** - no batch job to wait for, no "approximate" streaming features
+- **Derived features stay consistent** - all inputs are always at the same freshness
+- **Adding a window doesn't multiply pipelines** - add one line, not two pipelines
 
 ## The Thyme solution
 

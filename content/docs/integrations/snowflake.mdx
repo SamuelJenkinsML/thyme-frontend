@@ -1,6 +1,6 @@
 ---
 title: SnowflakeSource
-description: Polling connector for Snowflake tables — incremental reads via a cursor field.
+description: Polling connector for Snowflake tables - incremental reads via a cursor field.
 ---
 
 `SnowflakeSource` reads from a Snowflake table incrementally, tracking a cursor field and fetching new rows on each poll.
@@ -32,7 +32,7 @@ class Order:
 
 | Parameter | Required | Default / env var | Description |
 |-----------|----------|-------------------|-------------|
-| `table` | **Yes** | — | Table name |
+| `table` | **Yes** | - | Table name |
 | `account` | No | `THYME_SNOWFLAKE_ACCOUNT` | Snowflake account identifier |
 | `database` | No | `THYME_SNOWFLAKE_DATABASE` | Database name |
 | `warehouse` | No | `THYME_SNOWFLAKE_WAREHOUSE` | Compute warehouse |
@@ -44,4 +44,4 @@ class Order:
 ## Limits
 
 - The cursor field must be monotonically non-decreasing. Snowflake's `INSERT_TIME` system column is a safe default if your application can't guarantee ordering on its own column.
-- Polling intervals shorter than ~1 minute may incur unnecessary Snowflake compute cost — Thyme is designed for sub-second freshness via streaming sources, not high-frequency polling of a warehouse.
+- Polling intervals shorter than ~1 minute may incur unnecessary Snowflake compute cost - Thyme is designed for sub-second freshness via streaming sources, not high-frequency polling of a warehouse.

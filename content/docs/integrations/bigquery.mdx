@@ -1,6 +1,6 @@
 ---
 title: BigQuerySource
-description: Polling connector for BigQuery tables — incremental reads via a cursor field, GCP service-account auth.
+description: Polling connector for BigQuery tables - incremental reads via a cursor field, GCP service-account auth.
 ---
 
 `BigQuerySource` reads from a BigQuery table incrementally, tracking a cursor field and fetching new rows on each poll.
@@ -36,8 +36,8 @@ class Order:
 
 | Parameter | Required | Default / env var | Description |
 |-----------|----------|-------------------|-------------|
-| `dataset_id` | **Yes** | — | BigQuery dataset ID |
-| `table` | **Yes** | — | Table name |
+| `dataset_id` | **Yes** | - | BigQuery dataset ID |
+| `table` | **Yes** | - | Table name |
 | `project_id` | No | `THYME_BIGQUERY_PROJECT_ID` | GCP project ID |
 | `credentials_json` | No (`Secret`-capable) | `THYME_BIGQUERY_CREDENTIALS_JSON` | Service-account JSON (uses ADC if empty) |
 
@@ -45,9 +45,9 @@ class Order:
 
 Two options:
 
-**Application Default Credentials (ADC)** — leave `credentials_json` empty and rely on the engine pod's GCP identity (Workload Identity, GCE metadata, etc.).
+**Application Default Credentials (ADC)** - leave `credentials_json` empty and rely on the engine pod's GCP identity (Workload Identity, GCE metadata, etc.).
 
-**Explicit service-account JSON** — pass via `Secret`:
+**Explicit service-account JSON** - pass via `Secret`:
 
 ```python
 BigQuerySource(
@@ -62,4 +62,4 @@ The service account needs `bigquery.tables.getData` and `bigquery.jobs.create` o
 ## Limits
 
 - The cursor field must be monotonically non-decreasing. Use a `TIMESTAMP` column populated server-side (`CURRENT_TIMESTAMP()` at insert) when application clocks can't be trusted.
-- Each poll runs a parameterised `SELECT … WHERE cursor > @last`. BigQuery slot consumption depends on table partitioning — partition the source table on the cursor column for efficient incremental reads.
+- Each poll runs a parameterised `SELECT … WHERE cursor > @last`. BigQuery slot consumption depends on table partitioning - partition the source table on the cursor column for efficient incremental reads.

@@ -15,7 +15,7 @@ This page explains the Thyme data path from the perspective of someone using the
 
 ## Step 1: You write Python
 
-You define datasets, pipelines, featuresets, and sources in a Python file. Nothing runs at import time — decorators only register metadata.
+You define datasets, pipelines, featuresets, and sources in a Python file. Nothing runs at import time - decorators only register metadata.
 
 ```python
 @dataset(index=True)
@@ -54,7 +54,7 @@ The engine runs continuously in the background. When it sees new job definitions
 3. Spins up a **pipeline runner** for each `@pipeline` definition
 4. The runner consumes from Kafka, applies windowed aggregations, and writes results to the feature store
 
-The engine keeps running, continuously updating feature values as new events arrive. You don't manage this process — it runs until the definition changes.
+The engine keeps running, continuously updating feature values as new events arrive. You don't manage this process - it runs until the definition changes.
 
 ---
 
@@ -69,7 +69,7 @@ GET $THYME_BASE_URL/features?featureset=UserFeatures&uid=user_42
 The query server:
 
 1. Looks up the featureset definition
-2. Resolves the extractor DAG — which extractors need to run and in what order
+2. Resolves the extractor DAG - which extractors need to run and in what order
 3. Reads aggregated values from the feature store (keyed by entity ID)
 4. Runs the extractor code in Python, passing the raw aggregated values
 5. Returns the composed feature values as JSON
@@ -90,7 +90,7 @@ GET $THYME_BASE_URL/features?featureset=UserFeatures&uid=user_42
 GET $THYME_BASE_URL/features?featureset=UserFeatures&uid=user_42&ts=2024-01-15T12:00:00Z
 ```
 
-Because Thyme uses event time throughout, point-in-time queries return exactly the feature value that would have been served at that moment. This makes offline training datasets consistent with online serving — eliminating training/serving skew.
+Because Thyme uses event time throughout, point-in-time queries return exactly the feature value that would have been served at that moment. This makes offline training datasets consistent with online serving - eliminating training/serving skew.
 
 ---
 

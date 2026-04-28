@@ -1,11 +1,11 @@
 ---
 title: Sources & Integrations
-description: All seven Thyme source connectors — when to use each, parameters, and authentication.
+description: All seven Thyme source connectors - when to use each, parameters, and authentication.
 ---
 
 A source connects an external data system to a Thyme dataset. Thyme ships seven connectors, split into **polling** (incremental reads against a cursor) and **streaming** (continuous consumption).
 
-For the `@source` decorator semantics — `cursor`, `every`, `max_lateness`, `cdc` — see [Sources concept](/docs/concepts/sources). This section is the per-connector parameter reference.
+For the `@source` decorator semantics - `cursor`, `every`, `max_lateness`, `cdc` - see [Sources concept](/docs/concepts/sources). This section is the per-connector parameter reference.
 
 ## All connectors
 
@@ -20,15 +20,15 @@ For the `@source` decorator semantics — `cursor`, `every`, `max_lateness`, `cd
 | [IcebergSource](/docs/integrations/iceberg) | Polling | Apache Iceberg tables |
 
 <Callout type="info">
-Polling connectors require `cursor` and `every` on `@source` for incremental reads. Streaming connectors (Kafka, Kinesis) consume continuously — setting `cursor` or `every` on them raises a validation error.
+Polling connectors require `cursor` and `every` on `@source` for incremental reads. Streaming connectors (Kafka, Kinesis) consume continuously - setting `cursor` or `every` on them raises a validation error.
 </Callout>
 
 ## Two field categories
 
 Every connector splits its kwargs into two groups:
 
-- **Per-dataset** (required, no env fallback) — identifies *what* to read: `table`, `topic`, `stream_arn`, `prefix`, etc. Mistyping silently turning into `""` would mask a typo, so these stay strict.
-- **Connection-level** (env-defaulted) — identifies *where* to read from: `host`, `port`, `region`, etc. When omitted, the connector reads `THYME_<TYPE>_<FIELD>` from the environment. Explicit kwargs always override the env-var fallback.
+- **Per-dataset** (required, no env fallback) - identifies *what* to read: `table`, `topic`, `stream_arn`, `prefix`, etc. Mistyping silently turning into `""` would mask a typo, so these stay strict.
+- **Connection-level** (env-defaulted) - identifies *where* to read from: `host`, `port`, `region`, etc. When omitted, the connector reads `THYME_<TYPE>_<FIELD>` from the environment. Explicit kwargs always override the env-var fallback.
 
 This means you can keep credentials and connection details out of the Python file:
 

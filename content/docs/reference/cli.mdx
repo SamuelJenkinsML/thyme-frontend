@@ -46,11 +46,11 @@ thyme commit [OPTIONS] [PATH]
 
 | Option | Short | Env var | Default | Description |
 |--------|-------|---------|---------|-------------|
-| `PATH` (positional) | — | — | — | Python file with feature definitions |
-| `--module MODULE` | `-m` | — | — | Import by dotted module path instead |
-| `--dry-run` | — | — | `False` | Print the payload instead of POSTing |
-| `--output FILE` | — | — | — | Write dry-run payload to a file |
-| `--api-url URL` | — | `THYME_API_URL` | from `thyme login` | Thyme instance URL |
+| `PATH` (positional) | - | - | - | Python file with feature definitions |
+| `--module MODULE` | `-m` | - | - | Import by dotted module path instead |
+| `--dry-run` | - | - | `False` | Print the payload instead of POSTing |
+| `--output FILE` | - | - | - | Write dry-run payload to a file |
+| `--api-url URL` | - | `THYME_API_URL` | from `thyme login` | Thyme instance URL |
 
 ```bash
 thyme commit features.py
@@ -117,13 +117,13 @@ thyme query FEATURESET_REF [OPTIONS]
 
 | Option | Short | Env var | Default | Description |
 |--------|-------|---------|---------|-------------|
-| `--entity VALUE` | `-e` | — | — | Entity ID (repeatable; supports `@file.txt` and comma splits) |
-| `--module PATH` | `-m` | — | — | Import module from a file path instead of a dotted name |
-| `--format FMT` | `-f` | — | `table` | `table`, `json`, `csv`, `parquet`, `arrow` |
-| `--output PATH` | `-o` | — | — | Output file (required for `parquet`/`arrow`) |
-| `--limit N` | — | — | `50` | Truncation for table display |
-| `--query-url URL` | — | `THYME_QUERY_URL` | from `thyme login` | Query-server URL |
-| `--api-key KEY` | — | `THYME_API_KEY` | — | Bearer token |
+| `--entity VALUE` | `-e` | - | - | Entity ID (repeatable; supports `@file.txt` and comma splits) |
+| `--module PATH` | `-m` | - | - | Import module from a file path instead of a dotted name |
+| `--format FMT` | `-f` | - | `table` | `table`, `json`, `csv`, `parquet`, `arrow` |
+| `--output PATH` | `-o` | - | - | Output file (required for `parquet`/`arrow`) |
+| `--limit N` | - | - | `50` | Truncation for table display |
+| `--query-url URL` | - | `THYME_QUERY_URL` | from `thyme login` | Query-server URL |
+| `--api-key KEY` | - | `THYME_API_KEY` | - | Bearer token |
 
 ```bash
 thyme query myproject.features:UserFeatures -e user_42
@@ -135,7 +135,7 @@ thyme query myproject.features:UserFeatures -e @ids.txt --format parquet -o out.
 
 ## `thyme query-offline`
 
-Historical / batch feature query with per-row timestamps — the workflow you use to build training data.
+Historical / batch feature query with per-row timestamps - the workflow you use to build training data.
 
 ```bash
 thyme query-offline FEATURESET_REF [--input FILE | -e ID --at TS ...] [OPTIONS]
@@ -146,18 +146,18 @@ Two input modes:
 1. **File** (recommended): `--input rows.{parquet,csv,jsonl}` with columns `entity_id` + `timestamp` (configurable via `--entity-column` / `--timestamp-column`).
 2. **Inline flags**: repeated `-e ID --at ISO-8601` pairs for ad-hoc runs.
 
-These are mutually exclusive — the CLI errors if both are supplied.
+These are mutually exclusive - the CLI errors if both are supplied.
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `--input FILE` (`-i`) | — | `.parquet`, `.csv`, `.tsv`, or `.jsonl` |
-| `--entity VALUE` (`-e`) | — | Ad-hoc entity ID (pairs with `--at`) |
-| `--at TIMESTAMP` | — | ISO-8601 timestamp; 1:1 with `-e` |
+| `--input FILE` (`-i`) | - | `.parquet`, `.csv`, `.tsv`, or `.jsonl` |
+| `--entity VALUE` (`-e`) | - | Ad-hoc entity ID (pairs with `--at`) |
+| `--at TIMESTAMP` | - | ISO-8601 timestamp; 1:1 with `-e` |
 | `--entity-column NAME` | `entity_id` | Column in `--input` |
 | `--timestamp-column NAME` | `timestamp` | Column in `--input` |
 | `--batch-size N` | `5000` | Rows per request |
 | `--format FMT` (`-f`) | `table` | As above |
-| `--output PATH` (`-o`) | — | As above |
+| `--output PATH` (`-o`) | - | As above |
 
 ```bash
 thyme query-offline myproject.features:UserFeatures \
@@ -173,7 +173,7 @@ thyme query-offline myproject.features:UserFeatures \
 
 ## `thyme lookup`
 
-Direct dataset point lookup — returns a raw row from the feature store, skipping the extractor pipeline.
+Direct dataset point lookup - returns a raw row from the feature store, skipping the extractor pipeline.
 
 ```bash
 thyme lookup DATASET_REF -e ENTITY_ID [--at ISO-8601] [--format table|json]
@@ -188,7 +188,7 @@ thyme lookup myproject.features:Purchase -e txn_42 --at 2026-04-01T00:00:00Z
 
 ## `thyme inspect`
 
-Prints system metadata (when called without arguments — mirrors `thyme status`), or detailed metadata for a single featureset.
+Prints system metadata (when called without arguments - mirrors `thyme status`), or detailed metadata for a single featureset.
 
 ```bash
 thyme inspect                                          # system-wide
@@ -200,7 +200,7 @@ thyme inspect myproject.features:UserFeatures --json   # raw JSON
 
 ## `thyme codegen python`
 
-Introspects your `@featureset` and `@dataset` classes and emits `.pyi` stub files so type-checkers (mypy, pyright, pylance) can narrow `ThymeClient.query` / `query_batch` / `query_offline` / `lookup` — and their `MockContext` counterparts — by featureset. Autocomplete on row attributes, type errors on typos, no guesswork.
+Introspects your `@featureset` and `@dataset` classes and emits `.pyi` stub files so type-checkers (mypy, pyright, pylance) can narrow `ThymeClient.query` / `query_batch` / `query_offline` / `lookup` - and their `MockContext` counterparts - by featureset. Autocomplete on row attributes, type errors on typos, no guesswork.
 
 ```bash
 thyme codegen python --out DIR [--path FILE | -m MODULE] [--force]
@@ -208,10 +208,10 @@ thyme codegen python --out DIR [--path FILE | -m MODULE] [--force]
 
 | Option | Short | Description |
 |--------|-------|-------------|
-| `--out DIR` | — | Output directory for generated stubs (created if missing) |
-| `--path FILE` | — | Path to a Python file containing feature definitions |
+| `--out DIR` | - | Output directory for generated stubs (created if missing) |
+| `--path FILE` | - | Path to a Python file containing feature definitions |
 | `--module MODULE` | `-m` | Import by dotted module path instead |
-| `--force` | — | Overwrite an existing output directory and prune stale `*.pyi` files |
+| `--force` | - | Overwrite an existing output directory and prune stale `*.pyi` files |
 
 ```bash
 thyme codegen python --path features.py --out stubs/
@@ -222,7 +222,7 @@ thyme codegen python --path features.py --out stubs/ --force
 One `.pyi` is emitted per featureset and per dataset, plus an `__init__.pyi` that re-exports each row class. Point your type-checker at the output directory (e.g. `mypy.ini`'s `mypy_path` or `pyrightconfig.json`'s `extraPaths`), or re-export the stubs from your own package's `__init__.pyi`.
 
 <Callout type="info">
-**Runtime behaviour is unchanged.** `.pyi` files are read only by type-checkers — Python does not load them at runtime. The query hot path stays Arrow / Polars throughout, so stub generation adds no latency, no memory footprint, and no dependency surface to the running SDK.
+**Runtime behaviour is unchanged.** `.pyi` files are read only by type-checkers - Python does not load them at runtime. The query hot path stays Arrow / Polars throughout, so stub generation adds no latency, no memory footprint, and no dependency surface to the running SDK.
 </Callout>
 
 The stubs reflect whatever is registered when the input module is imported. Regenerate after editing featureset / dataset declarations to keep narrowing accurate.
@@ -257,4 +257,4 @@ See [Query Runs](/docs/concepts/query-runs) for what the UI shows.
 
 ### Error behaviour
 
-On any error — missing entity, auth failure, server down — each command writes a message to stderr and exits with code `1`. Success is always exit code `0`.
+On any error - missing entity, auth failure, server down - each command writes a message to stderr and exits with code `1`. Success is always exit code `0`.

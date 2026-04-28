@@ -3,7 +3,7 @@ title: Polars UDFs in Pipelines
 description: Use .transform() and .filter(callable) when closed-form expressions can't express your logic.
 ---
 
-Pipeline `.filter(expr)` and `.assign(col, expr)` evaluate **closed-form expressions** — fast, but limited to the operators the engine's expression schema implements (compare, null, arithmetic, logical). When expressions aren't enough, `.transform(fn)` is an opt-in escape hatch for a user Python function (taking and returning a `polars.DataFrame`).
+Pipeline `.filter(expr)` and `.assign(col, expr)` evaluate **closed-form expressions** - fast, but limited to the operators the engine's expression schema implements (compare, null, arithmetic, logical). When expressions aren't enough, `.transform(fn)` is an opt-in escape hatch for a user Python function (taking and returning a `polars.DataFrame`).
 
 <Callout type="info">
 UDFs are opt-in. Expression-only pipelines stay on the zero-overhead fast path.
@@ -13,9 +13,9 @@ UDFs are opt-in. Expression-only pipelines stay on the zero-overhead fast path.
 
 Use expressions when you can. Reach for `.transform()` when you need:
 
-- **Conditional logic** — `pl.when().then().otherwise()` chains, or Python `if`/`elif` branches.
-- **Library calls** — regex (`str.extract`), date math, domain helpers, custom scoring.
-- **Multi-column derivations** — expressions that involve more than one column in non-trivial ways.
+- **Conditional logic** - `pl.when().then().otherwise()` chains, or Python `if`/`elif` branches.
+- **Library calls** - regex (`str.extract`), date math, domain helpers, custom scoring.
+- **Multi-column derivations** - expressions that involve more than one column in non-trivial ways.
 - **Stateless per-row logic** that closed-form expressions can't cover today.
 
 ## Prerequisites
@@ -76,7 +76,7 @@ orders
 
 Filter drops rows from the batch before Transform sees them. Transform mutates the batch (preserving row count). Assign then runs on the transformed batch.
 
-## Row-dropping UDFs — `.filter(callable)`
+## Row-dropping UDFs - `.filter(callable)`
 
 `.filter()` accepts either an expression or a callable. The callable shape is the natural `pl.DataFrame -> pl.DataFrame`:
 
@@ -106,5 +106,5 @@ When a UDF fails repeatedly (user exception, timeout, worker crash), the engine 
 
 ## Related
 
-- [Pipelines](/docs/concepts/pipelines) — how pipelines compose datasets and operators.
-- [Decorators](/docs/reference/decorators) — `.filter()`, `.assign()`, `.transform()` signatures.
+- [Pipelines](/docs/concepts/pipelines) - how pipelines compose datasets and operators.
+- [Decorators](/docs/reference/decorators) - `.filter()`, `.assign()`, `.transform()` signatures.

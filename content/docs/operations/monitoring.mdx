@@ -17,10 +17,10 @@ Thyme's web UI has a `/monitoring` page that embeds a set of Grafana dashboards 
 
 ## When to use which dashboard
 
-- **You committed something and queries return 404 / null** — Definition Service dashboard, then Engine Performance to see whether the new pipeline has produced output.
-- **Latency regressed** — Query Server Performance, then drill into specific featuresets via [Query Runs](/docs/concepts/query-runs).
-- **Throughput looks low** — Engine Performance for events/sec per worker, then check the Sources page for stuck cursors.
-- **Something is on fire and you don't know what** — start with System Health Overview and follow the red.
+- **You committed something and queries return 404 / null** - Definition Service dashboard, then Engine Performance to see whether the new pipeline has produced output.
+- **Latency regressed** - Query Server Performance, then drill into specific featuresets via [Query Runs](/docs/concepts/query-runs).
+- **Throughput looks low** - Engine Performance for events/sec per worker, then check the Sources page for stuck cursors.
+- **Something is on fire and you don't know what** - start with System Health Overview and follow the red.
 
 ## Where the metrics come from
 

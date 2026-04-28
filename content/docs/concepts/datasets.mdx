@@ -3,7 +3,7 @@ title: Datasets
 description: Schema, keys, timestamps, and indexing for Thyme datasets.
 ---
 
-A dataset is a named, schema'd stream of events. It's the fundamental data container in Thyme — everything flows through datasets.
+A dataset is a named, schema'd stream of events. It's the fundamental data container in Thyme - everything flows through datasets.
 
 ## Anatomy of a dataset
 
@@ -26,7 +26,7 @@ Every dataset class is a Python dataclass under the hood. You define fields as c
 
 Every dataset must have exactly one key field, marked with `field(key=True)`.
 
-The key is the **entity identifier** — the thing the event is *about*. All windowed aggregations group by the key. When you query a feature, you provide a key value.
+The key is the **entity identifier** - the thing the event is *about*. All windowed aggregations group by the key. When you query a feature, you provide a key value.
 
 ```python
 user_id: str = field(key=True)
@@ -43,7 +43,7 @@ Rules:
 
 Every dataset must have exactly one timestamp field, marked with `field(timestamp=True)`.
 
-The timestamp is the **event time** — when the event happened, not when it was processed. Thyme uses event time (not processing time) for all windowed aggregations. This gives you point-in-time correctness: a query at time `T` returns the feature value as it would have been known at `T`.
+The timestamp is the **event time** - when the event happened, not when it was processed. Thyme uses event time (not processing time) for all windowed aggregations. This gives you point-in-time correctness: a query at time `T` returns the feature value as it would have been known at `T`.
 
 ```python
 ts: datetime = field(timestamp=True)
@@ -56,10 +56,10 @@ ts: datetime = field(timestamp=True)
 `@dataset(index=True)` tells Thyme to maintain a fast lookup index on this dataset. Set this to `True` for any dataset that will be queried (either directly or via an extractor).
 
 ```python
-@dataset(index=True)   # queryable — keep a keyed index
+@dataset(index=True)   # queryable - keep a keyed index
 class UserStats: ...
 
-@dataset(index=False)  # write-only intermediate — no index needed
+@dataset(index=False)  # write-only intermediate - no index needed
 class RawClick: ...
 ```
 
