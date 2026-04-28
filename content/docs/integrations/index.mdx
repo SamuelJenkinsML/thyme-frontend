@@ -1,0 +1,54 @@
+---
+title: Sources & Integrations
+description: All seven Thyme source connectors — when to use each, parameters, and authentication.
+---
+
+A source connects an external data system to a Thyme dataset. Thyme ships seven connectors, split into **polling** (incremental reads against a cursor) and **streaming** (continuous consumption).
+
+For the `@source` decorator semantics — `cursor`, `every`, `max_lateness`, `cdc` — see [Sources concept](/docs/concepts/sources). This section is the per-connector parameter reference.
+
+## All connectors
+
+| Connector | Type | Use case |
+|-----------|------|----------|
+| [PostgresSource](/docs/integrations/postgres) | Polling | Postgres tables |
+| [KafkaSource](/docs/integrations/kafka) | Streaming | Kafka topics |
+| [KinesisSource](/docs/integrations/kinesis) | Streaming | AWS Kinesis streams |
+| [S3JsonSource](/docs/integrations/s3-json) | Polling | JSON / JSONL files in S3 |
+| [SnowflakeSource](/docs/integrations/snowflake) | Polling | Snowflake tables |
+| [BigQuerySource](/docs/integrations/bigquery) | Polling | BigQuery tables |
+| [IcebergSource](/docs/integrations/iceberg) | Polling | Apache Iceberg tables |
+
+<Callout type="info">
+Polling connectors require `cursor` and `every` on `@source` for incremental reads. Streaming connectors (Kafka, Kinesis) consume continuously — setting `cursor` or `every` on them raises a validation error.
+</Callout>
+
+## Two field categories
+
+Every connector splits its kwargs into two groups:
+
+- **Per-dataset** (required, no env fallback) — identifies *what* to read: `table`, `topic`, `stream_arn`, `prefix`, etc. Mistyping silently turning into `""` would mask a typo, so these stay strict.
+- **Connection-level** (env-defaulted) — identifies *where* to read from: `host`, `port`, `region`, etc. When omitted, the connector reads `THYME_<TYPE>_<FIELD>` from the environment. Explicit kwargs always override the env-var fallback.
+
+This means you can keep credentials and connection details out of the Python file:
+
+```python
+# All connection params come from env vars
+PostgresSource(table="orders")
+
+# Or override per-source if you need to
+PostgresSource(table="orders", host="prod-db.internal")
+```
+
+## Secrets
+
+Credential fields (`password`, `sasl_password`, `role_arn`, `credentials_json`) accept either a plain string *or* a `Secret` reference, so secrets stay out of code:
+
+```python
+from thyme import Secret
+from thyme.connectors import PostgresSource
+
+PostgresSource(table="orders", password=Secret(env="PG_PASSWORD"))
+```
+
+See the per-connector pages for the exact list of `Secret`-capable fields.

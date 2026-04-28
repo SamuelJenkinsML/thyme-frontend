@@ -105,7 +105,7 @@ Streaming sources ignore `every` — they consume as fast as the engine can drai
 |-----------|---------|
 | `IcebergSource` | Apache Iceberg tables |
 | `PostgresSource` | Postgres tables (incremental via cursor) |
-| `S3Source` | Partitioned files on S3 |
+| `S3JsonSource` | JSON / JSONL files on S3 |
 | `BigQuerySource` | BigQuery tables |
 | `SnowflakeSource` | Snowflake tables |
 
@@ -129,4 +129,4 @@ IcebergSource(
 | `database` | `str` | Database or namespace |
 | `table` | `str` | Table name |
 
-See the [source reference](/docs/reference/sources) for full parameter details on every connector.
+See [Sources & Integrations](/docs/integrations) for per-connector parameter references.
