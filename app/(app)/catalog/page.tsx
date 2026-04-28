@@ -8,6 +8,8 @@ import { DatasetsTab } from "@/components/catalog/datasets-tab";
 import { CatalogSearch } from "@/components/catalog/catalog-search";
 import { DependencyGraph } from "@/components/catalog/dependency-graph";
 import { LineageGraph } from "@/components/catalog/lineage-graph";
+import { DocsLink } from "@/components/shared/docs-link";
+import { TermTooltip } from "@/components/shared/term-tooltip";
 
 export default function CatalogPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -15,8 +17,16 @@ export default function CatalogPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold tracking-tight">Catalog</h1>
-        <CatalogSearch value={searchTerm} onChange={setSearchTerm} />
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-bold tracking-tight">Catalog</h1>
+          <TermTooltip term="featureset" />
+        </div>
+        <div className="flex items-center gap-4">
+          <DocsLink href="/docs/concepts" className="text-xs">
+            Concepts
+          </DocsLink>
+          <CatalogSearch value={searchTerm} onChange={setSearchTerm} />
+        </div>
       </div>
       <Tabs defaultValue="featuresets">
         <TabsList>
