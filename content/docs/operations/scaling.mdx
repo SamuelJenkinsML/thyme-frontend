@@ -1,0 +1,130 @@
+---
+title: Scaling
+description: Throughput tuning — partition count, batch size, broker count, and engine replicas.
+---
+
+Thyme's pipeline throughput scales with three knobs: **partition count** (primary), **engine replicas** (horizontal), and **batch size** (freshness vs throughput tradeoff). This page covers how to size a cluster for a target events-per-second (EPS).
+
+## The throughput equation
+
+```
+Pipeline EPS ≈ (partition_count) × (batch_size / batch_cycle_time)
+```
+
+Each Kafka topic partition is processed by one engine worker. Workers are the unit of parallelism. Adding partitions adds workers; adding engine replicas distributes workers across pods.
+
+| Partitions | Batch size | Batch cycle | EPS | Feature freshness |
+|-----------|-----------|------------|-----|-------------------|
+| 4 | 500 | ~0.4s | ~1,300 | sub-1s |
+| 8 | 500 | ~0.4s | ~2,600 | sub-1s |
+| 12 | 500 | ~0.4s | ~4,000 | sub-1s |
+| 16 | 500 | ~0.5s | ~5,300 | sub-1s |
+| 4 | 5000 | ~2.5s | ~2,000 | ~3s |
+
+## Partition count (primary throughput knob)
+
+The default is 4 partitions, configurable via `THYME_DEFAULT_PARTITION_COUNT` on the definition service. Set this before running `thyme commit` — topics and jobs are created with the configured partition count.
+
+```bash
+# Kubernetes
+kubectl set env deployment/definition-service -n thyme \
+  THYME_DEFAULT_PARTITION_COUNT=12
+# Then re-commit to apply
+thyme commit features.py
+
+# Local development
+THYME_DEFAULT_PARTITION_COUNT=12 cargo run -p definition-service
+```
+
+The engine automatically scales workers to match the new partition count — no engine config changes needed.
+
+**CPU per worker:** ~0.5 vCPU sustained. On a c6g.2xlarge (8 vCPU), a single engine pod can run 12–14 workers before CPU saturates.
+
+**Memory per worker:** ~150MB. On 16 GiB nodes, memory is not the bottleneck.
+
+<Callout type="warn" title="Parallelism, not CPU">
+The current bottleneck at 4 partitions is **parallelism, not CPU or memory.** With 4 workers on an 8 vCPU node, only ~2 vCPU are utilized. Increasing partition count is the single highest-leverage change for throughput.
+</Callout>
+
+## Batch size (freshness vs throughput)
+
+Controlled by `RUNNER_BATCH_SIZE` on the engine StatefulSet (default: 5000, override to 500 for sub-1s freshness).
+
+```bash
+kubectl set env statefulset/engine -n thyme -c engine RUNNER_BATCH_SIZE=500
+kubectl rollout restart statefulset/engine -n thyme
+```
+
+Smaller batches commit more frequently, reducing the time between an event arriving and its aggregation being queryable. Larger batches amortize the fixed per-batch overhead across more events.
+
+## Engine replicas
+
+Each engine replica owns a share of the partitions. With 12 partitions and 3 engine replicas, each pod processes 4 partitions.
+
+```bash
+kubectl scale statefulset/engine -n thyme --replicas=3
+```
+
+<Callout type="warn">
+The engine does not automatically rebalance partition ownership when new replicas join. After adding replicas, restart all engine pods so partitions redistribute:
+
+```bash
+kubectl delete pods -l app=engine -n thyme
+```
+</Callout>
+
+## Kafka brokers
+
+Transaction commit time is dominated by broker I/O. A single broker serializes all transaction coordinator writes, causing 10s+ commit times under load. **Three brokers drops this to ~0.4s** by distributing partition leadership and transaction coordination.
+
+```bash
+helm upgrade redpanda redpanda --repo https://charts.redpanda.com -n thyme \
+  --reuse-values -f /tmp/redpanda-values.yaml
+```
+
+Where `redpanda-values.yaml` contains:
+```yaml
+statefulset:
+  replicas: 3
+resources:
+  cpu:
+    cores: 4.0
+  memory:
+    container:
+      max: 6Gi
+```
+
+## Kinesis shards
+
+Kinesis ingestion throughput is separate from pipeline throughput. Each shard supports ~1MB/s or ~1000 records/s. For 10k+ EPS:
+
+```bash
+aws kinesis update-shard-count \
+  --stream-name thyme-demo-click-events \
+  --target-shard-count 12 \
+  --scaling-type UNIFORM_SCALING --region us-east-1
+```
+
+## Reference sizing
+
+| Target EPS | Partitions | Engines | Batch | Brokers | Nodes | Freshness |
+|-----------|-----------|---------|-------|---------|-------|-----------|
+| 1,000 | 4 | 1 | 500 | 3 | 2× c6g.xlarge | sub-1s |
+| 5,000 | 12 | 3 | 500 | 3 | 4× c6g.2xlarge | sub-1s |
+| 10,000 | 16 | 4 | 1000 | 3 | 5× c6g.2xlarge | ~1s |
+| 25,000 | 32 | 8 | 1000 | 5 | 10× c6g.2xlarge | ~1s |
+
+## Load testing
+
+A high-throughput Kinesis producer for benchmarking lives at `load-test/cmd/kinesis-producer/` in the Thyme repo. It uses goroutines + AWS SDK v2 `PutRecords` to sustain 10k+ EPS from a single pod.
+
+```bash
+# Build for ARM64
+cd load-test/cmd/kinesis-producer
+GOOS=linux GOARCH=arm64 go build -o kinesis-producer-arm64 .
+
+# Run in-cluster via k8s job
+kubectl apply -f demos/experience_discovery/k8s-load-producer.yaml
+```
+
+See `load-test/cmd/kinesis-producer/main.go` for all flags (`--eps`, `--num-events`, `--workers`, etc.).

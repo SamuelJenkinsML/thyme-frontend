@@ -1,0 +1,110 @@
+---
+title: Expectations
+description: Data quality validation for datasets — observational checks that never drop records.
+---
+
+Expectations are declarative data quality checks attached to datasets. Violations are **observational** — they emit metrics and logs but never drop records. This catches data quality issues early without blocking ingestion during a production incident.
+
+## Usage
+
+```python
+from thyme.expectations import expectations
+from thyme.expectations import (
+    expect_column_values_to_be_between,
+    expect_column_values_to_not_be_null,
+)
+
+@dataset(version=1)
+class Order:
+    user_id: Field[str] = field(key=True)
+    amount: Field[float] = field()
+    timestamp: Field[datetime] = field(timestamp=True)
+
+    @expectations
+    def get_expectations(cls):
+        return [
+            expect_column_values_to_be_between(
+                column="amount", min_value=0.01, max_value=50_000,
+            ),
+            expect_column_values_to_not_be_null(column="user_id"),
+        ]
+```
+
+The `@expectations` decorator marks a dataset method that returns a list of expectation dicts. Expectations are evaluated by the engine with no per-record Python overhead.
+
+## Expectation functions
+
+### `expect_column_values_to_be_between`
+
+Checks that a column's values fall within a range.
+
+```python
+expect_column_values_to_be_between(column="amount", min_value=0.01, max_value=50_000)
+```
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `column` | `str` | required | Column name to check |
+| `min_value` | numeric or `None` | `None` | Minimum allowed value (inclusive). `None` = no lower bound. |
+| `max_value` | numeric or `None` | `None` | Maximum allowed value (inclusive). `None` = no upper bound. |
+| `mostly` | `float` | `1.0` | Fraction of rows that must pass (0.0 to 1.0) |
+
+---
+
+### `expect_column_values_to_not_be_null`
+
+Checks that a column has no null values.
+
+```python
+expect_column_values_to_not_be_null(column="user_id")
+```
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `column` | `str` | required | Column name to check |
+| `mostly` | `float` | `1.0` | Fraction of rows that must pass |
+
+---
+
+### `expect_column_values_to_be_in_set`
+
+Checks that a column's values belong to a predefined set.
+
+```python
+expect_column_values_to_be_in_set(column="status", values=["pending", "completed", "cancelled"])
+```
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `column` | `str` | required | Column name to check |
+| `values` | `list` | required | Allowed values |
+| `mostly` | `float` | `1.0` | Fraction of rows that must pass |
+
+---
+
+### `expect_column_values_to_be_of_type`
+
+Checks that a column's values match an expected type.
+
+```python
+expect_column_values_to_be_of_type(column="amount", type_name="float")
+```
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `column` | `str` | required | Column name to check |
+| `type_name` | `str` | required | Expected type name (e.g., `"str"`, `"float"`, `"int"`) |
+| `mostly` | `float` | `1.0` | Fraction of rows that must pass |
+
+## The `mostly` parameter
+
+All expectation functions accept a `mostly` parameter (default `1.0`). This allows a fraction of rows to violate the expectation without triggering a violation event.
+
+```python
+# At least 95% of amounts must be between 0.01 and 50,000
+expect_column_values_to_be_between(
+    column="amount", min_value=0.01, max_value=50_000, mostly=0.95,
+)
+```
+
+Setting `mostly=0.95` means the expectation passes as long as at least 95% of rows in the batch satisfy the constraint.

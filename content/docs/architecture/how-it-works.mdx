@@ -3,7 +3,7 @@ title: How Thyme Works
 description: The Thyme data path from Python to query results.
 ---
 
-This page explains the Thyme data path from the perspective of someone using the platform — without going into implementation details like RocksDB internals or Kafka partition assignment.
+This page explains the Thyme data path from the perspective of someone using the platform.
 
 ---
 
@@ -118,6 +118,4 @@ These are handled by the engine. Your job is to define *what* the features are, 
 
 ---
 
-<Callout type="info" title="For implementers">
-If you're contributing to Thyme or want to understand the internal architecture in depth, see `docs/architecture-walkthrough.md` and the ADRs in `docs/decisions/` in the repository.
-</Callout>
+For the contracts the engine guarantees you (exactly-once, watermarks, online/offline parity), see [Durability & Consistency](/docs/architecture/durability-and-consistency).

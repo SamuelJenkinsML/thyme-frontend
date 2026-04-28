@@ -1,0 +1,144 @@
+---
+title: Testing Reference
+description: MockContext — unit test pipelines and extractors without infrastructure.
+---
+
+`MockContext` is an in-memory pipeline simulator that mirrors the engine's aggregation semantics. It lets you unit test datasets, pipelines, and extractors without running Postgres, Kafka, or any services.
+
+## Quick start
+
+```python
+from thyme.testing import MockContext
+
+ctx = MockContext()
+
+# Ingest events
+violations = ctx.add_events(Review, [
+    {"restaurant_id": "r1", "rating": 4.8, "timestamp": "2026-03-15T10:00:00Z"},
+    {"restaurant_id": "r1", "rating": 4.2, "timestamp": "2026-03-15T11:00:00Z"},
+])
+
+# Check raw aggregates
+result = ctx.get_aggregates(RestaurantRatingStats, "r1")
+assert result["avg_rating_7d"] == 4.5
+
+# Query features through extractors
+features = ctx.query(RestaurantFeatures, "r1")
+assert features["avg_rating_7d"] == 4.5
+```
+
+## API
+
+### `MockContext()`
+
+Creates a new in-memory context. No arguments.
+
+```python
+ctx = MockContext()
+```
+
+---
+
+### `ctx.add_events(dataset_class, events) -> list[ExpectationViolation]`
+
+Ingests events for a dataset and processes them through all registered pipelines.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `dataset_class` | `type` | The `@dataset`-decorated class |
+| `events` | `list[dict]` | List of event dicts matching the dataset schema |
+
+**Returns:** A list of `ExpectationViolation` objects (empty if no expectations are defined or all pass). Events are still processed even when violations occur — expectations are observational.
+
+**Event format:** Each event is a dict with keys matching the dataset field names. Timestamps can be `datetime` objects, ISO 8601 strings, or numeric epoch seconds.
+
+```python
+violations = ctx.add_events(Order, [
+    {"user_id": "u1", "amount": 42.50, "timestamp": "2026-03-15T10:00:00Z"},
+    {"user_id": "u1", "amount": 15.00, "timestamp": "2026-03-15T11:00:00Z"},
+])
+```
+
+---
+
+### `ctx.get_aggregates(dataset_class, entity_id) -> dict[str, Any]`
+
+Returns raw aggregated values for an entity from all pipelines on the dataset.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `dataset_class` | `type` | The output `@dataset` class (where the pipeline is defined) |
+| `entity_id` | `str` | The entity key value |
+
+**Returns:** A `{output_field: value}` dict. Missing entities return zeros.
+
+```python
+result = ctx.get_aggregates(UserOrderStats, "u1")
+# {"order_count_1h": 2.0, "total_spend_24h": 57.5, ...}
+```
+
+---
+
+### `ctx.query(featureset_class, entity_id) -> dict[str, Any]`
+
+Queries features for an entity, running extractors in dependency order.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `featureset_class` | `type` | The `@featureset`-decorated class |
+| `entity_id` | `str` | The entity key value |
+
+**Returns:** A `{feature_name: value}` dict with all computed features.
+
+```python
+features = ctx.query(FraudSignals, "u_fraud")
+# {"user_id": "u_fraud", "order_count_1h": 6, "is_suspicious": True, ...}
+```
+
+The query method:
+1. Seeds features from pipeline aggregates (for extractors with `deps`)
+2. Runs pure-transform extractors (no `deps`) with the seeded values
+
+## Full example
+
+```python
+from thyme.testing import MockContext
+
+def test_fraud_detection():
+    # Given: a mock context with events
+    ctx = MockContext()
+    ctx.add_events(Order, [
+        {"user_id": "u1", "order_id": "o1", "amount": 100.0,
+         "item_count": 2, "timestamp": "2026-03-15T10:00:00Z"},
+        {"user_id": "u1", "order_id": "o2", "amount": 200.0,
+         "item_count": 1, "timestamp": "2026-03-15T10:05:00Z"},
+    ])
+
+    # When: querying aggregates
+    stats = ctx.get_aggregates(UserOrderStats, "u1")
+
+    # Then: aggregations are correct
+    assert stats["order_count_1h"] == 2.0
+    assert stats["total_spend_24h"] == 300.0
+
+    # And: features are computed through extractors
+    features = ctx.query(FraudSignals, "u1")
+    assert features["is_suspicious"] == False
+```
+
+## Supported aggregations
+
+`MockContext` supports all 6 aggregation operators:
+
+| Operator | MockContext behavior |
+|----------|---------------------|
+| `Count` | Counts events in window |
+| `Sum` | Sums field values in window |
+| `Avg` | Mean of field values in window (0.0 if empty) |
+| `Min` | Minimum field value in window |
+| `Max` | Maximum field value in window |
+| `ApproxPercentile` | Exact percentile rank (not approximate — good enough for tests) |
+
+<Callout type="info">
+The `ApproxPercentile` operator uses exact percentile rank computation in tests, which is deterministic and sufficient for correctness verification.
+</Callout>

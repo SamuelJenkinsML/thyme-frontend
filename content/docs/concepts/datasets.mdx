@@ -53,7 +53,7 @@ ts: datetime = field(timestamp=True)
 
 ## The `index` parameter
 
-`@dataset(index=True)` tells Thyme to maintain a fast lookup index on this dataset in RocksDB. Set this to `True` for any dataset that will be queried (either directly or via an extractor).
+`@dataset(index=True)` tells Thyme to maintain a fast lookup index on this dataset. Set this to `True` for any dataset that will be queried (either directly or via an extractor).
 
 ```python
 @dataset(index=True)   # queryable — keep a keyed index

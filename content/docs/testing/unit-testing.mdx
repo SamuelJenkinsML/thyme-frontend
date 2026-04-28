@@ -1,0 +1,101 @@
+---
+title: Unit Testing Pipelines
+description: Test feature pipelines with MockContext — no infrastructure required.
+---
+
+`MockContext` lets you unit test datasets, pipelines, and extractors without running Postgres, Kafka, or any Thyme services. It mirrors the engine's aggregation semantics in pure Python.
+
+## TDD workflow
+
+1. **Define your features** in a Python module
+2. **Write tests** using `MockContext` before the pipeline exists in production
+3. **Iterate** on the feature logic until tests pass
+4. **`thyme commit`** to deploy
+
+## Basic pattern
+
+```python
+import pytest
+from thyme.testing import MockContext
+
+# Import your feature definitions
+from features import Order, UserOrderStats, FraudSignals
+
+
+class TestFraudDetection:
+    def test_normal_user_is_not_suspicious(self):
+        # Given: a context with a few spread-out orders
+        ctx = MockContext()
+        ctx.add_events(Order, [
+            {"user_id": "u1", "order_id": "o1", "amount": 50.0,
+             "item_count": 1, "timestamp": "2026-03-15T10:00:00Z"},
+            {"user_id": "u1", "order_id": "o2", "amount": 30.0,
+             "item_count": 2, "timestamp": "2026-03-15T14:00:00Z"},
+        ])
+
+        # When: querying fraud signals
+        features = ctx.query(FraudSignals, "u1")
+
+        # Then: user is not suspicious
+        assert features["is_suspicious"] == False
+        assert features["order_count_1h"] == 1.0
+
+    def test_rapid_orders_trigger_velocity_spike(self):
+        # Given: 6 orders in under an hour
+        ctx = MockContext()
+        ctx.add_events(Order, [
+            {"user_id": "u_fraud", "order_id": f"o{i}", "amount": 100.0,
+             "item_count": 1, "timestamp": f"2026-03-15T10:{i*5:02d}:00Z"}
+            for i in range(6)
+        ])
+
+        # When: querying fraud signals
+        features = ctx.query(FraudSignals, "u_fraud")
+
+        # Then: velocity spike triggers suspicious flag
+        assert features["order_count_1h"] == 6.0
+        assert features["is_suspicious"] == True
+```
+
+## Testing expectations
+
+`add_events` returns expectation violations:
+
+```python
+def test_negative_amount_triggers_violation(self):
+    ctx = MockContext()
+    violations = ctx.add_events(Order, [
+        {"user_id": "u1", "order_id": "o1", "amount": -5.0,
+         "item_count": 1, "timestamp": "2026-03-15T10:00:00Z"},
+    ])
+
+    # Violations are logged but events are still processed
+    assert len(violations) > 0
+```
+
+## Testing aggregates directly
+
+Use `get_aggregates` to inspect raw pipeline output without running extractors:
+
+```python
+def test_windowed_sum(self):
+    ctx = MockContext()
+    ctx.add_events(Order, [
+        {"user_id": "u1", "order_id": "o1", "amount": 100.0,
+         "item_count": 1, "timestamp": "2026-03-15T10:00:00Z"},
+        {"user_id": "u1", "order_id": "o2", "amount": 200.0,
+         "item_count": 1, "timestamp": "2026-03-15T11:00:00Z"},
+    ])
+
+    stats = ctx.get_aggregates(UserOrderStats, "u1")
+    assert stats["total_spend_24h"] == 300.0
+```
+
+## Tips
+
+- **Import your feature module** at the top of the test file — this triggers decorator registration
+- **Each `MockContext()` is independent** — no shared state between tests
+- **Timestamps matter** — use explicit timestamps to control which window events fall into
+- **`ApproxPercentile`** uses exact percentile rank in tests, so results are deterministic
+
+See the [Testing Reference](/docs/testing) for the full API.

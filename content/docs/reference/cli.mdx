@@ -173,7 +173,7 @@ thyme query-offline myproject.features:UserFeatures \
 
 ## `thyme lookup`
 
-Direct dataset point lookup — returns a raw row from RocksDB state, skipping the extractor pipeline.
+Direct dataset point lookup — returns a raw row from the feature store, skipping the extractor pipeline.
 
 ```bash
 thyme lookup DATASET_REF -e ENTITY_ID [--at ISO-8601] [--format table|json]

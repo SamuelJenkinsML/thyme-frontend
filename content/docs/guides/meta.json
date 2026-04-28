@@ -1,0 +1,4 @@
+{
+  "title": "Guides",
+  "pages": ["polars-udfs", "ai-feature-discovery"]
+}

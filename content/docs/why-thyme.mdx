@@ -43,7 +43,7 @@ Because both paths read the same state through the same extractor code, a traini
 
 ## 3. Exactly-once semantics
 
-Every pipeline tick commits as a single atomic unit: a RocksDB `WriteBatch` (output state, internal accumulator state, input offset) and a transactional Kafka produce. On restart the engine restores state from a checkpoint and replays from the committed offset. No duplicates, no lost events, no partial state.
+Every pipeline tick commits as a single atomic unit: output state, internal accumulator state, and source progress advance together, paired with a transactional Kafka produce. On restart the engine resumes from the last committed position. No duplicates, no lost events, no partial state.
 
 You do not have to think about this. You do not have to write idempotency tokens on your aggregations. Exactly-once is what the platform gives you.
 
@@ -51,7 +51,7 @@ You do not have to think about this. You do not have to write idempotency tokens
 
 ## 4. Sub-millisecond reads
 
-The query server runs the extractor DAG via PyO3 directly inside the Rust process, reading aggregated state from a local RocksDB secondary. No network hop to fetch state. No sidecar. No JVM.
+The query server runs the extractor DAG in-process and reads aggregated state from a local replica of the feature store. No network hop to fetch state. No sidecar. No JVM.
 
 - P50 server-side latency: **under 1 ms** (0.66–2.23 ms measured in production on AWS)
 - Throughput: **thousands of events/sec per partition**, limited by your Kafka throughput, not Thyme
@@ -79,7 +79,7 @@ class UserStats:
         )
 ```
 
-You do not manage Kafka consumer groups, RocksDB compaction, partition leasing, checkpoint upload, watermark advancement, or late-event handling. The engine does. Your job is the feature logic; Thyme's job is running it at scale.
+You do not manage Kafka consumer groups, state-store maintenance, partition rebalancing, checkpoint upload, watermark advancement, or late-event handling. The engine does. Your job is the feature logic; Thyme's job is running it at scale.
 
 ---
 

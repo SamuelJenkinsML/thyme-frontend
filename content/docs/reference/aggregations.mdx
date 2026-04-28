@@ -109,7 +109,7 @@ min_amount_30d=Min(of="amount", window="30d")
 - `of`: numeric field (`float` or `int`)
 - Returns: same type as the input field
 
-Backed by a keyed sorted set in RocksDB. Memory is O(distinct values in the window).
+Memory is O(distinct values in the window).
 
 ---
 

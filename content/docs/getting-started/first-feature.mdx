@@ -136,7 +136,7 @@ Once committed, the engine:
 
 1. Polls `IcebergSource` every minute for new `Transaction` rows
 2. Publishes them to a Kafka topic
-3. Consumes the topic, applies the `compute` pipeline, and writes results to RocksDB
-4. The query server reads from RocksDB and runs extractors on demand
+3. Consumes the topic, applies the `compute` pipeline, and writes results to the feature store
+4. The query server reads from the feature store and runs extractors on demand
 
 Feature values are updated continuously. The next query always returns the latest state.

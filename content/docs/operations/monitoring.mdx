@@ -1,0 +1,42 @@
+---
+title: Monitoring
+description: Prometheus metrics, Grafana dashboards, and observability for Thyme services.
+---
+
+Thyme exposes Prometheus metrics on every service and ships with pre-built Grafana dashboards.
+
+## Metrics endpoints
+
+All services expose metrics at `/metrics` (excluded from auth):
+
+| Service | Default URL | Key metrics |
+|---------|------------|-------------|
+| Definition Service | `:8080/metrics` | Commit counts, commit latency, topic creation |
+| Engine | `:8081/metrics` | Events processed, aggregation latency, write latency |
+| Query Server | `:8081/metrics` | Query latency (P50/P95/P99), extractor execution time, QPS |
+
+## Grafana dashboards
+
+The reference deployment includes 5 pre-built Grafana dashboards:
+
+| Dashboard | What it shows |
+|-----------|---------------|
+| **System Health Overview** | High-level status of all services, error rates, uptime |
+| **Engine Performance** | Events processed per second, write latency, backfill progress |
+| **Query Server Performance** | Query latency percentiles, QPS, extractor execution time |
+| **Definition Service** | Commit history, definition counts, topic creation events |
+| **Load Test** | Write throughput, read latency vs SLA targets, online/offline parity |
+
+Dashboards are provisioned automatically via the kube-prometheus-stack Helm chart.
+
+## ServiceMonitors
+
+Each Thyme service has a Kubernetes `ServiceMonitor` that tells Prometheus how to scrape it. These are defined under `manifests/base/monitoring/` in [thyme-infra](https://github.com/SamuelJenkinsML/thyme-infra).
+
+## Frontend integration
+
+The Thyme frontend embeds Grafana dashboards directly in the monitoring pages, providing a unified view of system health without switching between tools.
+
+<Callout type="info">
+For dashboard configuration and customization, see the dashboard JSON sources under `docker/grafana/dashboards/` in [thyme-infra](https://github.com/SamuelJenkinsML/thyme-infra).
+</Callout>

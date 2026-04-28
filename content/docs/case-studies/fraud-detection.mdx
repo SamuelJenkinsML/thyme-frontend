@@ -1,0 +1,186 @@
+---
+title: Real-Time Fraud Detection
+description: E-commerce fraud detection with multi-window aggregation, derived extractors, and sub-millisecond read latency.
+---
+
+## The problem
+
+E-commerce fraud detection needs to happen at checkout — not in a batch job that runs overnight. When a compromised account starts placing rapid-fire orders or a fraudster's 24-hour spend spikes to 10× the weekly average, the fraud scoring model needs those signals *now*, with sub-second freshness.
+
+The features that matter are velocity and spend signals across multiple time windows: order count in the last hour, total spend in the last 24 hours, and weekly spend trends. The `is_suspicious` flag — derived from these raw aggregations — needs to reflect reality within seconds of each new order.
+
+## Why this feature is hard
+
+This isn't a single aggregation. The fraud feature set requires **5 operators across 3 time windows** (1h, 24h, 7d):
+
+| Feature | Operator | Window |
+|---------|----------|--------|
+| `order_count_1h` | Count | 1 hour |
+| `order_count_24h` | Count | 24 hours |
+| `total_spend_24h` | Sum | 24 hours |
+| `total_spend_7d` | Sum | 7 days |
+| `max_order_amount_7d` | Max | 7 days |
+
+Each incoming order event updates 5 state entries. The derived `is_suspicious` extractor reads three of these at query time and applies threshold logic in Python.
+
+## Why Thyme's architecture fits
+
+Most feature platforms use a **lambda architecture**: separate batch and streaming pipelines. Thyme uses a **kappa architecture**: a single streaming pipeline handles everything.
+
+For fraud detection, kappa wins:
+
+- **No dual-pipeline drift** — one pipeline definition, both online and offline serve from the same state
+- **Freshness without reconciliation** — no batch job to wait for, no "approximate" streaming features
+- **Derived features stay consistent** — all inputs are always at the same freshness
+- **Adding a window doesn't multiply pipelines** — add one line, not two pipelines
+
+## The Thyme solution
+
+The complete feature definition:
+
+```python
+from datetime import datetime
+from thyme import (
+    Config, Count, Max, Sum, dataset, expectations, extractor,
+    extractor_inputs, extractor_outputs, feature, featureset,
+    field, inputs, pipeline, source,
+)
+from thyme.dataset import Field
+from thyme.expectations import (
+    expect_column_values_to_be_between,
+    expect_column_values_to_not_be_null,
+)
+
+config = Config.load()
+orders_source = config.postgres_source(table="orders")
+
+@source(orders_source, cursor="timestamp", every="5s", max_lateness="1h")
+@dataset(version=1)
+class Order:
+    user_id:    Field[str]      = field(key=True)
+    order_id:   Field[str]      = field()
+    amount:     Field[float]    = field()
+    item_count: Field[int]      = field()
+    timestamp:  Field[datetime] = field(timestamp=True)
+
+    @expectations
+    def get_expectations(cls):
+        return [
+            expect_column_values_to_be_between(
+                column="amount", min_value=0.01, max_value=50_000,
+            ),
+            expect_column_values_to_not_be_null(column="user_id"),
+        ]
+
+@dataset(version=1, index=True)
+class UserOrderStats:
+    user_id:             Field[str]      = field(key=True)
+    order_count_1h:      Field[int]      = field()
+    order_count_24h:     Field[int]      = field()
+    total_spend_24h:     Field[float]    = field()
+    total_spend_7d:      Field[float]    = field()
+    max_order_amount_7d: Field[float]    = field()
+    timestamp:           Field[datetime] = field(timestamp=True)
+
+    @pipeline(version=1)
+    @inputs(Order)
+    def compute_order_stats(cls, orders):
+        return orders.groupby("user_id").aggregate(
+            order_count_1h=Count(window="1h"),
+            order_count_24h=Count(window="24h"),
+            total_spend_24h=Sum(of="amount", window="24h"),
+            total_spend_7d=Sum(of="amount", window="7d"),
+            max_order_amount_7d=Max(of="amount", window="7d"),
+        )
+
+@featureset
+class FraudSignals:
+    user_id:             str   = feature()
+    order_count_1h:      int   = feature(ref=UserOrderStats.order_count_1h)
+    order_count_24h:     int   = feature(ref=UserOrderStats.order_count_24h)
+    total_spend_24h:     float = feature(ref=UserOrderStats.total_spend_24h)
+    total_spend_7d:      float = feature(ref=UserOrderStats.total_spend_7d)
+    max_order_amount_7d: float = feature(ref=UserOrderStats.max_order_amount_7d)
+    is_suspicious:       bool  = feature()
+
+    @extractor
+    @extractor_inputs("order_count_1h", "total_spend_24h", "total_spend_7d")
+    @extractor_outputs("is_suspicious")
+    def compute_suspicious(cls, ts, count_1h, spend_24h, spend_7d):
+        if count_1h is None or spend_24h is None or spend_7d is None:
+            return False
+        daily_avg_7d = spend_7d / 7.0
+        return (count_1h > 5) | (spend_24h > daily_avg_7d * 3)
+```
+
+### The `is_suspicious` extractor
+
+The derived feature applies two rules:
+
+- **Velocity spike**: more than 5 orders in 1 hour
+- **Spend spike**: 24-hour spend exceeds 3× the 7-day daily average
+
+Raw aggregations are computed by the engine at write time. The derived `is_suspicious` flag is computed by the Python extractor at query time, reading the pre-aggregated values.
+
+## Production results
+
+### Smoke test: correctness verification
+
+| Entity | order_count_1h | is_suspicious | Reason |
+|--------|---------------|---------------|--------|
+| `u_normal` | 1 | `false` | Orders spread across days |
+| `u_fraud` | 6 | `true` | 6 orders in 25 minutes (velocity spike) |
+
+### AWS production results (500k events, Graviton c7g.xlarge)
+
+Tested on EKS (us-east-1) with 2× c7g.xlarge (Graviton, ARM64) nodes.
+
+| Metric | Value |
+|--------|-------|
+| Feed rate | 1,674 events/sec (sustained over 5 min) |
+| E2E throughput | 1,110 events/sec |
+| Read P50 (E2E) | **0.66 ms** |
+| Read P95 (E2E) | **1.94 ms** |
+| Read P99 (E2E) | **2.77 ms** |
+| Sustained QPS | **1,631** |
+| Online/offline parity | 100% |
+
+### Performance charts
+
+![Events processed over time](/case-studies/fraud/events-processed.png)
+
+![Sustained write throughput](/case-studies/fraud/write-throughput.png)
+
+![Query latency distribution](/case-studies/fraud/query-latency.png)
+
+![Read latency vs SLA targets](/case-studies/fraud/read-latency-targets.png)
+
+![Write latency](/case-studies/fraud/write-latency.png)
+
+![Extractor execution time](/case-studies/fraud/extractor-time.png)
+
+## Comparison with other platforms
+
+| Capability | Thyme | Tecton | Fennel | Feast |
+|-----------|-------|--------|--------|-------|
+| Multi-window aggregation | Single pipeline definition | Batch + streaming pipelines | Single definition (lambda internally) | Batch only |
+| Derived features (Python) | Query-time extractor | On-demand features | Python transforms | Not supported |
+| Online/offline consistency | Guaranteed (kappa) | Reconciled (lambda) | Reconciled (lambda) | Manual (batch snapshots) |
+| Data expectations | Built-in (`@expectations`) | External (Great Expectations) | Not supported | Not supported |
+
+## Try it yourself
+
+```bash
+# Start infrastructure
+make infra-down && make infra && make migrate && make build
+
+# Run smoke test
+cd load-test
+uv run python -m scenarios.fraud_signals --smoke --local --clean \
+    --database-url "postgres://thyme:thyme@localhost:5433/thyme"
+
+# Query fraud signals
+curl "http://localhost:8081/features?entity_id=u_fraud&featureset=FraudSignals"
+```
+
+The full demo is available in the [Thyme repository](https://github.com/SamuelJenkinsML/thyme) under `demos/fraud/`.
