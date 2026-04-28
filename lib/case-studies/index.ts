@@ -27,13 +27,13 @@ const fraudDetection: CaseStudy = {
   },
   approach: {
     heading: "One kappa pipeline, 5 operators, 3 windows",
-    body: "A single streaming pipeline definition produces all five raw aggregates. The derived is_suspicious extractor reads three of them at query time and applies threshold logic in Python via PyO3. No lambda dual-pipeline drift, no nightly reconciliation, no training-serving skew.",
+    body: "A single streaming pipeline definition produces all five raw aggregates. The derived is_suspicious extractor reads three of them at query time and applies threshold logic in Python. No lambda dual-pipeline drift, no nightly reconciliation, no training-serving skew.",
     diagram: {
       nodes: [
         { label: "Order", sublabel: "Postgres · CDC cursor", kind: "source" },
         { label: "compute_order_stats", sublabel: "Count · Sum · Max · 3 windows", kind: "transform" },
-        { label: "UserOrderStats", sublabel: "RocksDB · live aggregates", kind: "store" },
-        { label: "FraudSignals", sublabel: "is_suspicious · PyO3 extractor", kind: "serve" },
+        { label: "UserOrderStats", sublabel: "live aggregates · O(1) eviction", kind: "store" },
+        { label: "FraudSignals", sublabel: "is_suspicious · derived feature", kind: "serve" },
       ],
     },
   },
@@ -82,11 +82,13 @@ class UserOrderStats:
 
 @featureset
 class FraudSignals:
-    user_id: str = feature(id=1)
-    order_count_1h: int = feature(id=2)
-    total_spend_24h: float = feature(id=4)
-    total_spend_7d: float = feature(id=5)
-    is_suspicious: bool = feature(id=7)
+    user_id: str = feature()
+    # Raw aggregates - auto-generated lookups, no extractor body needed.
+    order_count_1h: int = feature(ref=UserOrderStats.order_count_1h, default=0)
+    total_spend_24h: float = feature(ref=UserOrderStats.total_spend_24h, default=0.0)
+    total_spend_7d: float = feature(ref=UserOrderStats.total_spend_7d, default=0.0)
+    # Derived signal - composed in Python at query time.
+    is_suspicious: bool = feature()
 
     @extractor
     @extractor_inputs("order_count_1h", "total_spend_24h", "total_spend_7d")
@@ -110,11 +112,11 @@ class FraudSignals:
     },
     {
       name: "@expectations",
-      description: "Declarative data contracts on ingest - rejects rows that violate bounds or nullability.",
+      description: "Declarative data contracts on datasets - violations are observational, surfaced as metrics and logs.",
     },
     {
       name: "@extractor",
-      description: "Python derived features run via PyO3 at read time. Kept out of the write path.",
+      description: "Python derived features run at read time. Kept out of the write path.",
     },
   ],
   capabilities: [
@@ -172,12 +174,12 @@ const priceAnomaly: CaseStudy = {
   },
   approach: {
     heading: "Tiled t-digests, pre-computed ranks",
-    body: "Each product's price distribution is stored as tiled t-digest sketches (~6 days per tile). On every write, the engine merges the value into the right tile, merges all live tiles for the full-window view, and writes the percentile rank (a single float) to RocksDB. The read path never deserializes a sketch.",
+    body: "Each product's price distribution is stored as tiled t-digest sketches (~6 days per tile). On every write, the engine merges the value into the right tile, merges all live tiles for the full-window view, and writes the percentile rank (a single float) into the feature store. The read path never deserializes a sketch.",
     diagram: {
       nodes: [
         { label: "ProductBooking", sublabel: "Postgres · 5s poll", kind: "source" },
         { label: "compute_stats", sublabel: "Max · ApproxPercentile (t-digest)", kind: "transform" },
-        { label: "ProductPriceStats", sublabel: "RocksDB · pct_rank float", kind: "store" },
+        { label: "ProductPriceStats", sublabel: "pct_rank float · pre-computed", kind: "store" },
         { label: "PriceFeatures", sublabel: "price_decile · derived", kind: "serve" },
       ],
     },
@@ -219,10 +221,12 @@ class ProductPriceStats:
 
 @featureset
 class PriceFeatures:
-    product_id: str = feature(id=1)
-    max_price_7d: float = feature(id=2)
-    price_pct_rank_180d: float = feature(id=3)
-    price_decile: int = feature(id=4)
+    product_id: str = feature()
+    # Raw aggregates - auto-generated lookups, no extractor body needed.
+    max_price_7d: float = feature(ref=ProductPriceStats.max_price_7d, default=0.0)
+    price_pct_rank_180d: float = feature(ref=ProductPriceStats.price_pct_rank_180d, default=0.5)
+    # Derived signal - composed in Python at query time.
+    price_decile: int = feature()
 
     @extractor
     @extractor_inputs("price_pct_rank_180d")
