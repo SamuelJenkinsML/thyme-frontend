@@ -84,9 +84,25 @@ thyme query features:UserFeatures -e user_42
 
 ---
 
+## How to read these docs
+
+The site is structured around the canonical feature-platform shape. Different readers want different paths through it:
+
+**ML engineers building features** — start with [Concepts](/docs/concepts) to understand datasets, pipelines, featuresets, and extractors. Then read [Define features](/docs/reference/decorators) and [Aggregations](/docs/reference/aggregations). When you're ready to write tests, [Testing](/docs/testing) covers `MockContext`.
+
+**Platform engineers and operators** — start with [Operations → Deployment](/docs/operations/deployment), then [Monitoring](/docs/operations/monitoring) and [Scaling](/docs/operations/scaling). [Architecture → Durability & Consistency](/docs/architecture/durability-and-consistency) explains the guarantees you can rely on.
+
+**Evaluators** — start with [Why Thyme](/docs/why-thyme) for the comparison table, then walk one of the [Case Studies](/docs/case-studies/fraud-detection) end to end.
+
+**Anyone trying it for the first time** — go to [Getting Started → Installation](/docs/getting-started/installation), then run through the [Interactive Tour](/docs/getting-started/interactive-tour) once your local cluster is up.
+
+---
+
 <Cards>
-<Card title="Why Thyme?" href="/docs/why-thyme" description="The five things the platform gets right." />
+<Card title="Why Thyme?" href="/docs/why-thyme" description="The architectural choices and how Thyme compares to Tecton, Fennel, and Feast." />
 <Card title="Read & Write Paths" href="/docs/architecture/read-write-paths" description="How the two query modes share one state." />
 <Card title="Query Runs" href="/docs/concepts/query-runs" description="Every CLI and SDK query is recorded and replayable." />
 <Card title="Get Started" href="/docs/getting-started/installation" description="Install the SDK and commit your first featureset." />
+<Card title="Interactive Tour" href="/docs/getting-started/interactive-tour" description="A guided walkthrough of the running app — catalog, inspect, jobs, lineage." />
+<Card title="Case Studies" href="/docs/case-studies/fraud-detection" description="Three production deployments with benchmarks." />
 </Cards>
