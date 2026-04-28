@@ -95,27 +95,4 @@ You do not manage Kafka consumer groups, state-store maintenance, partition reba
 
 **Audited queries by default.** Every CLI or SDK query is recorded as a [Query Run](/docs/concepts/query-runs) in the web UI - latency, hit rate, API key fingerprint, entities touched. No extra instrumentation required.
 
----
-
-## How Thyme compares
-
-Thyme is one of several feature platforms in the streaming-feature space. The closest comparators:
-
-| | **Thyme** | **Tecton** | **Fennel** | **Feast** |
-|---|---|---|---|---|
-| Architecture | Kappa (single pipeline) | Lambda (batch + streaming) | Lambda internally | Batch-only |
-| Online / offline parity | **Structural** (one source of truth) | Reconciled at materialization | Reconciled internally | Manual snapshots |
-| Streaming aggregations | Native (`@pipeline` over windows) | Native | Native | Not supported |
-| Approximate percentiles | Native (`ApproxPercentile`) | Native (`approx_percentile`) | Not supported | Not supported |
-| Derived features (Python) | Query-time extractor, in-process | "On-demand features" | Python transforms | Not supported |
-| Temporal joins (SCD-style) | Native (`.join(..., fields=[...])`) | Native | Native | Not supported |
-| Data quality / expectations | Built-in (`@expectations`) | External (Great Expectations) | Not supported | Not supported |
-| Deployment model | Hosted | Managed SaaS | Managed SaaS | DIY |
-
-Two things to call out:
-
-1. **Kappa, not lambda.** Thyme, Tecton, and Fennel all support streaming aggregations, but only Thyme guarantees online/offline parity *structurally* - the same pipeline answers both query types from the same materialized state. Tecton and Fennel reconcile a batch pipeline against a streaming pipeline and bear the operational cost of that reconciliation.
-
-2. **Sub-millisecond reads on the hot path.** Thyme is designed for online inference: P50 server-side latency is consistently under 1 ms in production benchmarks. Most managed feature stores hit comparable latency only on their paid online-serving tiers.
-
 For real-world walkthroughs of each architectural choice, see the [Case Studies](/docs/case-studies/fraud-detection) section - three production deployments at different points on the EPS / latency / feature-complexity spectrum.
