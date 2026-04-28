@@ -1,0 +1,197 @@
+---
+title: REST API
+description: HTTP endpoints exposed by the definition service and query server.
+---
+
+Thyme exposes two HTTP services. The **definition service** holds your committed featuresets, jobs, and sources; the **query server** answers feature lookups and serves query-run audit data.
+
+The Thyme CLI and Python SDK call these endpoints under the hood, so you typically don't need to call them directly. This page documents the contract for cases where you do — building dashboards, debugging in production, or integrating Thyme with other systems.
+
+## Base URLs
+
+| Service | Default URL | Set with |
+|---------|-------------|---------|
+| Definition service | `http://localhost:8080` | `DEFINITION_SERVICE_URL` |
+| Query server | `http://localhost:8081` | `QUERY_SERVER_URL` |
+
+## Authentication
+
+When `THYME_API_KEY` is set on the server, every request (except `/health` and `/metrics`) requires:
+
+```
+Authorization: Bearer <api-key>
+```
+
+Invalid or missing tokens return `401`. When `THYME_API_KEY` is not set, auth is disabled (local-dev mode). See [Authentication](/docs/reference/authentication) for the full auth model.
+
+---
+
+## Definition service (`:8080`)
+
+### `POST /api/v1/commit`
+
+Submits a new commit — a complete set of featureset, pipeline, and source definitions to register or update.
+
+This is the endpoint `thyme commit features.py` posts to. The request body is a structured payload produced by importing a Python feature module and serializing the registered definitions; in practice you should always go through the SDK rather than constructing this payload by hand.
+
+**Response:** `200 OK` with the commit identifier and a summary of what changed.
+
+---
+
+### `GET /api/v1/featuresets`
+
+Returns every committed featureset.
+
+**Response:** `200 OK` with an array of featureset records. Each record exposes `id`, `name`, and a `spec` containing the feature list, extractor DAG, and (if present) Python source for extractors.
+
+---
+
+### `GET /api/v1/jobs`
+
+Returns every running job. Each `@pipeline` decorator becomes one job at commit time.
+
+**Response:** `200 OK` with an array of job records. Each record exposes the job `id`, `name`, `job_type`, `partition_count`, and a `spec` describing the input topic, output topic, and pipeline operator chain.
+
+---
+
+### `GET /api/v1/sources`
+
+Returns every committed source.
+
+**Response:** `200 OK` with an array of source records. Each record exposes the source `id`, the `dataset` it feeds, the `connector_type` (`postgres`, `kafka`, `kinesis`, `s3_json`, etc.), the `cursor_field` and `cursor_value` (for polling sources), the `poll_interval`, and the `max_lateness` and `cdc` mode.
+
+---
+
+### `GET /api/v1/status`
+
+Returns a single combined snapshot of all platform state — datasets, pipelines, featuresets, sources, jobs, backfills, the latest commit, and recent events. Useful for dashboards that want everything in one round-trip.
+
+**Response:** `200 OK` with:
+
+```json
+{
+  "datasets":    [{"name": "...", "version": 1}, ...],
+  "pipelines":   [{"name": "...", "version": 1, "input_datasets": [...], "output_dataset": "..."}, ...],
+  "featuresets": [{"name": "...", "feature_count": 7}, ...],
+  "sources":     [{"dataset": "...", "connector_type": "..."}, ...],
+  "jobs":        [...],
+  "backfills":   [...],
+  "latest_commit": {...},
+  "recent_events": [...],
+  "physical_assets": [...]
+}
+```
+
+---
+
+### `GET /api/v1/events`
+
+Returns recent platform events (commits, source ingestions, job lifecycle changes, expectation violations). Useful for a global activity feed.
+
+| Query param | Type | Description |
+|------------|------|-------------|
+| `limit` | int | Max events to return |
+| `severity` | string | `info`, `warn`, `error` |
+| `event_type` | string | Filter to a specific event class |
+| `subject` | string | Filter to events tagged with a specific subject (e.g. featureset name) |
+
+**Response:** `200 OK` with an array of event records.
+
+---
+
+## Query server (`:8081`)
+
+### `GET /features`
+
+The hot-path feature lookup endpoint. Returns the materialized feature values for one entity from one featureset.
+
+| Query param | Required | Description |
+|------------|----------|-------------|
+| `entity_id` | **Yes** | The entity key |
+| `featureset` | **Yes** | The featureset name |
+| `entity_type` | No | The entity type (defaults to the featureset's declared type) |
+| `timestamp` | No | ISO-8601 timestamp for a point-in-time query. Omit for online (latest) values. |
+
+**Example:**
+
+```bash
+# Online query
+curl "http://localhost:8081/features?entity_id=user_42&featureset=UserFeatures"
+
+# Point-in-time
+curl "http://localhost:8081/features?entity_id=user_42&featureset=UserFeatures&timestamp=2026-04-01T00:00:00Z"
+```
+
+**Response:** `200 OK` with:
+
+```json
+{
+  "entity_type": "user",
+  "entity_id":   "user_42",
+  "features":    {"avg_amount_7d": 42.5, "is_suspicious": false, ...},
+  "mode":        "online"
+}
+```
+
+The `mode` is `"online"` when `timestamp` was omitted, `"point_in_time"` when supplied.
+
+**Response header `X-Query-Run-Id`:** every successful response carries a UUID that identifies the audit record for this query (see Query Runs below). The SDK exposes this as `ThymeResult.query_run_id`.
+
+---
+
+### `GET /health`
+
+Liveness probe. Returns `200 OK` with `{"status": "ok"}` when the query server is healthy. Excluded from auth.
+
+---
+
+### `GET /query-runs`
+
+Lists query-run audit records — every CLI or SDK query is recorded here. Useful for building activity feeds, latency dashboards, and audit trails.
+
+**Response:** `200 OK` with `{"runs": [...]}`. Each run has:
+
+| Field | Type | Description |
+|------|------|-------------|
+| `id` | string | UUID — same value returned on `X-Query-Run-Id` |
+| `featureset` | string | Featureset queried |
+| `entity_ids` | string[] | Entities queried |
+| `requested_timestamp` | string \| null | The `timestamp` parameter (point-in-time queries only) |
+| `kind` | string | `online`, `batch`, `offline`, or `lookup` |
+| `row_count` | int | Rows returned |
+| `hit_count` | int | Rows where every requested feature had a value |
+| `latency_ms` | int | Server-side latency |
+| `api_key_fingerprint` | string \| null | Caller's API key fingerprint (auth mode only) |
+| `error` | string \| null | Error message if the run failed |
+| `created_at` | string | ISO-8601 timestamp |
+
+---
+
+### `GET /query-runs/{id}`
+
+Returns a single query-run record by ID.
+
+---
+
+### `POST /query-runs/{id}/replay`
+
+Re-runs a captured query — useful for reproducing a production result locally or in a debugging context.
+
+**Response:** `200 OK` with `{"kind": "...", "result": ...}` mirroring the original response shape.
+
+---
+
+## Errors
+
+Errors return a JSON body of the form:
+
+```json
+{ "error": "...", "detail": "..." }
+```
+
+| Status | Meaning |
+|-------|---------|
+| `400` | Malformed request — missing required parameter, bad JSON body, invalid timestamp |
+| `401` | Missing or invalid bearer token |
+| `404` | Featureset / job / source / query-run not found |
+| `5xx` | Server-side failure — see [Operations → Monitoring](/docs/operations/monitoring) for log paths |

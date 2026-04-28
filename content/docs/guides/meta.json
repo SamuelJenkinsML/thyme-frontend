@@ -1,4 +1,4 @@
 {
   "title": "Guides",
-  "pages": ["polars-udfs", "ai-feature-discovery"]
+  "pages": ["polars-udfs", "ai-feature-discovery", "feature-versioning", "troubleshooting"]
 }

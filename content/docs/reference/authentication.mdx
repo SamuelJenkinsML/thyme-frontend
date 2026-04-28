@@ -1,0 +1,82 @@
+---
+title: Authentication
+description: Bearer-token auth for backend services, CLI credential storage, and OAuth for the web frontend.
+---
+
+Thyme uses three authentication mechanisms across its components.
+
+| Component | Auth method |
+|-----------|------------|
+| Backend services (definition service, query server) | Bearer token via `THYME_API_KEY` |
+| CLI / Python SDK | Stored credentials at `~/.thyme/credentials` |
+| Web frontend | OAuth (configurable; GitHub provider by default) |
+
+## Backend: Bearer token
+
+The definition service and query server both check a bearer token when `THYME_API_KEY` is set on the server.
+
+**When `THYME_API_KEY` is set** — every request (except `/health` and `/metrics`) requires:
+
+```
+Authorization: Bearer <api-key>
+```
+
+Invalid or missing tokens return `401`.
+
+**When `THYME_API_KEY` is not set** — auth is disabled (local-dev mode). All requests pass through without inspection.
+
+```bash
+# Authenticated request
+curl -H "Authorization: Bearer tk_your_key" \
+    "http://localhost:8081/features?entity_id=user_42&featureset=UserFeatures"
+```
+
+In production, mount `THYME_API_KEY` from your secret manager (AWS Secrets Manager, GCP Secret Manager, Kubernetes secret, etc.) into both the definition-service and query-server pods.
+
+### Rotating the API key
+
+The bearer token is a single shared secret per environment. To rotate:
+
+1. Generate a new key (`openssl rand -hex 32` is fine).
+2. Add it to your secret manager alongside the current key.
+3. Roll the engine + query-server pods to pick up the new value.
+4. Update CLI credentials on every developer machine and CI runner (`thyme login`).
+5. Remove the old key from the secret manager.
+
+## CLI: Credential storage
+
+`thyme login` stores credentials at `~/.thyme/credentials` (JSON, file permissions `0600`). All subsequent CLI and SDK calls automatically attach the bearer token.
+
+```bash
+# One-time setup
+thyme login --url http://your-alb.elb.amazonaws.com --api-key tk_your_key
+
+# Subsequent commands authenticate automatically
+thyme commit features.py
+thyme status
+thyme logs
+```
+
+The `THYME_API_KEY` environment variable, if set, **overrides** stored credentials. This is the recommended pattern for CI environments — `thyme login` for local development, `THYME_API_KEY` env var for CI.
+
+To remove stored credentials:
+
+```bash
+thyme logout
+```
+
+### Priority chain
+
+Credential lookup order, highest priority first:
+
+1. `THYME_API_KEY` environment variable
+2. `--api-key` flag passed to the CLI
+3. `~/.thyme/credentials`
+
+## Web frontend: OAuth
+
+The Thyme web frontend uses Auth.js with a configurable OAuth provider (GitHub by default). The frontend's request proxy attaches the backend `THYME_API_KEY` to upstream calls — frontend users don't see or hold the backend bearer token directly.
+
+This separation matters: the OAuth login authenticates the *human* using the UI, while the bearer token authenticates the *service* (the frontend's server-side proxy) calling the backend. End users never need to manage API keys to use the dashboard.
+
+To enable a different OAuth provider, configure the corresponding Auth.js adapter in the frontend's environment variables (`AUTH_*`). Hosting the frontend without auth is supported only for local development.

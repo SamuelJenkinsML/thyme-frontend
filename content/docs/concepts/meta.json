@@ -1,4 +1,4 @@
 {
   "title": "Concepts",
-  "pages": ["index", "datasets", "pipelines", "featuresets", "sources"]
+  "pages": ["index", "datasets", "pipelines", "featuresets", "sources", "lineage", "query-runs"]
 }
