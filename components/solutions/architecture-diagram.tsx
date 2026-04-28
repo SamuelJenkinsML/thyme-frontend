@@ -14,7 +14,7 @@ export function ArchitectureDiagram({ graph }: { graph: ArchitectureGraph }) {
 
   return (
     <div className="rounded-2xl border border-zinc-800 bg-[#0a1a12] overflow-hidden shadow-2xl shadow-black/30">
-      {/* Annotation strip — mirrors the dashboard lineage header */}
+      {/* Annotation strip - mirrors the dashboard lineage header */}
       <div className="flex items-center justify-between px-5 py-2.5 border-b border-white/5 bg-black/20">
         <span className="font-mono text-[0.7rem] tracking-[0.18em] text-emerald-400/70">
           WRITE PATH ▾

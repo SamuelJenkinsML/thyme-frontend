@@ -6,9 +6,9 @@ const fraudDetection: CaseStudy = {
   category: "Fraud & Risk",
   title: "Real-time fraud detection at checkout",
   tagline:
-    "Catch velocity and spend anomalies at checkout from a single kappa pipeline — no batch reconciliation, no training-serving skew.",
+    "Catch velocity and spend anomalies at checkout from a single kappa pipeline - no batch reconciliation, no training-serving skew.",
   summary:
-    "A kappa-architecture pipeline that computes velocity and spend aggregates across 1h, 24h, and 7d windows and produces an is_suspicious flag at query time — all from a single Python definition.",
+    "A kappa-architecture pipeline that computes velocity and spend aggregates across 1h, 24h, and 7d windows and produces an is_suspicious flag at query time - all from a single Python definition.",
   icon: ShieldAlert,
   accentColor: "#E91E63",
   heroMetrics: [
@@ -18,7 +18,7 @@ const fraudDetection: CaseStudy = {
   ],
   problem: {
     heading: "Fraud scoring can't wait for tomorrow's batch",
-    body: "E-commerce fraud needs to be caught at checkout, not in an overnight job. When a compromised account fires off rapid orders or a 24-hour spend spikes to 10x the weekly average, the scoring model needs those signals with sub-second freshness — across multiple time windows simultaneously.",
+    body: "E-commerce fraud needs to be caught at checkout, not in an overnight job. When a compromised account fires off rapid orders or a 24-hour spend spikes to 10x the weekly average, the scoring model needs those signals with sub-second freshness - across multiple time windows simultaneously.",
     bullets: [
       "Velocity: order count in the last hour",
       "Spend spike: 24-hour spend vs. 7-day daily average",
@@ -40,7 +40,7 @@ const fraudDetection: CaseStudy = {
   code: {
     language: "python",
     filename: "features.py",
-    caption: "The complete fraud-detection feature definition — ~60 lines.",
+    caption: "The complete fraud-detection feature definition - ~60 lines.",
     source: `from datetime import datetime
 from thyme import (
     Config, Count, Max, Sum, dataset, expectations, extractor,
@@ -110,7 +110,7 @@ class FraudSignals:
     },
     {
       name: "@expectations",
-      description: "Declarative data contracts on ingest — rejects rows that violate bounds or nullability.",
+      description: "Declarative data contracts on ingest - rejects rows that violate bounds or nullability.",
     },
     {
       name: "@extractor",
@@ -141,7 +141,7 @@ class FraudSignals:
     forEngineer:
       "One Python file defines five invertible aggregates across three windows and a derived is_suspicious extractor. No batch job to keep in sync, no Flink cluster to babysit, and point-in-time training queries hit the same state as production scoring.",
     forBusiness:
-      "Fraud is caught at checkout, not in tomorrow's batch. Because training and serving share state by construction, the model you evaluated offline is the model that's running — no silent accuracy drift after deploy.",
+      "Fraud is caught at checkout, not in tomorrow's batch. Because training and serving share state by construction, the model you evaluated offline is the model that's running - no silent accuracy drift after deploy.",
   },
   related: ["price-anomaly", "experience-discovery"],
 };
@@ -151,9 +151,9 @@ const priceAnomaly: CaseStudy = {
   category: "Marketplace Trust & Safety",
   title: "Distribution-based price anomaly detection",
   tagline:
-    "Catch listings priced outside their product's own historical distribution — not just above a naive threshold.",
+    "Catch listings priced outside their product's own historical distribution - not just above a naive threshold.",
   summary:
-    "Streaming t-digest sketches compute percentile rank at write time. Reads serve a single pre-computed float — no sketch deserialization, no per-request computation.",
+    "Streaming t-digest sketches compute percentile rank at write time. Reads serve a single pre-computed float - no sketch deserialization, no per-request computation.",
   icon: TrendingUp,
   accentColor: "#9C27B0",
   heroMetrics: [
@@ -162,12 +162,12 @@ const priceAnomaly: CaseStudy = {
     { label: "Storage per product", value: "1 float" },
   ],
   problem: {
-    heading: "$200 is normal — until it isn't",
+    heading: "$200 is normal - until it isn't",
     body: "Naive threshold rules produce false positives on high-variance products and miss anomalies on low-variance ones. The feature that matters is the percentile rank of a product's 7-day max price within its own 180-day distribution. That requires a compact, incrementally-updatable summary of the distribution: a streaming t-digest.",
     bullets: [
       "Pre-computed batch percentiles go stale within minutes",
       "Simple 2x-average thresholds misclassify luxury goods and phone cases",
-      "Real prices are skewed and multimodal — means and stddevs lie",
+      "Real prices are skewed and multimodal - means and stddevs lie",
     ],
   },
   approach: {
@@ -243,7 +243,7 @@ class PriceFeatures:
     },
     {
       name: "Pre-computed rank",
-      description: "Percentile rank is stored as a float — reads never deserialize the sketch.",
+      description: "Percentile rank is stored as a float - reads never deserialize the sketch.",
     },
     {
       name: "Max(window=\"7d\")",
@@ -262,24 +262,24 @@ class PriceFeatures:
     {
       entity: "p_spike",
       behavior: "max_price_7d = $220.81",
-      expected: "pct_rank = 0.998 — decile 10 anomaly",
+      expected: "pct_rank = 0.998 - decile 10 anomaly",
     },
     {
       entity: "p_cheap",
       behavior: "max_price_7d = $31.87",
-      expected: "pct_rank = 0.57 — decile 6, normal",
+      expected: "pct_rank = 0.57 - decile 6, normal",
     },
     {
       entity: "p_premium",
       behavior: "max_price_7d = $620.58",
-      expected: "pct_rank = 0.51 — decile 6, normal for its own distribution",
+      expected: "pct_rank = 0.51 - decile 6, normal for its own distribution",
     },
   ],
   audiences: {
     forEngineer:
       "ApproxPercentile stores tiled t-digest sketches at write time; reads return a pre-computed float, not a sketch deserialization. Memory per product stays constant whether the distribution window is 7 days or 180. Online and point-in-time queries share the same code path.",
     forBusiness:
-      "The platform learns what each product costs normally — not a global threshold that false-positives on luxury and misses cheap anomalies. False-positive rates drop across the long tail of SKUs where naive thresholds can't reach.",
+      "The platform learns what each product costs normally - not a global threshold that false-positives on luxury and misses cheap anomalies. False-positive rates drop across the long tail of SKUs where naive thresholds can't reach.",
   },
   related: ["fraud-detection", "experience-discovery"],
 };
@@ -289,9 +289,9 @@ const experienceDiscovery: CaseStudy = {
   category: "Travel & Marketplaces",
   title: "Real-time purchase intent for a travel marketplace",
   tagline:
-    "Clickstream-driven intent signals for search ranking — 15 features across three time windows from a single streaming pipeline.",
+    "Clickstream-driven intent signals for search ranking - 15 features across three time windows from a single streaming pipeline.",
   summary:
-    "Kinesis clickstream temporally joined against user profiles, aggregated across 1h/24h/7d windows, and distilled into a composite is_high_intent signal — all from ~40 lines of Python.",
+    "Kinesis clickstream temporally joined against user profiles, aggregated across 1h/24h/7d windows, and distilled into a composite is_high_intent signal - all from ~40 lines of Python.",
   icon: Compass,
   accentColor: "#2196F3",
   heroMetrics: [
@@ -301,7 +301,7 @@ const experienceDiscovery: CaseStudy = {
   ],
   problem: {
     heading: "Which of your 500M visitors is about to book?",
-    body: "Travel marketplaces need to tell active browsers from casual scrollers from dormant returners, in real time, to drive search ranking and personalization. The signal is a mix of windowed click rates, dwell time, and acceleration vs. baseline — computed from a 5,000 EPS clickstream and served at ranking-request latency.",
+    body: "Travel marketplaces need to tell active browsers from casual scrollers from dormant returners, in real time, to drive search ranking and personalization. The signal is a mix of windowed click rates, dwell time, and acceleration vs. baseline - computed from a 5,000 EPS clickstream and served at ranking-request latency.",
     bullets: [
       "Batch pipelines miss moment-to-moment intent and create training-serving skew",
       "Redis counters can't do temporal joins against a slowly-changing profile dimension",
@@ -310,7 +310,7 @@ const experienceDiscovery: CaseStudy = {
   },
   approach: {
     heading: "Temporal join + 9 aggregations + 6 derived signals",
-    body: "ClickEvents are temporally joined against the UserProfile dimension — every click is enriched with the profile as of that click's timestamp. The engine computes Count, Avg, and Sum across 1h/24h/7d windows using invertible operators (O(1) eviction). Six derived Python extractors produce engagement_velocity, dwell_depth_score, and the composite is_high_intent at query time.",
+    body: "ClickEvents are temporally joined against the UserProfile dimension - every click is enriched with the profile as of that click's timestamp. The engine computes Count, Avg, and Sum across 1h/24h/7d windows using invertible operators (O(1) eviction). Six derived Python extractors produce engagement_velocity, dwell_depth_score, and the composite is_high_intent at query time.",
     diagram: {
       parallelSources: [
         { label: "ClickEvent", sublabel: "Kinesis · 5k EPS", kind: "source" },
@@ -411,11 +411,11 @@ class DiscoverySignals:
     },
     {
       name: "Invertible Count / Sum",
-      description: "7-day windows cost the same as 1-hour windows — eviction is O(1).",
+      description: "7-day windows cost the same as 1-hour windows - eviction is O(1).",
     },
     {
       name: "Composite extractors",
-      description: "engagement_velocity, dwell_depth_score, is_high_intent — derived in Python, no extra storage.",
+      description: "engagement_velocity, dwell_depth_score, is_high_intent - derived in Python, no extra storage.",
     },
     {
       name: "Point-in-time reads",
@@ -451,7 +451,7 @@ class DiscoverySignals:
     forEngineer:
       "Kinesis clickstream temporally joined against the Postgres profile dimension, with nine invertible aggregates across three windows and six derived Python extractors. ~40 lines of feature code replaces the batch/streaming dual-pipeline you'd otherwise maintain.",
     forBusiness:
-      "Ranking reflects what the visitor is doing right now — their last five minutes of browsing matters more than a nightly batch. Training data and production signals agree at every timestamp, so ranking experiments generalise from offline evaluation to production.",
+      "Ranking reflects what the visitor is doing right now - their last five minutes of browsing matters more than a nightly batch. Training data and production signals agree at every timestamp, so ranking experiments generalise from offline evaluation to production.",
   },
   related: ["fraud-detection", "price-anomaly"],
 };
