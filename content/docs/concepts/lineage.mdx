@@ -1,0 +1,62 @@
+---
+title: Lineage
+description: How Thyme connects sources, datasets, pipelines, and featuresets into a graph you can read and reason about.
+---
+
+Lineage is the graph that connects your committed Thyme objects: sources flow into datasets, pipelines transform datasets into other datasets, and featuresets read from those datasets to produce model features. The web UI's **Lineage** page renders this graph live from the latest commit.
+
+This page explains how to read it.
+
+## What the graph contains
+
+Four node types, drawn in this order top-to-bottom:
+
+| Node | What it is |
+|-----|-----------|
+| **Source** | A `@source` connector feeding into a dataset (Postgres, Kafka, Kinesis, Iceberg, …) |
+| **Dataset** | An `@dataset` definition - either a raw landing dataset or the output of a pipeline |
+| **Pipeline** | An `@pipeline`-decorated method on a dataset, computing windowed aggregations |
+| **Featureset** | An `@featureset` exposing model-ready features, possibly with `@extractor` derivations |
+
+Edges run downward:
+
+- A **source edge** flows from a source into the dataset it feeds.
+- A **pipeline input edge** flows from each `@inputs(...)` dataset into the pipeline.
+- A **pipeline output edge** flows from the pipeline into the dataset it materializes.
+- An **extractor edge** flows from a dataset into a featureset whose extractor reads from it (`feature(ref=Dataset.field)` or an `@extractor` declaring `extractor_inputs`).
+
+Lineage is **definition-time**, not runtime. Every edge is derived from the registered metadata in your committed Python module - there is no per-query timing data on the graph today.
+
+## Why look at lineage
+
+Three common reasons:
+
+1. **Comprehension.** "Where does `is_suspicious` actually come from?" - trace the featureset back through extractors, into the aggregated dataset, into the pipeline, into the raw dataset, into the source.
+2. **Impact analysis.** "If I rename `Order.amount`, what breaks?" - the lineage page's blast-radius mode highlights every downstream pipeline, dataset, and featureset that touches the field.
+3. **Audit.** "Which source produces this featureset?" - useful for data governance, GDPR mapping, and PII flow tracking.
+
+## Blast-radius mode
+
+Click any node to enter **blast-radius mode**. The graph dims to gray and re-highlights:
+
+- **Upstream** (everything that feeds the selected node) in one colour
+- **Downstream** (everything the selected node feeds into) in another
+
+This is the fast answer to "what happens if I change this?" - all downstream pipelines and featuresets light up, and you can see at a glance whether the change is local or invasive.
+
+Press `Esc` or click the background to exit blast-radius mode.
+
+## What lineage does *not* tell you
+
+Lineage is a structural graph derived from metadata. It does **not** show:
+
+- **Per-query latency** - see [Query Runs](/docs/concepts/query-runs) for timing data per featureset query.
+- **Throughput / event rate per pipeline** - see [Operations → Monitoring](/docs/operations/monitoring) for Prometheus metrics.
+- **Data volume on edges** - there is no "how many events flowed through this edge" annotation today.
+- **Job health** - see the Jobs page for live job state.
+
+If you need a live operational view of a pipeline rather than its definition, start from the Jobs page and drill in.
+
+## Updating the graph
+
+Every `thyme commit` regenerates the graph from the new metadata. The lineage UI reads the latest committed snapshot, so your most recent commit is what's drawn - not historical state. If you need to look at a previous commit's graph, query the [REST API](/docs/reference/rest-api) and reconstruct it from the per-commit data.

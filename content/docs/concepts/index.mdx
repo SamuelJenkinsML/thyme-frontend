@@ -16,15 +16,7 @@ Thyme is built around four primitives. You use all four when defining a feature 
 
 ## How they connect
 
-```
-Source → Dataset (raw events)
-           ↓  @pipeline
-         Dataset (aggregated stats)
-           ↓  @extractor
-         Featureset (model features)
-           ↓
-         Query Server → model
-```
+<ConceptFlowDiagram />
 
 A source ingests raw events into a dataset. A pipeline aggregates that dataset into another dataset. An extractor reads the aggregated dataset and composes the final features that your model queries.
 
@@ -32,7 +24,7 @@ A source ingests raw events into a dataset. A pipeline aggregates that dataset i
 
 ## Learn more
 
-- [Datasets](/docs/concepts/datasets) — schema, keys, timestamps
-- [Pipelines](/docs/concepts/pipelines) — windowed aggregations, groupby
-- [Featuresets](/docs/concepts/featuresets) — features, extractors, IDs
-- [Sources](/docs/concepts/sources) — connectors, CDC modes, polling
+- [Datasets](/docs/concepts/datasets) - schema, keys, timestamps
+- [Pipelines](/docs/concepts/pipelines) - windowed aggregations, groupby
+- [Featuresets](/docs/concepts/featuresets) - features, extractors, IDs
+- [Sources](/docs/concepts/sources) - connectors, CDC modes, polling

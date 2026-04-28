@@ -1,0 +1,92 @@
+---
+title: Interactive Tour
+description: A guided walkthrough of the running Thyme app - catalog, inspect, jobs, sources, lineage.
+---
+
+This tour assumes you have access to a hosted Thyme instance (see [Installation](/docs/getting-started/installation)) and have committed at least one featureset (see [Your First Feature](/docs/getting-started/first-feature)). Open your instance's dashboard URL and follow along.
+
+If you haven't committed anything yet, the [Quick Start](/docs/getting-started/quickstart) is the fastest way to get a featureset live before walking the tour.
+
+## 1. Catalog - what's committed
+
+Open `/catalog`.
+
+The Catalog page is the system of record for everything you've committed. It has five tabs:
+
+- **Featuresets** - every `@featureset` and the features it exposes
+- **Pipelines** - every `@pipeline`, with input datasets and aggregations
+- **Datasets** - every `@dataset`, both raw and pipeline-output
+- **Graph** - a dependency graph view of the same objects
+- **Lineage** - the same lineage view that appears on `/lineage`
+
+Click into any featureset card to see its features, extractors, and Python source. The hover tooltip on the page heading explains [what a featureset is](/docs/concepts/featuresets) - the docs links throughout the UI follow the same pattern.
+
+## 2. Inspect - query a feature value
+
+Open `/inspect`.
+
+The Inspect page is a UI wrapper around the [`GET /features` REST endpoint](/docs/reference/rest-api#get-features). Enter:
+
+- **Entity ID** - the key value (e.g. `user_42`)
+- **Featureset** - pick from the dropdown
+- **Timestamp** *(optional)* - leave blank for online (latest), or pass an ISO-8601 timestamp for a point-in-time query
+
+Hit **Inspect** and you'll see the feature values returned by the query server. The `Last updated` line at the bottom shows how recently the underlying state was advanced.
+
+If a feature returns `null` or "missing", see [Troubleshooting → Features return null / missing](/docs/guides/troubleshooting#features-return-null--missing).
+
+## 3. Sources - what's ingesting
+
+Open `/sources`.
+
+Each card represents one `@source` decorator. The card shows:
+
+- The dataset the source feeds
+- The connector type (Postgres, Kafka, Kinesis, etc.)
+- The cursor field and current cursor value (for polling sources)
+- The poll interval and `max_lateness` setting
+
+If the cursor value isn't advancing, walk through [Troubleshooting → Source is "stuck"](/docs/guides/troubleshooting#source-is-stuck--no-new-events).
+
+## 4. Jobs - what's running
+
+Open `/jobs`.
+
+Each row is one running job. A job is the runtime materialization of a `@pipeline` - every pipeline becomes one job at commit time. The columns show throughput, last commit timestamp, and partition count.
+
+Click into a job to see its pipeline operator chain, input/output topics, and (if applicable) the windowed aggregations being computed.
+
+## 5. Lineage - what depends on what
+
+Open `/lineage`.
+
+This is the structural graph of your committed objects. Sources flow into datasets, pipelines transform datasets into other datasets, and featuresets read from those datasets. See [Lineage](/docs/concepts/lineage) for what each node and edge means.
+
+**Try this:** click any node. The graph dims to gray and re-highlights everything upstream and downstream of the selected node. This is **blast-radius mode** - the fastest way to answer "what happens if I change this?".
+
+Press `Esc` or click the background to exit.
+
+## 6. Query Runs - audit trail
+
+Open `/query-runs`.
+
+Every CLI or SDK query against the query server creates an audit record here. Each row shows the featureset, entity IDs queried, latency, hit rate (how many requested features had values), the timestamp parameter (if it was a point-in-time query), and the API key fingerprint (in auth mode).
+
+Click into any run to see the full input and output - useful for reproducing a production result locally, or for replaying a failed query against a fix. See [Query Runs](/docs/concepts/query-runs) for the full API.
+
+## 7. Monitoring - runtime health
+
+Open `/monitoring`.
+
+The monitoring page embeds the Grafana dashboards described in [Operations → Monitoring](/docs/operations/monitoring). You'll see system health, engine performance (events/sec, write latency), query-server performance (latency percentiles, QPS), and definition-service activity.
+
+Use this view to spot stuck pipelines, sudden latency regressions, or commit storms.
+
+## Where to go next
+
+| You are… | Go to |
+|---------|-------|
+| Ready to define your own features | [Define features → Decorators](/docs/reference/decorators) |
+| Operating a Thyme deployment | [Operations → Deployment](/docs/operations/deployment) |
+| Evaluating Thyme | [Why Thyme](/docs/why-thyme) → [Case Studies](/docs/case-studies/fraud-detection) |
+| Looking for a specific HTTP endpoint | [REST API Reference](/docs/reference/rest-api) |

@@ -39,9 +39,9 @@ All windows use event time, not processing time.
 | `Sum` | yes | O(1) | same as input |
 | `Count` | yes | O(1) | `int` |
 | `Avg` | yes | O(1) | `float` |
-| `Min` | no — sorted set | O(window) | same as input |
-| `Max` | no — sorted set | O(window) | same as input |
-| `ApproxPercentile` | no — t-digest tiles | O(tiles) | `float` |
+| `Min` | no - sorted set | O(window) | same as input |
+| `Max` | no - sorted set | O(window) | same as input |
+| `ApproxPercentile` | no - t-digest tiles | O(tiles) | `float` |
 
 **Invertible** operators maintain only the running total and count. When an old record expires out of the window, the engine subtracts its contribution without a recompute. This means `Sum`/`Count`/`Avg` over a 180-day window cost the same memory per entity as over a one-minute window.
 
@@ -109,7 +109,7 @@ min_amount_30d=Min(of="amount", window="30d")
 - `of`: numeric field (`float` or `int`)
 - Returns: same type as the input field
 
-Backed by a keyed sorted set in RocksDB. Memory is O(distinct values in the window).
+Memory is O(distinct values in the window).
 
 ---
 
@@ -142,7 +142,7 @@ price_pct_rank_180d=ApproxPercentile(of="price", window="180d", pct=99)
 
 - `of`: numeric field (`float` or `int`)
 - `pct`: the percentile to compute (0–100)
-- Returns: `float` — the value at the given percentile, OR the rank of the latest record, depending on configuration
+- Returns: `float` - the value at the given percentile, OR the rank of the latest record, depending on configuration
 
 Backed by tiled t-digest sketches. The window is divided into fixed-duration tiles; each tile stores a sketch; window queries merge the live tiles. Tiles fall out of the window individually in O(1), so a 180-day window is not meaningfully more expensive than a 7-day window.
 

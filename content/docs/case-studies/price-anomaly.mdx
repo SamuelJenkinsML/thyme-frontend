@@ -1,0 +1,130 @@
+---
+title: Real-Time Price Anomaly Detection
+description: Distribution-based anomaly detection using streaming sketches and the ApproxPercentile operator.
+---
+
+## The problem
+
+Online marketplaces have a pricing integrity problem. When a seller suddenly lists a $25 product at $200, is it scarcity, a compromised account, or ranking manipulation?
+
+The hard part isn't spotting a $200 price. It's knowing that $200 is abnormal *for that specific product, given its own pricing history*. A $200 listing for a luxury item is normal. A $200 listing for a phone case is a red flag. You need that answer in milliseconds, at checkout.
+
+The feature: **"Where does this product's recent pricing sit relative to its own historical distribution?"** - the percentile rank of its 7-day max price within its 180-day distribution.
+
+## Why this feature is hard
+
+- **Pre-computed batch percentiles** go stale - won't catch a spike from 10 minutes ago
+- **Simple thresholds** (flag anything above 2× average) produce false positives on high-variance products
+- **Min/max heuristics** assume uniform distributions - real prices are skewed and multimodal
+
+What you need is a compact, incrementally-updatable summary of the distribution - the kind of structure provided by streaming sketches like t-digest.
+
+## The Thyme solution
+
+```python
+from datetime import datetime
+from thyme import (
+    ApproxPercentile, Config, Max, dataset, extractor, extractor_inputs,
+    extractor_outputs, feature, featureset, field, inputs, pipeline, source,
+)
+from thyme.dataset import Field
+
+config = Config.load()
+bookings_source = config.postgres_source(table="product_bookings")
+
+@source(bookings_source, cursor="timestamp", every="5s", max_lateness="1h")
+@dataset(version=1)
+class ProductBooking:
+    product_id: Field[str]      = field(key=True)
+    price:      Field[float]    = field()
+    timestamp:  Field[datetime] = field(timestamp=True)
+
+@dataset(version=1, index=True)
+class ProductPriceStats:
+    product_id:          Field[str]      = field(key=True)
+    max_price_7d:        Field[float]    = field()
+    price_pct_rank_180d: Field[float]    = field()
+    timestamp:           Field[datetime] = field(timestamp=True)
+
+    @pipeline(version=1)
+    @inputs(ProductBooking)
+    def compute_stats(cls, bookings):
+        return bookings.groupby("product_id").aggregate(
+            max_price_7d=Max(of="price", window="7d"),
+            price_pct_rank_180d=ApproxPercentile(of="price", window="180d"),
+        )
+
+@featureset
+class PriceFeatures:
+    product_id:          str   = feature()
+    max_price_7d:        float = feature(ref=ProductPriceStats.max_price_7d)
+    price_pct_rank_180d: float = feature(ref=ProductPriceStats.price_pct_rank_180d)
+    price_decile:        int   = feature()
+
+    @extractor
+    @extractor_inputs("price_pct_rank_180d")
+    @extractor_outputs("price_decile")
+    def compute_decile(cls, ts, pct_rank):
+        if pct_rank is None:
+            return 5
+        return min(int(pct_rank * 10) + 1, 10)
+```
+
+## How it works
+
+The `ApproxPercentile` operator maintains a streaming sketch of the value distribution per entity. As new price events arrive, they update the sketch incrementally - no full recomputation, no historical data scans. The percentile rank is **pre-computed at write time** and stored alongside the other aggregates, so the read path returns a single float per entity. Read latency is 1–2 ms.
+
+## Production results
+
+### Materialized features
+
+| Product | max_price_7d | pct_rank_180d | Decile | Interpretation |
+|---------|-------------|---------------|--------|----------------|
+| p_spike | **$220.81** | **0.9977** | **10** | 99.8th percentile - clear anomaly |
+| p_cheap | $31.87 | 0.5688 | 6 | Near median - normal |
+| p_premium | $620.58 | 0.5082 | 6 | Near median of its own distribution - normal |
+
+`p_premium` at $620 is perfectly normal (50th percentile of its own distribution), even though $620 would trigger any naive "high price" threshold.
+
+### AWS production results (500k events, Graviton c7g.xlarge)
+
+| Metric | Value |
+|--------|-------|
+| Feed rate | 1,672 events/sec (sustained over 5 min) |
+| E2E throughput | 1,110 events/sec |
+| Read P50 (E2E) | **0.66 ms** |
+| Read P95 (E2E) | **1.95 ms** |
+| Read P99 (E2E) | **2.83 ms** |
+| Sustained QPS | **1,625** |
+| Online/offline parity | 100% |
+
+### Performance charts
+
+![Events processed over time](/case-studies/price-anomaly/events-processed.png)
+
+![Sustained write throughput](/case-studies/price-anomaly/write-throughput.png)
+
+![Query latency distribution](/case-studies/price-anomaly/query-latency.png)
+
+![Read latency vs SLA targets](/case-studies/price-anomaly/read-latency-targets.png)
+
+![Write latency](/case-studies/price-anomaly/write-latency.png)
+
+![Extractor execution time](/case-studies/price-anomaly/extractor-time.png)
+
+## Comparison with other platforms
+
+| Capability | Thyme | Tecton | Fennel | Zipline (Airbnb) |
+|-----------|-------|--------|--------|-----------------|
+| Approximate percentile | `ApproxPercentile` | `approx_percentile` | Not supported | `ApproxPercentile` |
+| Pre-computed rank | Yes (write-time) | Via on-demand features | N/A | Via derived features |
+
+## Reproducing this on your own data
+
+Point `ProductBooking` at your own bookings or pricing source, commit, and the per-product percentile rank is live within seconds.
+
+```bash
+thyme commit features.py
+curl -H "Authorization: Bearer $THYME_API_KEY" \
+    "$THYME_BASE_URL/features?entity_id=p_spike&featureset=PriceFeatures"
+```

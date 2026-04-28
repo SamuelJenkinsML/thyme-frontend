@@ -3,7 +3,7 @@ title: Featuresets
 description: Named collections of model-ready features with extractors.
 ---
 
-A featureset is a named collection of features that your models and applications consume. It's the public API of your feature pipeline — the thing you query at serving time.
+A featureset is a named collection of features that your models and applications consume. It's the public API of your feature pipeline - the thing you query at serving time.
 
 ## Defining a featureset
 
@@ -117,7 +117,8 @@ The query planner builds a DAG from the dependency declarations and executes ext
 ## Querying featuresets
 
 ```bash
-curl "http://localhost:8081/features?featureset=UserFeatures&uid=user_42"
+curl -H "Authorization: Bearer $THYME_API_KEY" \
+    "$THYME_BASE_URL/features?featureset=UserFeatures&uid=user_42"
 ```
 
 ```json
@@ -131,5 +132,6 @@ curl "http://localhost:8081/features?featureset=UserFeatures&uid=user_42"
 Point-in-time queries (for offline training) pass a timestamp:
 
 ```bash
-curl "http://localhost:8081/features?featureset=UserFeatures&uid=user_42&ts=2024-01-15T12:00:00Z"
+curl -H "Authorization: Bearer $THYME_API_KEY" \
+    "$THYME_BASE_URL/features?featureset=UserFeatures&uid=user_42&ts=2024-01-15T12:00:00Z"
 ```

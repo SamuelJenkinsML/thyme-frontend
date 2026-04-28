@@ -1,0 +1,13 @@
+{
+  "title": "Sources & Integrations",
+  "pages": [
+    "index",
+    "postgres",
+    "kafka",
+    "kinesis",
+    "s3-json",
+    "snowflake",
+    "bigquery",
+    "iceberg"
+  ]
+}

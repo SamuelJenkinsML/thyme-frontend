@@ -1,0 +1,66 @@
+---
+title: AI Feature Discovery
+description: Use thyme discover to automatically generate feature definitions from your data sources.
+---
+
+`thyme discover` is an AI-powered command that introspects a data source's schema and generates complete Thyme SDK code (`@dataset`, `@pipeline`, `@featureset`) tailored to your use case.
+
+## How it works
+
+1. **Schema introspection** - The CLI connects to your data source and samples rows to infer the schema (column names, types, sample values).
+2. **LLM code generation** - An Anthropic Claude model generates Thyme SDK code based on the schema and your stated use case.
+3. **Validation** - The generated code is validated by importing it and checking for registry errors.
+4. **Output** - Code is printed to stdout or written to a file.
+
+## Example: Fraud detection from Postgres
+
+```bash
+thyme discover \
+    --source-type postgres \
+    --use-case "fraud detection" \
+    --pg-host db.your-company.com --pg-port 5432 \
+    --pg-database analytics --pg-table orders \
+    --pg-user readonly --pg-password $PG_PASSWORD \
+    --windows "1h,24h,7d" \
+    --output fraud_features.py
+```
+
+This produces a complete Python file with:
+
+- A `@dataset` for the orders table with the correct schema
+- A `@source` with `PostgresSource` configured
+- A `@pipeline` with aggregations relevant to fraud detection across the specified windows
+- A `@featureset` with extractors
+
+## Example: Anomaly detection from Kafka
+
+```bash
+thyme discover \
+    --source-type kafka \
+    --use-case "price anomaly detection" \
+    --kafka-brokers kafka:9092 \
+    --kafka-topic product-prices \
+    --entity-key product_id \
+    --windows "7d,30d,180d" \
+    --output price_features.py
+```
+
+## Supported source types
+
+| Source type | Required options |
+|------------|-----------------|
+| `iceberg` | `--catalog`, `--database`, `--table` |
+| `postgres` | `--pg-host`, `--pg-database`, `--pg-table`, `--pg-user`, `--pg-password` |
+| `s3json` | `--s3-bucket` |
+| `kafka` | `--kafka-brokers`, `--kafka-topic` |
+| `jsonl` | `--path` |
+
+## Tips
+
+- **Provide an `--entity-key` hint** when the entity key isn't obvious from the schema.
+- **Use `--sample-n`** to control how many rows are sampled for schema inference (default: 5).
+- **Review before committing** - always review generated code before `thyme commit`.
+- **Use `--auto-commit`** with `--output` to generate and deploy in one step (for quick prototyping only).
+- **Set `ANTHROPIC_API_KEY`** in your environment or pass `--api-key`.
+
+See the [CLI Reference](/docs/reference/cli) for the full list of options.

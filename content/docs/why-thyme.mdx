@@ -7,7 +7,7 @@ description: One definition, two runtimes. The five things Thyme gets right.
 
 Most streaming feature systems maintain two pipelines: a batch job to compute training features over history, and a streaming job to keep serving features fresh. The two drift. A fix in one does not propagate to the other. The model you evaluated offline is not the model you're serving.
 
-Thyme runs one pipeline. The same `@pipeline` definition produces state that is queried two ways — online for inference, point-in-time for training. There is no second pipeline to drift against.
+Thyme runs one pipeline. The same `@pipeline` definition produces state that is queried two ways - online for inference, point-in-time for training. There is no second pipeline to drift against.
 
 The rest of this page is the consequences of that one design choice.
 
@@ -15,7 +15,7 @@ The rest of this page is the consequences of that one design choice.
 
 ## 1. Kappa, not lambda
 
-Thyme is a kappa-architecture system: every feature is the output of a streaming aggregation, end of story. Historical training features are not a separate thing — they are the same aggregation answered at an earlier event-time.
+Thyme is a kappa-architecture system: every feature is the output of a streaming aggregation, end of story. Historical training features are not a separate thing - they are the same aggregation answered at an earlier event-time.
 
 - No batch ETL to maintain
 - No reconciliation job to keep the two in sync
@@ -31,10 +31,10 @@ Every record in Thyme carries an event time. The state store is keyed by `(entit
 
 ```bash
 # Online
-curl "http://.../features?featureset=UserFeatures&uid=user_42"
+curl "$THYME_BASE_URL/features?featureset=UserFeatures&uid=user_42"
 
 # Point-in-time (training)
-curl "http://.../features?featureset=UserFeatures&uid=user_42&ts=2024-01-15T12:00:00Z"
+curl "$THYME_BASE_URL/features?featureset=UserFeatures&uid=user_42&ts=2024-01-15T12:00:00Z"
 ```
 
 Because both paths read the same state through the same extractor code, a training dataset generated this way is what the model actually saw at that moment. This is structural, not a convention you enforce in review.
@@ -43,7 +43,7 @@ Because both paths read the same state through the same extractor code, a traini
 
 ## 3. Exactly-once semantics
 
-Every pipeline tick commits as a single atomic unit: a RocksDB `WriteBatch` (output state, internal accumulator state, input offset) and a transactional Kafka produce. On restart the engine restores state from a checkpoint and replays from the committed offset. No duplicates, no lost events, no partial state.
+Every pipeline tick commits as a single atomic unit: output state, internal accumulator state, and source progress advance together, paired with a transactional Kafka produce. On restart the engine resumes from the last committed position. No duplicates, no lost events, no partial state.
 
 You do not have to think about this. You do not have to write idempotency tokens on your aggregations. Exactly-once is what the platform gives you.
 
@@ -51,12 +51,12 @@ You do not have to think about this. You do not have to write idempotency tokens
 
 ## 4. Sub-millisecond reads
 
-The query server runs the extractor DAG via PyO3 directly inside the Rust process, reading aggregated state from a local RocksDB secondary. No network hop to fetch state. No sidecar. No JVM.
+The query server runs the extractor DAG in-process and reads aggregated state from a local replica of the feature store. No network hop to fetch state. No sidecar. No JVM.
 
 - P50 server-side latency: **under 1 ms** (0.66–2.23 ms measured in production on AWS)
 - Throughput: **thousands of events/sec per partition**, limited by your Kafka throughput, not Thyme
 
-Latency this low means you can use Thyme on the hot path of real-time scoring — not just precomputation.
+Latency this low means you can use Thyme on the hot path of real-time scoring - not just precomputation.
 
 ---
 
@@ -79,7 +79,7 @@ class UserStats:
         )
 ```
 
-You do not manage Kafka consumer groups, RocksDB compaction, partition leasing, checkpoint upload, watermark advancement, or late-event handling. The engine does. Your job is the feature logic; Thyme's job is running it at scale.
+You do not manage Kafka consumer groups, state-store maintenance, partition rebalancing, checkpoint upload, watermark advancement, or late-event handling. The engine does. Your job is the feature logic; Thyme's job is running it at scale.
 
 ---
 
@@ -91,6 +91,8 @@ You do not manage Kafka consumer groups, RocksDB compaction, partition leasing, 
 
 **Smaller infrastructure footprint.** One system replaces the batch ETL, the streaming job, and the custom serving layer.
 
-**Safe schema evolution.** Features carry integer IDs. You can add, rename, and version features without breaking downstream consumers.
+**Safe schema evolution.** You can add, rename, and version features without breaking downstream consumers - see [Feature Versioning](/docs/guides/feature-versioning).
 
-**Audited queries by default.** Every CLI or SDK query is recorded as a [Query Run](/docs/concepts/query-runs) in the web UI — latency, hit rate, API key fingerprint, entities touched. No extra instrumentation required.
+**Audited queries by default.** Every CLI or SDK query is recorded as a [Query Run](/docs/concepts/query-runs) in the web UI - latency, hit rate, API key fingerprint, entities touched. No extra instrumentation required.
+
+For real-world walkthroughs of each architectural choice, see the [Case Studies](/docs/case-studies/fraud-detection) section - three production deployments at different points on the EPS / latency / feature-complexity spectrum.

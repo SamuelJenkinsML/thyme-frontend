@@ -1,4 +1,4 @@
 {
   "title": "Architecture",
-  "pages": ["read-write-paths", "how-it-works"]
+  "pages": ["how-it-works", "read-write-paths", "durability-and-consistency"]
 }

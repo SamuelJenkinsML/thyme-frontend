@@ -1,0 +1,89 @@
+---
+title: Troubleshooting
+description: User-facing diagnostics for stuck jobs, late events, missing features, and commit failures.
+---
+
+This page covers the common situations you'll hit while building features on Thyme - commit failures, missing values, slow pipelines. For platform-level issues, escalate to your Thyme administrator.
+
+## Commit fails with a validation error
+
+`thyme commit features.py` validates your Python module before sending it to the definition service. Common causes:
+
+| Error | Likely cause |
+|------|--------------|
+| `dataset has no field marked timestamp=True` | Every dataset must declare exactly one `field(timestamp=True)`. |
+| `dataset has no key field` | At least one field must declare `field(key=True)`. |
+| `cursor cannot be set on streaming source` | Kafka and Kinesis are streaming connectors; remove `cursor` and `every` from the `@source` decorator. |
+| `extractor input not found` | An `@extractor_inputs(...)` references a feature name not declared in the featureset. |
+| `pipeline output schema mismatch` | The pipeline's `aggregate(...)` output names/types don't match the dataset's declared fields. |
+
+Fix the Python file and re-run `thyme commit`. The CLI prints the first failing module-level error.
+
+## Features return null / missing
+
+A feature query returns no value (or `null`) for an entity. Walk the path:
+
+1. **Is the featureset committed?** Check the catalog page or `GET /api/v1/featuresets`. If absent, recommit.
+2. **Is the entity present in the source?** Use `thyme lookup <dataset> -e <entity_id>` to confirm raw data has reached the dataset.
+3. **Has the pipeline produced a row for this entity?** Inspect the aggregated dataset directly: `thyme lookup <output_dataset> -e <entity_id>`.
+4. **Is the extractor returning `None`?** Check the extractor's input fields - if any input is `None`, derived extractors typically return `None` or a fallback default.
+
+If the raw dataset has the row but the aggregated dataset doesn't, the pipeline is either still catching up (check the Jobs page) or the dataset's `key=True` field doesn't match what the source provides.
+
+## Source is "stuck" - no new events
+
+The Sources page shows a stale `cursor_value` and no recent events:
+
+- **Polling source** - confirm the source's `cursor` field is monotonically advancing in the upstream system. If the upstream stopped writing, Thyme has nothing to read. If `every` is `1h`, expect at most one poll per hour.
+- **Kafka / Kinesis source** - confirm the topic / shard is receiving messages from the producer side. If the upstream system has stopped publishing, Thyme will sit idle until it resumes.
+- **Auth issue** - incorrect `password` / `role_arn` shows up as repeated source errors in the Events feed; check the Events page for the dataset.
+
+The Events page (`/events` in the UI, `GET /api/v1/events?subject=<dataset>`) is the fastest way to see what the source is doing. If the events feed shows connectivity errors against the broker or upstream system, escalate to your Thyme administrator.
+
+## Late events being dropped
+
+If your `max_lateness` is too tight, legitimate late events get dropped from the windowed aggregation. Symptoms:
+
+- `event_count_*` is lower than the count in the source system
+- Aggregations look "smooth" but specific known-late events don't appear
+
+Two options:
+
+1. **Loosen `max_lateness`.** Set it to the worst-case ingestion delay you expect from your source. Tradeoff: window closure is delayed by the same amount.
+2. **Investigate the source delay.** If events are arriving days late, the source pipeline may have an upstream backlog you should address rather than tolerate.
+
+## Job is running but throughput is low
+
+The Jobs page shows the job is alive but events-per-second is below your target.
+
+Most low-throughput situations come down to platform-side configuration (partition count, broker capacity, batch size) rather than your pipeline code. The Operations → Monitoring dashboards (Engine Performance) show batch cycle time and events-per-second per worker - share those readings with your Thyme administrator if the numbers are below what you need.
+
+Things you *can* address from the SDK side:
+
+- **Window choice.** Very long windows on high-cardinality keys multiply state size. If you can use a shorter window or a coarser key, do.
+- **Heavy `.transform()` UDFs.** A Python UDF on the write path is much more expensive per event than a closed-form expression. See [Polars UDFs in Pipelines](/docs/guides/polars-udfs).
+
+## Online and point-in-time queries return different values
+
+Should not happen - online and point-in-time read the same materialized state through the same extractor code. If you see a divergence:
+
+1. **Confirm the timestamp.** Point-in-time queries with a `timestamp` in the future or in a window that hasn't closed yet may legitimately differ from online.
+2. **Check for clock skew.** Event timestamps in the source vs. the timestamp you're querying with should be in the same time zone (UTC is the safe default).
+3. **Reproduce with the same featureset and entity.** A different featureset version reads different state.
+
+If divergence persists for a query within a closed window, capture the query-run IDs from `X-Query-Run-Id` and file a ticket with both - the [Query Runs](/docs/concepts/query-runs) audit trail is enough to reproduce.
+
+## Dashboard shows "Disconnected" or 401s
+
+The web UI is failing to reach the platform. Most common causes:
+
+- **Auth lapsed.** Sign out and sign back in.
+- **Platform incident.** Other tabs (Catalog, Inspect) show errors at the same time. Escalate to your Thyme administrator.
+
+## Still stuck
+
+If none of the above applies:
+
+1. Open `/events` in the UI to see recent platform events for the affected subject (dataset, featureset, pipeline).
+2. Capture the failing `query_run_id` (from the `X-Query-Run-Id` header on a failing query, or visible in the query-runs page) and the relevant commit ID.
+3. Send those identifiers to your Thyme administrator - they are enough to reproduce the failure on the platform side.

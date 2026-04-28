@@ -1,0 +1,47 @@
+---
+title: SnowflakeSource
+description: Polling connector for Snowflake tables - incremental reads via a cursor field.
+---
+
+`SnowflakeSource` reads from a Snowflake table incrementally, tracking a cursor field and fetching new rows on each poll.
+
+## Use case
+
+- Slow-moving dimensional tables that already live in Snowflake (customer attributes, product catalog)
+- Materialized views or curated marts surfacing analytics-ready event data
+- Batch-fed event tables that are insert-only
+
+## Example
+
+```python
+from thyme import Secret
+from thyme.connectors import SnowflakeSource, source
+
+@source(
+    SnowflakeSource(table="ORDERS", password=Secret(env="SNOWFLAKE_PW")),
+    cursor="timestamp", every="5m", max_lateness="1h",
+)
+@dataset(index=True)
+class Order:
+    user_id:   Field[str]      = field(key=True)
+    amount:    Field[float]    = field()
+    timestamp: Field[datetime] = field(timestamp=True)
+```
+
+## Parameters
+
+| Parameter | Required | Default / env var | Description |
+|-----------|----------|-------------------|-------------|
+| `table` | **Yes** | - | Table name |
+| `account` | No | `THYME_SNOWFLAKE_ACCOUNT` | Snowflake account identifier |
+| `database` | No | `THYME_SNOWFLAKE_DATABASE` | Database name |
+| `warehouse` | No | `THYME_SNOWFLAKE_WAREHOUSE` | Compute warehouse |
+| `user` | No | `THYME_SNOWFLAKE_USER` | Username |
+| `password` | No (`Secret`-capable) | `THYME_SNOWFLAKE_PASSWORD` | Password |
+| `schema` | No | `THYME_SNOWFLAKE_SCHEMA` (`"PUBLIC"`) | Schema name |
+| `role` | No | `THYME_SNOWFLAKE_ROLE` | Snowflake role |
+
+## Limits
+
+- The cursor field must be monotonically non-decreasing. Snowflake's `INSERT_TIME` system column is a safe default if your application can't guarantee ordering on its own column.
+- Polling intervals shorter than ~1 minute may incur unnecessary Snowflake compute cost - Thyme is designed for sub-second freshness via streaming sources, not high-frequency polling of a warehouse.

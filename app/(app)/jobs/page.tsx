@@ -2,6 +2,7 @@
 
 import { useJobs } from "@/lib/hooks/use-jobs";
 import { JobsTable } from "@/components/monitoring/jobs-table";
+import { TermTooltip } from "@/components/shared/term-tooltip";
 
 export default function JobsPage() {
   const { dataUpdatedAt } = useJobs(10_000);
@@ -13,7 +14,10 @@ export default function JobsPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Jobs</h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-bold tracking-tight">Jobs</h1>
+          <TermTooltip term="pipeline" />
+        </div>
         {lastUpdated && (
           <p className="text-xs text-muted-foreground">
             Last updated: {lastUpdated} · auto-refreshes every 10s

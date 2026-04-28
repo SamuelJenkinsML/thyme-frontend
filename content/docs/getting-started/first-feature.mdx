@@ -109,9 +109,9 @@ class UserFeatures:
         return row["avg_amount_7d"], row["txn_count_30d"]
 ```
 
-- `feature(id=N)` — integer IDs are required. They provide a stable identity across renames and schema changes.
-- `@extractor_inputs` — the features this extractor needs as input (resolved by the query planner).
-- `@extractor_outputs` — the features this extractor produces.
+- `feature(id=N)` - integer IDs are required. They provide a stable identity across renames and schema changes.
+- `@extractor_inputs` - the features this extractor needs as input (resolved by the query planner).
+- `@extractor_outputs` - the features this extractor produces.
 - The extractor body runs in Python at query time, inside the query server.
 
 ---
@@ -119,14 +119,15 @@ class UserFeatures:
 ## Step 5: Commit and query
 
 ```bash
-# Send all definitions to the control plane
+# Send all definitions to your Thyme instance
 thyme commit features.py
 
 # Query features for a user
-curl "http://localhost:8081/features?featureset=UserFeatures&uid=user_42"
+curl -H "Authorization: Bearer $THYME_API_KEY" \
+    "$THYME_BASE_URL/features?featureset=UserFeatures&uid=user_42"
 ```
 
-The control plane creates Kafka topics and persists the execution plan. The engine picks up the new job within seconds and begins consuming from the source.
+Your hosted Thyme instance creates Kafka topics and persists the execution plan. The engine picks up the new job within seconds and begins consuming from the source.
 
 ---
 
@@ -136,7 +137,7 @@ Once committed, the engine:
 
 1. Polls `IcebergSource` every minute for new `Transaction` rows
 2. Publishes them to a Kafka topic
-3. Consumes the topic, applies the `compute` pipeline, and writes results to RocksDB
-4. The query server reads from RocksDB and runs extractors on demand
+3. Consumes the topic, applies the `compute` pipeline, and writes results to the feature store
+4. The query server reads from the feature store and runs extractors on demand
 
 Feature values are updated continuously. The next query always returns the latest state.

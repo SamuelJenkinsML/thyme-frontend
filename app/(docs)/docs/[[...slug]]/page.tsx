@@ -11,6 +11,11 @@ import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Callout } from 'fumadocs-ui/components/callout';
 import { Card, Cards } from 'fumadocs-ui/components/card';
 import { ReadWriteDiagram } from '@/components/diagrams/read-write-diagram';
+import {
+  ConceptFlowDiagram,
+  ExperienceDiscoveryDiagram,
+  SystemFlowDiagram,
+} from '@/components/diagrams/flow-diagram';
 
 export default async function Page(props: {
   params: Promise<{ slug?: string[] }>;
@@ -26,7 +31,7 @@ export default async function Page(props: {
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
-        <MDX components={{ ...defaultMdxComponents, Tabs, Tab, Callout, Card, Cards, ReadWriteDiagram }} />
+        <MDX components={{ ...defaultMdxComponents, Tabs, Tab, Callout, Card, Cards, ReadWriteDiagram, ConceptFlowDiagram, SystemFlowDiagram, ExperienceDiscoveryDiagram }} />
       </DocsBody>
     </DocsPage>
   );

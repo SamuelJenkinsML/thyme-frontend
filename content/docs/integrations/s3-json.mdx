@@ -1,0 +1,56 @@
+---
+title: S3JsonSource
+description: Polling connector for JSON or JSONL files in an S3 bucket.
+---
+
+`S3JsonSource` reads JSON or JSONL files from an S3 prefix. New objects are picked up on each poll; existing objects are not re-read.
+
+## Use case
+
+- Event logs landed in S3 by another system (e.g. Firehose JSONL output)
+- Periodic exports from data warehouses dumped into S3 prefixes
+- Bridge to a system that already lands JSON files in S3
+
+For Parquet or CSV in S3, prefer landing the data into Iceberg and using [`IcebergSource`](/docs/integrations/iceberg) - it supports schema evolution and incremental reads natively.
+
+## Example
+
+```python
+from thyme.connectors import S3JsonSource, source
+
+@source(
+    S3JsonSource(bucket="my-data", prefix="events/"),
+    cursor="ts", every="5m", max_lateness="1h",
+)
+@dataset(index=True)
+class Event:
+    user_id:   Field[str]      = field(key=True)
+    action:    Field[str]      = field()
+    ts:        Field[datetime] = field(timestamp=True)
+```
+
+## Parameters
+
+| Parameter | Required | Default / env var | Description |
+|-----------|----------|-------------------|-------------|
+| `bucket` | **Yes** | - | S3 bucket name |
+| `prefix` | No | `""` | Key prefix filter (per-dataset, not env-defaulted) |
+| `region` | No | `THYME_S3_REGION` (`"us-east-1"`) | AWS region |
+
+## Authentication
+
+Uses the engine pod's IAM identity (irsa, instance role). The role must have `s3:ListBucket` and `s3:GetObject` on the bucket and prefix. For cross-account reads, configure a bucket policy on the source bucket and either assume a role explicitly via your application code or grant the engine's role read access directly.
+
+## File formats
+
+The connector handles both:
+
+- **JSON** - one JSON object per file
+- **JSONL** - one JSON object per line, multiple records per file
+
+Each record's fields are mapped to the dataset's typed fields. The dataset's `timestamp=True` field must be present and parseable as ISO-8601, epoch seconds, or a `datetime`.
+
+## Limits
+
+- Files within the prefix should be append-only. Updating an existing object after it has been read is not detected.
+- New files are surfaced when their key sorts lexicographically after the last seen key - design your prefix layout accordingly (e.g. `events/2026/03/15/...`).

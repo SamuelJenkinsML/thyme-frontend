@@ -4,6 +4,11 @@ import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Callout } from 'fumadocs-ui/components/callout';
 import { Card, Cards } from 'fumadocs-ui/components/card';
 import { ReadWriteDiagram } from '@/components/diagrams/read-write-diagram';
+import {
+  ConceptFlowDiagram,
+  ExperienceDiscoveryDiagram,
+  SystemFlowDiagram,
+} from '@/components/diagrams/flow-diagram';
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -15,5 +20,8 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     Card,
     Cards,
     ReadWriteDiagram,
+    ConceptFlowDiagram,
+    SystemFlowDiagram,
+    ExperienceDiscoveryDiagram,
   };
 }

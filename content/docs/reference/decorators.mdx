@@ -41,7 +41,7 @@ from thyme.dataset import field
 
 user_id: str      = field(key=True)
 ts:      datetime = field(timestamp=True)
-amount:  float               # plain field — no descriptor needed
+amount:  float               # plain field - no descriptor needed
 ```
 
 **Parameters**
@@ -99,7 +99,7 @@ from thyme.pipeline import inputs
 
 ## `@featureset`
 
-Registers a class as a featureset. No parameters — use as a bare decorator.
+Registers a class as a featureset. No parameters - use as a bare decorator.
 
 ```python
 from thyme.featureset import featureset
@@ -159,7 +159,7 @@ def my_extractor(cls, ts, inputs): ...
 def extractor_method(cls, ts, inputs):
     # cls: the featureset class
     # ts: query timestamp (datetime)
-    # inputs: dict[str, Any] — input feature values
+    # inputs: dict[str, Any] - input feature values
     return output_value_1, output_value_2
 ```
 
@@ -192,7 +192,7 @@ Declares the feature names an extractor returns. Must match the return value ord
 from thyme.featureset import extractor_outputs
 
 @extractor_outputs("score")
-@extractor_outputs("avg_spend_7d", "txn_count_30d")  # multiple — return tuple
+@extractor_outputs("avg_spend_7d", "txn_count_30d")  # multiple - return tuple
 ```
 
 **Parameters**

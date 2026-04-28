@@ -1,0 +1,33 @@
+---
+title: Reference Architecture
+description: The shape of a production Thyme deployment.
+---
+
+Thyme runs on Kubernetes as a small set of cooperating services. This page describes the high-level shape of a production deployment for evaluators, security reviewers, and integrators who need to understand what's running.
+
+You don't deploy Thyme yourself - your platform team operates the hosted instance. This page exists for context, not as a how-to.
+
+## Components
+
+<SystemFlowDiagram />
+
+| Component | Role |
+|-----------|------|
+| **Definition Service** | Receives commits from the SDK, validates payloads, persists feature definitions, and creates the Kafka topics each dataset needs. |
+| **Engine** | The streaming compute layer. Consumes from Kafka, applies windowed aggregations, writes to the feature store. Runs continuously. |
+| **Feature Store** | Durable, event-time-keyed state. Read non-blocking by the query server, written transactionally by the engine. |
+| **Query Server** | Serves online and point-in-time feature lookups via HTTP. Runs Python extractors in-process. |
+| **Postgres** | Stores feature definitions, job records, query-run audit trail. |
+| **Kafka-compatible broker** | Routes events from sources to pipelines and from pipelines to downstream datasets. Redpanda is a common choice. |
+
+## Multi-architecture support
+
+Container builds ship images for both `linux/amd64` and `linux/arm64`. ARM64 (e.g. AWS Graviton `c7g.xlarge`) offers better price-performance for Thyme's CPU-bound aggregation workloads.
+
+## Authentication
+
+Bearer-token auth on the HTTP services (`THYME_API_KEY`), OAuth on the web UI. See [Authentication](/docs/reference/authentication) for the full model.
+
+## Observability
+
+Prometheus metrics on every service; pre-built Grafana dashboards embedded in the in-product Monitoring page. See [Monitoring](/docs/operations/monitoring).
