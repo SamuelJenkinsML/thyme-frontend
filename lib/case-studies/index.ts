@@ -317,8 +317,8 @@ const experienceDiscovery: CaseStudy = {
         { label: "UserProfile", sublabel: "Postgres · indexed SCD", kind: "source" },
       ],
       nodes: [
-        { label: "compute_engagement", sublabel: "temporal join · 9 aggs · 3 windows", kind: "transform" },
-        { label: "UserEngagementStats", sublabel: "RocksDB · invertible ops", kind: "store" },
+        { label: "compute_engagement", sublabel: "temporal join · 3 windows", kind: "transform" },
+        { label: "UserEngagementStats", sublabel: "invertible ops · O(1) eviction", kind: "store" },
         { label: "DiscoverySignals", sublabel: "is_high_intent · 15 features", kind: "serve" },
       ],
     },
@@ -326,10 +326,10 @@ const experienceDiscovery: CaseStudy = {
   code: {
     language: "python",
     filename: "features.py",
-    caption: "40 lines: Kinesis source, temporal join, multi-window aggregates.",
+    caption: "Kinesis source, temporal join, multi-window aggregates - raw features auto-served via ref=, derived signals via a Python extractor.",
     source: `from datetime import datetime
 from thyme import (
-    Avg, Config, Count, Sum, dataset, extractor, extractor_inputs,
+    Avg, Config, Count, dataset, extractor, extractor_inputs,
     extractor_outputs, feature, featureset, field, inputs, pipeline, source,
 )
 from thyme.connectors import KinesisSource
@@ -367,7 +367,6 @@ class UserEngagementStats:
     event_count_24h: int = field()
     event_count_7d: int = field()
     avg_dwell_sec_1h: float = field()
-    sum_dwell_sec_1h: float = field()
     timestamp: datetime = field(timestamp=True)
 
     @pipeline(version=1)
@@ -382,15 +381,20 @@ class UserEngagementStats:
                 event_count_24h=Count(window="24h"),
                 event_count_7d=Count(window="7d"),
                 avg_dwell_sec_1h=Avg(of="dwell_time_sec", window="1h"),
-                sum_dwell_sec_1h=Sum(of="dwell_time_sec", window="1h"),
             )
         )
 
 @featureset
 class DiscoverySignals:
-    user_id: str = feature(id=1)
-    engagement_velocity: float = feature(id=10)
-    is_high_intent: bool = feature(id=14)
+    user_id: str = feature()
+    # Raw aggregates - auto-generated lookups, no extractor body needed.
+    event_count_1h: int = feature(ref=UserEngagementStats.event_count_1h, default=0)
+    event_count_24h: int = feature(ref=UserEngagementStats.event_count_24h, default=0)
+    event_count_7d: int = feature(ref=UserEngagementStats.event_count_7d, default=0)
+    avg_dwell_sec_1h: float = feature(ref=UserEngagementStats.avg_dwell_sec_1h, default=0.0)
+    # Derived signals - composed in Python at query time.
+    engagement_velocity: float = feature()
+    is_high_intent: bool = feature()
 
     @extractor
     @extractor_inputs("event_count_1h", "event_count_24h", "avg_dwell_sec_1h")
@@ -451,7 +455,7 @@ class DiscoverySignals:
     forEngineer:
       "Kinesis clickstream temporally joined against the Postgres profile dimension, with nine invertible aggregates across three windows and six derived Python extractors. ~40 lines of feature code replaces the batch/streaming dual-pipeline you'd otherwise maintain.",
     forBusiness:
-      "Ranking reflects what the visitor is doing right now - their last five minutes of browsing matters more than a nightly batch. Training data and production signals agree at every timestamp, so ranking experiments generalise from offline evaluation to production.",
+      "These are in-session features: feature freshness is measured in seconds, not hours, so ranking reacts to what the visitor is doing right now - the click they made thirty seconds ago, not their state from last night's batch. And because training data and production signals agree at every timestamp, ranking experiments that win offline win in production too.",
   },
   related: ["fraud-detection", "price-anomaly"],
 };
