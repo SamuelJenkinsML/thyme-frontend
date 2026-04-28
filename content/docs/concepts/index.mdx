@@ -16,15 +16,7 @@ Thyme is built around four primitives. You use all four when defining a feature 
 
 ## How they connect
 
-```
-Source → Dataset (raw events)
-           ↓  @pipeline
-         Dataset (aggregated stats)
-           ↓  @extractor
-         Featureset (model features)
-           ↓
-         Query Server → model
-```
+<ConceptFlowDiagram />
 
 A source ingests raw events into a dataset. A pipeline aggregates that dataset into another dataset. An extractor reads the aggregated dataset and composes the final features that your model queries.
 

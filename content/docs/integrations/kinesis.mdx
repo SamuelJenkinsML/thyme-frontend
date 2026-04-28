@@ -57,16 +57,7 @@ KinesisSource(
 
 ## Throughput
 
-Each Kinesis shard supports approximately **1 MB/s or 1,000 records/s** for read. To scale beyond that, increase the shard count on the source stream:
-
-```bash
-aws kinesis update-shard-count \
-  --stream-name click-events \
-  --target-shard-count 12 \
-  --scaling-type UNIFORM_SCALING --region us-east-1
-```
-
-See [Scaling](/docs/operations/scaling) for end-to-end throughput sizing across pipeline partitions and Kinesis shards.
+Each Kinesis shard supports approximately **1 MB/s or 1,000 records/s** for read. If your stream is shard-limited, increase the shard count on the source side; Thyme will scale workers to match.
 
 ## Limits
 
@@ -74,4 +65,4 @@ See [Scaling](/docs/operations/scaling) for end-to-end throughput sizing across 
 Setting `cursor` or `every` on `KinesisSource` raises a validation error — streaming connectors consume continuously and don't poll.
 </Callout>
 
-- Backfilling a Kinesis-sourced dataset on commit is not currently supported. See [Known Limitations](/docs/operations/known-limitations).
+- Backfilling a Kinesis-sourced dataset on commit is not currently supported. Rely on the live ingestion path for Kinesis sources.

@@ -50,8 +50,8 @@ The online query path and the point-in-time (offline / training) query path read
 | `Count` | Number of events in window. Invertible — old events drop in O(1). |
 | `Sum` | Sum of a field across events in window. Invertible. |
 | `Avg` | Mean of a field across events in window. Invertible (computed from `Sum / Count`). |
-| `Min` | Minimum of a field in window. *(Not currently recommended — see [Known Limitations](/docs/operations/known-limitations).)* |
-| `Max` | Maximum of a field in window. *(Not currently recommended — see [Known Limitations](/docs/operations/known-limitations).)* |
+| `Min` | Minimum of a field in window. *(Not currently recommended for production — prefer `Count` / `Sum` / `Avg`.)* |
+| `Max` | Maximum of a field in window. *(Not currently recommended for production — prefer `Count` / `Sum` / `Avg`.)* |
 | `ApproxPercentile` | Percentile rank of a field's recent value within the window distribution. Pre-computed at write time; constant-time at read time. |
 
 Invertible operators (`Count`, `Sum`, `Avg`) advance windows incrementally without rescanning historical data, so 7-day windows cost roughly the same as 1-hour windows.
@@ -59,7 +59,7 @@ Invertible operators (`Count`, `Sum`, `Avg`) advance windows incrementally witho
 ## What is *not* guaranteed
 
 - **Strict ordering across partitions.** Within a single entity key, event-time ordering is preserved end-to-end. Across partitions, there is no global ordering guarantee — and feature semantics never depend on one.
-- **Synchronous read-after-write within a single millisecond of ingestion.** Aggregations advance per pipeline tick, not per event. Feature freshness depends on the configured batch size and broker throughput (see [Scaling](/docs/operations/scaling)).
+- **Synchronous read-after-write within a single millisecond of ingestion.** Aggregations advance per pipeline tick, not per event. Feature freshness is bounded by the platform's configured batch size and broker throughput.
 - **Cross-featureset transactions.** Each featureset is independent; there is no atomic multi-featureset write barrier.
 
 ## Recovery behaviour

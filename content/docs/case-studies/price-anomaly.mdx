@@ -119,17 +119,12 @@ The `ApproxPercentile` operator maintains a streaming sketch of the value distri
 | Approximate percentile | `ApproxPercentile` | `approx_percentile` | Not supported | `ApproxPercentile` |
 | Pre-computed rank | Yes (write-time) | Via on-demand features | N/A | Via derived features |
 
-## Try it yourself
+## Reproducing this on your own data
+
+Point `ProductBooking` at your own bookings or pricing source, commit, and the per-product percentile rank is live within seconds.
 
 ```bash
-make infra && make migrate && make build
-
-cd demos/price_percentile
-uv sync
-uv run python seed_data.py --postgres
-uv run thyme commit features.py
-
-curl "http://localhost:8081/features?entity_id=p_spike&featureset=PriceFeatures"
+thyme commit features.py
+curl -H "Authorization: Bearer $THYME_API_KEY" \
+    "$THYME_BASE_URL/features?entity_id=p_spike&featureset=PriceFeatures"
 ```
-
-The full demo is available in the [Thyme repository](https://github.com/SamuelJenkinsML/thyme) under `demos/price_percentile/`.

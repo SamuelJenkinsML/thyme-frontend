@@ -77,7 +77,7 @@ Bumping a `version` triggers a backfill on commit for polling sources. The engin
 
 Backfills run alongside live ingestion — they don't pause online queries. While a backfill is running, point-in-time queries against timestamps within the backfill window return the value the new version *will* have once the backfill completes.
 
-For streaming sources, backfill on commit is not currently supported (see [Known Limitations](/docs/operations/known-limitations)).
+For streaming sources, backfill on commit is not currently supported — rely on the live ingestion path for streaming-sourced datasets.
 
 ## Recommended workflow
 

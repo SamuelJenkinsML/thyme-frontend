@@ -119,14 +119,15 @@ class UserFeatures:
 ## Step 5: Commit and query
 
 ```bash
-# Send all definitions to the control plane
+# Send all definitions to your Thyme instance
 thyme commit features.py
 
 # Query features for a user
-curl "http://localhost:8081/features?featureset=UserFeatures&uid=user_42"
+curl -H "Authorization: Bearer $THYME_API_KEY" \
+    "$THYME_BASE_URL/features?featureset=UserFeatures&uid=user_42"
 ```
 
-The control plane creates Kafka topics and persists the execution plan. The engine picks up the new job within seconds and begins consuming from the source.
+Your hosted Thyme instance creates Kafka topics and persists the execution plan. The engine picks up the new job within seconds and begins consuming from the source.
 
 ---
 

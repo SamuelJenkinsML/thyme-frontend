@@ -1,71 +1,33 @@
 ---
-title: Deployment
-description: Production deployment via GitOps — Terraform, Kubernetes, and automated rollouts.
+title: Reference Architecture
+description: The shape of a production Thyme deployment.
 ---
 
-Thyme runs on Kubernetes. The reference deployment targets AWS EKS with a GitOps workflow using ArgoCD, but the building blocks are standard and portable to any Kubernetes platform.
+Thyme runs on Kubernetes as a small set of cooperating services. This page describes the high-level shape of a production deployment for evaluators, security reviewers, and integrators who need to understand what's running.
 
-## Reference architecture
+You don't deploy Thyme yourself — your platform team operates the hosted instance. This page exists for context, not as a how-to.
 
-```
-GitHub Actions (CI)
-    │  Build multi-arch container images (AMD64 + ARM64)
-    │  Push to a container registry
-    ▼
-ArgoCD
-    │  Sync manifests on tag updates
-    ▼
-Kubernetes Cluster
-    ├── Definition Service (port 8080)
-    ├── Engine
-    ├── Query Server (port 8081)
-    ├── Postgres (managed or in-cluster)
-    └── Kafka-compatible broker (e.g. Redpanda)
-```
+## Components
 
-## Infrastructure bootstrap
+<SystemFlowDiagram />
 
-The reference Terraform modules in [`thyme-infra`](https://github.com/SamuelJenkinsML/thyme-infra) provision the full stack:
-
-1. **VPC and networking** — private subnets, NAT gateways
-2. **EKS cluster** — managed Kubernetes with ARM64 (Graviton) nodes
-3. **ECR repositories** — container image storage for all services
-4. **ALB Ingress Controller** — HTTPS termination with ACM certificates
-5. **Secrets Manager** — API keys and database credentials
-
-```bash
-cd thyme-infra/terraform
-terraform init
-terraform apply
-```
-
-## Kubernetes manifests
-
-Manifests use Kustomize with a base + overlay structure:
-
-- `manifests/base/` — shared manifests for all environments
-- `manifests/overlays/demo/` — demo environment patches
-- `manifests/overlays/ephemeral/` — short-lived test environments
-
-## Quick-start scripts
-
-```bash
-# Spin up a full environment
-cd thyme-infra
-./scripts/spin-up.sh
-
-# Tear down
-./scripts/tear-down.sh
-```
+| Component | Role |
+|-----------|------|
+| **Definition Service** | Receives commits from the SDK, validates payloads, persists feature definitions, and creates the Kafka topics each dataset needs. |
+| **Engine** | The streaming compute layer. Consumes from Kafka, applies windowed aggregations, writes to the feature store. Runs continuously. |
+| **Feature Store** | Durable, event-time-keyed state. Read non-blocking by the query server, written transactionally by the engine. |
+| **Query Server** | Serves online and point-in-time feature lookups via HTTP. Runs Python extractors in-process. |
+| **Postgres** | Stores feature definitions, job records, query-run audit trail. |
+| **Kafka-compatible broker** | Routes events from sources to pipelines and from pipelines to downstream datasets. Redpanda is a common choice. |
 
 ## Multi-architecture support
 
-Container builds produce images for both `linux/amd64` and `linux/arm64`. The CI pipeline builds each architecture natively, then merges into a multi-arch manifest. ARM64 (e.g. Graviton `c7g.xlarge`) offers better price-performance for Thyme's CPU-bound aggregation workloads.
+Container builds ship images for both `linux/amd64` and `linux/arm64`. ARM64 (e.g. AWS Graviton `c7g.xlarge`) offers better price-performance for Thyme's CPU-bound aggregation workloads.
 
-## GitHub Actions OIDC
+## Authentication
 
-Deployments use GitHub Actions OIDC for keyless authentication to AWS — no long-lived AWS credentials are stored in GitHub secrets.
+Bearer-token auth on the HTTP services (`THYME_API_KEY`), OAuth on the web UI. See [Authentication](/docs/reference/authentication) for the full model.
 
-<Callout type="info">
-For detailed infrastructure configuration, see the [thyme-infra README](https://github.com/SamuelJenkinsML/thyme-infra).
-</Callout>
+## Observability
+
+Prometheus metrics on every service; pre-built Grafana dashboards embedded in the in-product Monitoring page. See [Monitoring](/docs/operations/monitoring).

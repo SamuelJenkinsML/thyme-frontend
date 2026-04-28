@@ -18,9 +18,9 @@ description: Use thyme discover to automatically generate feature definitions fr
 thyme discover \
     --source-type postgres \
     --use-case "fraud detection" \
-    --pg-host localhost --pg-port 5433 \
-    --pg-database thyme --pg-table orders \
-    --pg-user thyme --pg-password thyme \
+    --pg-host db.your-company.com --pg-port 5432 \
+    --pg-database analytics --pg-table orders \
+    --pg-user readonly --pg-password $PG_PASSWORD \
     --windows "1h,24h,7d" \
     --output fraud_features.py
 ```

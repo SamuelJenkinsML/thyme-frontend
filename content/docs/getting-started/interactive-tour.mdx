@@ -3,9 +3,9 @@ title: Interactive Tour
 description: A guided walkthrough of the running Thyme app — catalog, inspect, jobs, sources, lineage.
 ---
 
-This tour assumes you have Thyme running locally (see [Installation](/docs/getting-started/installation)) and have committed at least one featureset (see [Your First Feature](/docs/getting-started/first-feature)). Open the dashboard at `http://localhost:3000` and follow along.
+This tour assumes you have access to a hosted Thyme instance (see [Installation](/docs/getting-started/installation)) and have committed at least one featureset (see [Your First Feature](/docs/getting-started/first-feature)). Open your instance's dashboard URL and follow along.
 
-If you haven't committed anything yet, the demo featuresets in the [Thyme repository](https://github.com/SamuelJenkinsML/thyme) under `demos/` are a good starting point — `demos/fraud/` is the most compact.
+If you haven't committed anything yet, the [Quick Start](/docs/getting-started/quickstart) is the fastest way to get a featureset live before walking the tour.
 
 ## 1. Catalog — what's committed
 
@@ -54,7 +54,7 @@ Open `/jobs`.
 
 Each row is one running job. A job is the runtime materialization of a `@pipeline` — every pipeline becomes one job at commit time. The columns show throughput, last commit timestamp, and partition count.
 
-Click into a job to see its pipeline operator chain, input/output topics, and (if applicable) the windowed aggregations being computed. The "Tuning throughput" link in the page header takes you to [Operations → Scaling](/docs/operations/scaling) — the canonical guide for partition count, batch size, and broker sizing.
+Click into a job to see its pipeline operator chain, input/output topics, and (if applicable) the windowed aggregations being computed.
 
 ## 5. Lineage — what depends on what
 

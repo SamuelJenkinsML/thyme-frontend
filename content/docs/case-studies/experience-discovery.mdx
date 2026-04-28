@@ -175,17 +175,7 @@ class DiscoverySignals:
 
 ## Architecture at a glance
 
-```
-ClickEvent  (Kinesis, 5k EPS)  ──┐
-                                 ├─ temporal join ─▸ windowed aggs ─▸ UserEngagementStats
-UserProfile (Postgres, indexed) ──┘                   (1h / 24h / 7d)
-                                                               │
-                                                               ▼
-                                                     Python extractor
-                                                               │
-                                                               ▼
-                                                       15 features served
-```
+<ExperienceDiscoveryDiagram />
 
 **Write path:** Kinesis click events flow through the engine's join + windowed aggregation, materializing `UserEngagementStats`.
 **Read path:** the query server executes the derived extractor over the pre-aggregated values, returning 15 features. Server-side latency stays below 5 ms; end-to-end below 50 ms.
@@ -238,34 +228,12 @@ Tested on EKS (us-east-1), Kinesis on-demand (5–10 shards active), RDS Postgre
 | Composite Python extractors | Query-time | On-demand features | Python transforms | Not supported |
 | Online/offline consistency | Guaranteed (kappa) | Reconciled (lambda) | Reconciled (lambda) | Manual |
 
-## Try it yourself
+## Reproducing this on your own data
+
+Point `ClickEvent` at your own Kinesis stream and `UserProfile` at your user-profile table, commit, and the 15-feature `DiscoverySignals` set is live within seconds.
 
 ```bash
-# From repo root
-make infra-down && make infra && make migrate && make build
-
-# Seed personas + profiles, commit features
-./demos/dogfood.sh experience_discovery
-
-# End-to-end tests (3 personas, online + offline parity)
-cd demos/experience_discovery
-uv sync
-uv run pytest test_e2e_experience.py -v
-
-# Query the power user
-curl "http://localhost:8081/features?entity_id=u_active_browser&featureset=DiscoverySignals"
+thyme commit features.py
+curl -H "Authorization: Bearer $THYME_API_KEY" \
+    "$THYME_BASE_URL/features?entity_id=u_active_browser&featureset=DiscoverySignals"
 ```
-
-To reproduce the 10k-user, 5k EPS AWS load test:
-
-```bash
-cd demos/experience_discovery
-uv run python prepare_data.py --num-users 10000 --days 7 --scale-factor 6 --aws
-# Then run the load producer:
-cd ../../load-test
-uv run python -m scenarios.experience_discovery --load --aws --eps 5000
-```
-
-Kubernetes manifests are in `demos/experience_discovery/k8s-load-data.yaml` (backfill) and `k8s-load-producer.yaml` (sustained load).
-
-The full demo is available in the [Thyme repository](https://github.com/SamuelJenkinsML/thyme) under `demos/experience_discovery/`.

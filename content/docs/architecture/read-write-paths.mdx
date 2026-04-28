@@ -31,10 +31,10 @@ You do not manage Kafka consumers, topic partitions, watermark advancement, late
 
 The read path runs on demand, against the same state the write path produced.
 
-1. **Query Server.** An HTTP service on `:8081` receives a featureset query. Optional `ts=` makes the query point-in-time; omitted, it serves the latest value.
+1. **Query Server.** An HTTP service receives a featureset query. Optional `ts=` makes the query point-in-time; omitted, it serves the latest value.
 2. **Extractor DAG.** Your `@extractor` functions form a DAG. The server resolves dependencies, topologically sorts them, and runs the Python extractors in-process — no network hop to a separate Python worker.
 3. **Featureset response.** Composed features are returned as JSON. P50 server-side latency is well under 1 millisecond in production, because all state is read from a local replica of the feature store with no network reads.
-4. **Query-run record.** After responding, the server spawns a detached task that writes a metadata-only row to the `query_runs` table in Postgres and returns the run's UUID on the `X-Query-Run-Id` response header. The SDK surfaces this as `ThymeResult.query_run_id`; the CLI prints a `Results:` link to the web UI. Persistence is best-effort — a failed INSERT never fails the user's query. See [Query Runs](/docs/concepts/query-runs) for what's captured and what isn't.
+4. **Query-run record.** After responding, the server spawns a detached task that records a metadata-only audit row and returns the run's UUID on the `X-Query-Run-Id` response header. The SDK surfaces this as `ThymeResult.query_run_id`; the CLI prints a `Results:` link to the web UI. Persistence is best-effort — a failed audit insert never fails the user's query. See [Query Runs](/docs/concepts/query-runs) for what's captured and what isn't.
 
 ---
 

@@ -31,10 +31,10 @@ Every record in Thyme carries an event time. The state store is keyed by `(entit
 
 ```bash
 # Online
-curl "http://.../features?featureset=UserFeatures&uid=user_42"
+curl "$THYME_BASE_URL/features?featureset=UserFeatures&uid=user_42"
 
 # Point-in-time (training)
-curl "http://.../features?featureset=UserFeatures&uid=user_42&ts=2024-01-15T12:00:00Z"
+curl "$THYME_BASE_URL/features?featureset=UserFeatures&uid=user_42&ts=2024-01-15T12:00:00Z"
 ```
 
 Because both paths read the same state through the same extractor code, a training dataset generated this way is what the model actually saw at that moment. This is structural, not a convention you enforce in review.
@@ -110,15 +110,12 @@ Thyme is one of several feature platforms in the streaming-feature space. The cl
 | Derived features (Python) | Query-time extractor, in-process | "On-demand features" | Python transforms | Not supported |
 | Temporal joins (SCD-style) | Native (`.join(..., fields=[...])`) | Native | Native | Not supported |
 | Data quality / expectations | Built-in (`@expectations`) | External (Great Expectations) | Not supported | Not supported |
-| Self-hostable | **Yes** (open source) | Managed only | Managed only | Yes |
-| Deployment model | Kubernetes (Helm / Terraform reference) | Managed SaaS | Managed SaaS | DIY |
+| Deployment model | Hosted | Managed SaaS | Managed SaaS | DIY |
 
-Three things to call out:
+Two things to call out:
 
 1. **Kappa, not lambda.** Thyme, Tecton, and Fennel all support streaming aggregations, but only Thyme guarantees online/offline parity *structurally* — the same pipeline answers both query types from the same materialized state. Tecton and Fennel reconcile a batch pipeline against a streaming pipeline and bear the operational cost of that reconciliation.
 
-2. **Sub-millisecond reads in the open-source path.** Thyme is designed for the hot path of online inference: P50 server-side latency is consistently under 1 ms in production benchmarks. Most managed feature stores hit comparable latency only on their paid online-serving tiers.
-
-3. **Self-hostable.** You can run Thyme on your own Kubernetes cluster from the open-source repo — see [Operations → Deployment](/docs/operations/deployment). Tecton and Fennel are managed-only.
+2. **Sub-millisecond reads on the hot path.** Thyme is designed for online inference: P50 server-side latency is consistently under 1 ms in production benchmarks. Most managed feature stores hit comparable latency only on their paid online-serving tiers.
 
 For real-world walkthroughs of each architectural choice, see the [Case Studies](/docs/case-studies/fraud-detection) section — three production deployments at different points on the EPS / latency / feature-complexity spectrum.

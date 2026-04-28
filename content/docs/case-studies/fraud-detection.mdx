@@ -168,19 +168,12 @@ Tested on EKS (us-east-1) with 2× c7g.xlarge (Graviton, ARM64) nodes.
 | Online/offline consistency | Guaranteed (kappa) | Reconciled (lambda) | Reconciled (lambda) | Manual (batch snapshots) |
 | Data expectations | Built-in (`@expectations`) | External (Great Expectations) | Not supported | Not supported |
 
-## Try it yourself
+## Reproducing this on your own data
+
+Replace the `Order` source with your own Postgres / Kafka / Iceberg orders table, commit the file, and `is_suspicious` will be live within seconds.
 
 ```bash
-# Start infrastructure
-make infra-down && make infra && make migrate && make build
-
-# Run smoke test
-cd load-test
-uv run python -m scenarios.fraud_signals --smoke --local --clean \
-    --database-url "postgres://thyme:thyme@localhost:5433/thyme"
-
-# Query fraud signals
-curl "http://localhost:8081/features?entity_id=u_fraud&featureset=FraudSignals"
+thyme commit features.py
+curl -H "Authorization: Bearer $THYME_API_KEY" \
+    "$THYME_BASE_URL/features?entity_id=u_fraud&featureset=FraudSignals"
 ```
-
-The full demo is available in the [Thyme repository](https://github.com/SamuelJenkinsML/thyme) under `demos/fraud/`.

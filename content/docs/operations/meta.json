@@ -1,4 +1,4 @@
 {
   "title": "Operations",
-  "pages": ["deployment", "monitoring", "scaling", "known-limitations"]
+  "pages": ["deployment", "monitoring"]
 }

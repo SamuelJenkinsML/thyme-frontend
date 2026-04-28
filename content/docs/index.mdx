@@ -11,14 +11,6 @@ One pipeline, two modes of query. The online path and the offline path read the 
 
 ---
 
-## The numbers
-
-| P50 read latency | Training/serving skew | Operational surface | Freshness |
-|------------------|-----------------------|---------------------|-----------|
-| **under 1 ms** | **0** (by construction) | **one Python file** | **milliseconds, not hours** |
-
----
-
 ## Five minutes to features
 
 ```python
@@ -79,7 +71,7 @@ And query — every call appears in the UI as a [Query Run](/docs/concepts/query
 thyme query features:UserFeatures -e user_42
 # ...table...
 # Query run: 7b3e4c...
-# Results: http://localhost:3000/query-runs/7b3e4c...
+# Results: $THYME_FRONTEND_URL/query-runs/7b3e4c...
 ```
 
 ---
@@ -90,11 +82,11 @@ The site is structured around the canonical feature-platform shape. Different re
 
 **ML engineers building features** — start with [Concepts](/docs/concepts) to understand datasets, pipelines, featuresets, and extractors. Then read [Define features](/docs/reference/decorators) and [Aggregations](/docs/reference/aggregations). When you're ready to write tests, [Testing](/docs/testing) covers `MockContext`.
 
-**Platform engineers and operators** — start with [Operations → Deployment](/docs/operations/deployment), then [Monitoring](/docs/operations/monitoring) and [Scaling](/docs/operations/scaling). [Architecture → Durability & Consistency](/docs/architecture/durability-and-consistency) explains the guarantees you can rely on.
+**Platform engineers and operators** — start with [Operations → Deployment](/docs/operations/deployment), then [Monitoring](/docs/operations/monitoring). [Architecture → Durability & Consistency](/docs/architecture/durability-and-consistency) explains the guarantees you can rely on.
 
 **Evaluators** — start with [Why Thyme](/docs/why-thyme) for the comparison table, then walk one of the [Case Studies](/docs/case-studies/fraud-detection) end to end.
 
-**Anyone trying it for the first time** — go to [Getting Started → Installation](/docs/getting-started/installation), then run through the [Interactive Tour](/docs/getting-started/interactive-tour) once your local cluster is up.
+**Anyone trying it for the first time** — go to [Getting Started → Installation](/docs/getting-started/installation), then run through the [Interactive Tour](/docs/getting-started/interactive-tour) once your administrator has given you a hosted instance URL and API key.
 
 ---
 

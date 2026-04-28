@@ -9,20 +9,22 @@ The Thyme CLI and Python SDK call these endpoints under the hood, so you typical
 
 ## Base URLs
 
-| Service | Default URL | Set with |
-|---------|-------------|---------|
-| Definition service | `http://localhost:8080` | `DEFINITION_SERVICE_URL` |
-| Query server | `http://localhost:8081` | `QUERY_SERVER_URL` |
+Your hosted Thyme instance exposes both services under a single origin (the URL your administrator gave you), routed by path. The examples on this page use `$THYME_BASE_URL` as the placeholder for that origin and `:8080` / `:8081` to disambiguate which service handles which path.
+
+| Service | Path prefix |
+|---------|-------------|
+| Definition service | `/api/v1/...` (port 8080 internally) |
+| Query server | `/features`, `/query-runs/...` (port 8081 internally) |
 
 ## Authentication
 
-When `THYME_API_KEY` is set on the server, every request (except `/health` and `/metrics`) requires:
+Every request (except `/health` and `/metrics`) requires:
 
 ```
-Authorization: Bearer <api-key>
+Authorization: Bearer $THYME_API_KEY
 ```
 
-Invalid or missing tokens return `401`. When `THYME_API_KEY` is not set, auth is disabled (local-dev mode). See [Authentication](/docs/reference/authentication) for the full auth model.
+Invalid or missing tokens return `401`. See [Authentication](/docs/reference/authentication) for the full auth model.
 
 ---
 
@@ -116,10 +118,12 @@ The hot-path feature lookup endpoint. Returns the materialized feature values fo
 
 ```bash
 # Online query
-curl "http://localhost:8081/features?entity_id=user_42&featureset=UserFeatures"
+curl -H "Authorization: Bearer $THYME_API_KEY" \
+    "$THYME_BASE_URL/features?entity_id=user_42&featureset=UserFeatures"
 
 # Point-in-time
-curl "http://localhost:8081/features?entity_id=user_42&featureset=UserFeatures&timestamp=2026-04-01T00:00:00Z"
+curl -H "Authorization: Bearer $THYME_API_KEY" \
+    "$THYME_BASE_URL/features?entity_id=user_42&featureset=UserFeatures&timestamp=2026-04-01T00:00:00Z"
 ```
 
 **Response:** `200 OK` with:
@@ -175,7 +179,7 @@ Returns a single query-run record by ID.
 
 ### `POST /query-runs/{id}/replay`
 
-Re-runs a captured query — useful for reproducing a production result locally or in a debugging context.
+Re-runs a captured query — useful for reproducing a production result against the live state.
 
 **Response:** `200 OK` with `{"kind": "...", "result": ...}` mirroring the original response shape.
 
@@ -194,4 +198,4 @@ Errors return a JSON body of the form:
 | `400` | Malformed request — missing required parameter, bad JSON body, invalid timestamp |
 | `401` | Missing or invalid bearer token |
 | `404` | Featureset / job / source / query-run not found |
-| `5xx` | Server-side failure — see [Operations → Monitoring](/docs/operations/monitoring) for log paths |
+| `5xx` | Server-side failure — capture the response body and surface to your Thyme administrator. |

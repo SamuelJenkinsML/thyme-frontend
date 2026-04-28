@@ -3,7 +3,7 @@ title: Troubleshooting
 description: User-facing diagnostics for stuck jobs, late events, missing features, and commit failures.
 ---
 
-This page covers the common situations users hit when running Thyme. For lower-level operational issues (broker sizing, partition tuning, restarts), see [Operations → Scaling](/docs/operations/scaling) and [Known Limitations](/docs/operations/known-limitations).
+This page covers the common situations you'll hit while building features on Thyme — commit failures, missing values, slow pipelines. For platform-level issues, escalate to your Thyme administrator.
 
 ## Commit fails with a validation error
 
@@ -35,10 +35,10 @@ If the raw dataset has the row but the aggregated dataset doesn't, the pipeline 
 The Sources page shows a stale `cursor_value` and no recent events:
 
 - **Polling source** — confirm the source's `cursor` field is monotonically advancing in the upstream system. If the upstream stopped writing, Thyme has nothing to read. If `every` is `1h`, expect at most one poll per hour.
-- **Kafka / Kinesis source** — confirm the topic / shard is receiving messages. Check broker connectivity from inside the engine pod (`kubectl exec` and `nc` to the broker port).
+- **Kafka / Kinesis source** — confirm the topic / shard is receiving messages from the producer side. If the upstream system has stopped publishing, Thyme will sit idle until it resumes.
 - **Auth issue** — incorrect `password` / `role_arn` shows up as repeated source errors in the Events feed; check the Events page for the dataset.
 
-The Events page (`/events` in the UI, `GET /api/v1/events?subject=<dataset>`) is the fastest way to see what the source is doing.
+The Events page (`/events` in the UI, `GET /api/v1/events?subject=<dataset>`) is the fastest way to see what the source is doing. If the events feed shows connectivity errors against the broker or upstream system, escalate to your Thyme administrator.
 
 ## Late events being dropped
 
@@ -56,13 +56,12 @@ Two options:
 
 The Jobs page shows the job is alive but events-per-second is below your target.
 
-Throughput troubleshooting (in order of impact):
+Most low-throughput situations come down to platform-side configuration (partition count, broker capacity, batch size) rather than your pipeline code. The Operations → Monitoring dashboards (Engine Performance) show batch cycle time and events-per-second per worker — share those readings with your Thyme administrator if the numbers are below what you need.
 
-1. **Check partition count.** With 4 partitions only, you have at most 4 parallel workers. See [Scaling — Partition count](/docs/operations/scaling#partition-count-primary-throughput-knob).
-2. **Check broker count.** With one Kafka/Redpanda broker, transaction commit time dominates. Three brokers cuts this dramatically.
-3. **Check batch size.** Smaller batches give fresher features at the cost of more frequent commits. `RUNNER_BATCH_SIZE=500` is a good starting point.
+Things you *can* address from the SDK side:
 
-The Operations → Monitoring dashboards (Engine Performance) show batch cycle time and events-per-second per worker.
+- **Window choice.** Very long windows on high-cardinality keys multiply state size. If you can use a shorter window or a coarser key, do.
+- **Heavy `.transform()` UDFs.** A Python UDF on the write path is much more expensive per event than a closed-form expression. See [Polars UDFs in Pipelines](/docs/guides/polars-udfs).
 
 ## Online and point-in-time queries return different values
 
@@ -76,16 +75,15 @@ If divergence persists for a query within a closed window, capture the query-run
 
 ## Dashboard shows "Disconnected" or 401s
 
-The web frontend is failing to reach the backend services. Most common causes:
+The web UI is failing to reach the platform. Most common causes:
 
-- **Backend down.** Check the definition service and query server pods are running.
-- **Wrong env vars.** `DEFINITION_SERVICE_URL` and `QUERY_SERVER_URL` on the frontend deployment must point to reachable hostnames.
-- **Auth misconfiguration.** When `THYME_API_KEY` is set on the backend, the frontend's proxy must have the matching key in its environment. See [Authentication → Web frontend](/docs/reference/authentication#web-frontend-oauth).
+- **Auth lapsed.** Sign out and sign back in.
+- **Platform incident.** Other tabs (Catalog, Inspect) show errors at the same time. Escalate to your Thyme administrator.
 
 ## Still stuck
 
 If none of the above applies:
 
 1. Open `/events` in the UI to see recent platform events for the affected subject (dataset, featureset, pipeline).
-2. Check the engine and query-server pod logs for the affected timeframe.
-3. Capture the failing `query_run_id` (from the `X-Query-Run-Id` header) and the relevant commit ID, and open an issue in the [Thyme repository](https://github.com/SamuelJenkinsML/thyme).
+2. Capture the failing `query_run_id` (from the `X-Query-Run-Id` header on a failing query, or visible in the query-runs page) and the relevant commit ID.
+3. Send those identifiers to your Thyme administrator — they are enough to reproduce the failure on the platform side.

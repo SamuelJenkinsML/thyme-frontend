@@ -1,12 +1,15 @@
 ---
 title: Installation
-description: Install the Thyme SDK and set up local infrastructure.
+description: Install the Thyme SDK and connect it to your hosted Thyme instance.
 ---
 
 ## Requirements
 
 - Python 3.12+
 - [uv](https://docs.astral.sh/uv/) (recommended) or pip
+- A Thyme instance URL and API key from your administrator
+
+Thyme is offered as a hosted service. Your administrator (or platform team) provisions the instance and gives you the base URL plus an API key — you don't stand it up yourself.
 
 ## Install the SDK
 
@@ -30,32 +33,26 @@ thyme version
 # thyme 0.1.0
 ```
 
----
+## Connect to your instance
 
-## Infrastructure (for local development)
-
-Thyme's engine requires Kafka (or Redpanda) and Postgres. The quickest way to run these locally is via the provided Docker Compose setup:
+Run `thyme login` once with the URL and API key you were given:
 
 ```bash
-# Clone the Thyme repo (for the docker-compose.yml)
-git clone https://github.com/your-org/thyme
-cd thyme
-
-# Start Postgres + Redpanda
-make infra
-
-# Run migrations
-make migrate
+thyme login --url https://thyme.your-company.com --api-key tk_your_key
 ```
 
-Then start the three services in separate terminals:
+This stores credentials at `~/.thyme/credentials` (file mode `0600`). Subsequent `thyme commit`, `thyme query`, and other CLI commands authenticate automatically.
+
+If you'd rather not store credentials on disk (CI environments, ephemeral shells), set the environment variables instead:
 
 ```bash
-make run-definition-service   # Control plane on :8080
-make run-engine               # Streaming engine
-make run-query-server         # Query server on :8081
+export THYME_API_URL=https://thyme.your-company.com
+export THYME_API_KEY=tk_your_key
+export THYME_FRONTEND_URL=https://thyme.your-company.com   # optional, enables clickable Results: links
 ```
+
+See [Authentication](/docs/reference/authentication) for the full credential priority chain.
 
 <Callout type="info">
-For a self-contained end-to-end example, see [Quick Start](/docs/getting-started/quickstart).
+Once connected, head to [Quick Start](/docs/getting-started/quickstart) to commit your first feature.
 </Callout>

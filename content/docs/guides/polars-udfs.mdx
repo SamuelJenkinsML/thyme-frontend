@@ -102,13 +102,7 @@ Dropped records have their offsets committed so they're not replayed on restart.
 
 ## Failure handling
 
-When a UDF fails repeatedly (user exception, timeout, worker crash), the engine doesn't halt. After exhausting retries, the failing batch is routed to a per-dataset dead-letter topic (`<output_dataset>.udf_dead_letter`) so you can inspect it without blocking the pipeline. The engine then continues processing.
-
-To inspect dead-letter contents during a live incident:
-
-```bash
-docker exec thyme-redpanda-1 rpk topic consume Order.udf_dead_letter --num 5 --format json
-```
+When a UDF fails repeatedly (user exception, timeout, worker crash), the engine doesn't halt. After exhausting retries, the failing batch is routed to a per-dataset dead-letter topic (`<output_dataset>.udf_dead_letter`) so the pipeline keeps moving. Dead-letter records are surfaced in the Events feed and on the Jobs page; if you need to inspect the raw payloads to debug a failing UDF, ask your Thyme administrator to pull them.
 
 ## Related
 

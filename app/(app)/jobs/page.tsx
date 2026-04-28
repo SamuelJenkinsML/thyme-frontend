@@ -2,7 +2,6 @@
 
 import { useJobs } from "@/lib/hooks/use-jobs";
 import { JobsTable } from "@/components/monitoring/jobs-table";
-import { DocsLink } from "@/components/shared/docs-link";
 import { TermTooltip } from "@/components/shared/term-tooltip";
 
 export default function JobsPage() {
@@ -19,16 +18,11 @@ export default function JobsPage() {
           <h1 className="text-2xl font-bold tracking-tight">Jobs</h1>
           <TermTooltip term="pipeline" />
         </div>
-        <div className="flex items-center gap-3">
-          {lastUpdated && (
-            <p className="text-xs text-muted-foreground">
-              Last updated: {lastUpdated} · auto-refreshes every 10s
-            </p>
-          )}
-          <DocsLink href="/docs/operations/scaling" className="text-xs">
-            Tuning throughput
-          </DocsLink>
-        </div>
+        {lastUpdated && (
+          <p className="text-xs text-muted-foreground">
+            Last updated: {lastUpdated} · auto-refreshes every 10s
+          </p>
+        )}
       </div>
       <JobsTable />
     </div>
