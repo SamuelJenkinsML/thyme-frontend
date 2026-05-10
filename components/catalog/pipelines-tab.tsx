@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight } from "lucide-react";
 import type { PipelineOperator } from "@/lib/types";
+import { OwnerChip } from "./owner-chip";
+import { TagChipList } from "./tag-chip-list";
 
 function getOperatorType(op: PipelineOperator): string {
   if ("aggregate" in op) return "Aggregate";
@@ -88,6 +90,12 @@ export function PipelinesTab({ searchTerm = "" }: PipelinesTabProps) {
                     <Badge variant="outline">max_lateness {spec.pipeline_spec.max_lateness}</Badge>
                   )}
                 </div>
+                {(job.metadata?.owner || Object.keys(job.metadata?.tags ?? {}).length > 0) && (
+                  <div className="flex flex-wrap gap-1 pt-2 border-t border-border/40">
+                    <OwnerChip owner={job.metadata?.owner} />
+                    <TagChipList tags={job.metadata?.tags} />
+                  </div>
+                )}
               </CardContent>
             </Card>
           </Link>

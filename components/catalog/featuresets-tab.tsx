@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FeatureBadgeList } from "./feature-badge-list";
+import { OwnerChip } from "./owner-chip";
+import { TagChipList } from "./tag-chip-list";
 import { useMemo } from "react";
 
 interface FeaturesetsTabProps {
@@ -80,6 +82,12 @@ export function FeaturesetsTab({ searchTerm = "" }: FeaturesetsTabProps) {
                         {dtype} ({count})
                       </Badge>
                     ))}
+                  </div>
+                )}
+                {(fs.metadata?.owner || Object.keys(fs.metadata?.tags ?? {}).length > 0) && (
+                  <div className="flex flex-wrap gap-1 pt-2 border-t border-border/40">
+                    <OwnerChip owner={fs.metadata?.owner} />
+                    <TagChipList tags={fs.metadata?.tags} />
                   </div>
                 )}
               </CardContent>

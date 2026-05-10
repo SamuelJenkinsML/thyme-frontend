@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
+import { OwnerChip } from "./owner-chip";
+import { TagChipList } from "./tag-chip-list";
 
 interface DatasetsTabProps {
   searchTerm?: string;
@@ -65,6 +67,12 @@ export function DatasetsTab({ searchTerm = "" }: DatasetsTabProps) {
                 <p>{topic}</p>
                 {consuming.length > 0 && (
                   <p className="text-xs text-foreground">{consuming.length} consuming job(s)</p>
+                )}
+                {(src.metadata?.owner || Object.keys(src.metadata?.tags ?? {}).length > 0) && (
+                  <div className="flex flex-wrap gap-1 pt-2 border-t border-border/40 font-sans">
+                    <OwnerChip owner={src.metadata?.owner} />
+                    <TagChipList tags={src.metadata?.tags} />
+                  </div>
                 )}
               </CardContent>
             </Card>
