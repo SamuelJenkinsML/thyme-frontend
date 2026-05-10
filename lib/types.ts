@@ -1,3 +1,17 @@
+// Catalog metadata (TH-CAT-A1..A5 round-trip)
+export interface EntityMetadata {
+  description?: string | null;
+  owner?: string | null;
+  tags?: Record<string, string>;
+  project?: string | null;
+  deprecated?: boolean;
+  deprecation_reason?: string | null;
+  replacement?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  deprecated_at?: string | null;
+}
+
 // Featuresets
 export interface PyCodeDef {
   entry_point: string;
@@ -38,6 +52,7 @@ export interface FeaturesetRecord {
   id: string;
   name: string;
   spec: FeaturesetSpec;
+  metadata?: EntityMetadata;
 }
 
 // Pipeline operators
@@ -79,6 +94,7 @@ export interface JobRecord {
   job_type: string;
   spec: JobSpec;
   partition_count: number;
+  metadata?: EntityMetadata;
 }
 
 // Sources
@@ -92,6 +108,7 @@ export interface SourceRecord {
   cursor_value: string;
   max_lateness?: string;
   cdc?: string;
+  metadata?: EntityMetadata;
 }
 
 // Feature query/response
