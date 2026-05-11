@@ -3,9 +3,11 @@ import { fetchFeaturesets } from "@/lib/api/definition";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { ExtractorsSection } from "@/components/catalog/featureset-detail/extractors-section";
 import { FeaturesetDetailHeader } from "@/components/catalog/featureset-detail/header";
+import { LineageSection } from "@/components/catalog/featureset-detail/lineage-section";
 import { OverviewSection } from "@/components/catalog/featureset-detail/overview-section";
 import { SchemaSection } from "@/components/catalog/featureset-detail/schema-section";
 import { SectionNav } from "@/components/catalog/featureset-detail/section-nav";
+import { UsedBySection } from "@/components/catalog/featureset-detail/used-by-section";
 
 interface Props {
   params: Promise<{ name: string }>;
@@ -24,6 +26,8 @@ export default async function FeaturesetDetailPage({ params }: Props) {
   const sections = [
     { id: "overview", label: "Overview" },
     { id: "schema", label: "Schema" },
+    { id: "lineage", label: "Lineage" },
+    { id: "used-by", label: "Used by" },
     ...(extractors.length > 0
       ? [{ id: "extractors", label: "Extractors" }]
       : []),
@@ -48,6 +52,8 @@ export default async function FeaturesetDetailPage({ params }: Props) {
         <main className="flex-1 space-y-8">
           <OverviewSection fs={fs} />
           <SchemaSection features={features} />
+          <LineageSection featuresetName={fs.name} />
+          <UsedBySection featuresetName={fs.name} />
           <ExtractorsSection extractors={extractors} />
         </main>
       </div>
