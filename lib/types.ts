@@ -193,3 +193,24 @@ export interface ReplayResponse {
   kind: string;
   result: unknown;
 }
+
+// Reverse lineage (TH-CAT-B2)
+export type DependentsKind = "featuresets" | "datasets" | "pipelines" | "sources";
+
+export type DependentEdgeType =
+  | "pipeline_input"
+  | "source_feeds"
+  | "featureset_lookup"
+  | "featureset_dep";
+
+export interface DependentRecord {
+  kind: string;
+  name: string;
+  edge_type: DependentEdgeType;
+}
+
+export interface DependentsResponse {
+  kind: string;
+  name: string;
+  dependents: DependentRecord[];
+}
