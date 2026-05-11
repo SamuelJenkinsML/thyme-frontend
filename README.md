@@ -18,6 +18,17 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
+## Dev data
+
+The catalog and lineage UI is data-driven, so an empty backend means an empty UI. Populate it with the catalog demo workspace:
+
+```bash
+npm run seed:dev          # idempotent — re-runnable safely
+npm run seed:dev:reset    # clean slate (wipes definitions, then seeds)
+```
+
+Set `THYME_AUTO_SEED=1` to seed automatically before `npm run dev`. See [`scripts/seed/README.md`](./scripts/seed/README.md) for prerequisites (backend stack, `thyme-sdk` checkout) and the verification checklist.
+
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Learn More
