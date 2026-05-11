@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { LayoutDashboard, BookOpen, GitBranch, Search, Activity, Database, Monitor, LogOut, Play } from "lucide-react";
+import { ThymeMascot } from "@/components/landing/thyme-mascot";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -55,8 +56,9 @@ export function Sidebar() {
 
   return (
     <aside className="flex h-screen w-56 flex-col border-r border-border bg-card px-3 py-4">
-      <div className="mb-6 px-2">
-        <span className="font-[family-name:var(--font-space-grotesk)] text-lg font-semibold tracking-tight text-thyme-leaf">
+      <div className="mb-6 flex items-center gap-2 px-2 text-thyme-leaf">
+        <ThymeMascot size={20} />
+        <span className="font-[family-name:var(--font-space-grotesk)] text-lg font-semibold tracking-tight">
           thyme
         </span>
       </div>
