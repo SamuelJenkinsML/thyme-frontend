@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { fetchFeaturesets } from "@/lib/api/definition";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { ExamplesSection } from "@/components/catalog/featureset-detail/examples-section";
 import { ExtractorsSection } from "@/components/catalog/featureset-detail/extractors-section";
 import { FeaturesetDetailHeader } from "@/components/catalog/featureset-detail/header";
 import { LineageSection } from "@/components/catalog/featureset-detail/lineage-section";
@@ -28,6 +29,7 @@ export default async function FeaturesetDetailPage({ params }: Props) {
     { id: "schema", label: "Schema" },
     { id: "lineage", label: "Lineage" },
     { id: "used-by", label: "Used by" },
+    { id: "examples", label: "Examples" },
     ...(extractors.length > 0
       ? [{ id: "extractors", label: "Extractors" }]
       : []),
@@ -54,6 +56,7 @@ export default async function FeaturesetDetailPage({ params }: Props) {
           <SchemaSection features={features} />
           <LineageSection featuresetName={fs.name} />
           <UsedBySection featuresetName={fs.name} />
+          <ExamplesSection fs={fs} />
           <ExtractorsSection extractors={extractors} />
         </main>
       </div>
