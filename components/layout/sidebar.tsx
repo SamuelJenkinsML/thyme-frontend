@@ -56,7 +56,7 @@ export function Sidebar() {
   return (
     <aside className="flex h-screen w-56 flex-col border-r border-border bg-card px-3 py-4">
       <div className="mb-6 px-2">
-        <span className="text-lg font-semibold tracking-tight text-foreground">
+        <span className="font-[family-name:var(--font-space-grotesk)] text-lg font-semibold tracking-tight text-thyme-leaf">
           thyme
         </span>
       </div>
@@ -70,10 +70,10 @@ export function Sidebar() {
               key={href}
               href={href}
               className={cn(
-                "flex items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors",
+                "flex items-center gap-3 rounded-md border-l-2 px-2 py-2 text-sm transition-colors",
                 active
-                  ? "bg-accent text-accent-foreground font-medium"
-                  : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                  ? "border-l-thyme-leaf bg-thyme-leaf/10 text-thyme-leaf font-medium"
+                  : "border-l-transparent text-muted-foreground hover:bg-accent/50 hover:text-foreground"
               )}
             >
               <Icon className="h-4 w-4 shrink-0" />

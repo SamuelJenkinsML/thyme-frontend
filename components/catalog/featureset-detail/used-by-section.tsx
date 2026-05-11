@@ -11,7 +11,19 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDependents } from "@/lib/hooks/use-dependents";
+import { KIND_COLORS } from "@/lib/catalog/kind-colors";
 import type { DependentRecord } from "@/lib/types";
+
+const KIND_ACCENT: Record<string, string> = {
+  pipelines: KIND_COLORS.pipeline.accentText,
+  featuresets: KIND_COLORS.featureset.accentText,
+  datasets: KIND_COLORS.dataset.accentText,
+  sources: KIND_COLORS.source.accentText,
+};
+
+function accentForKind(kind: string): string {
+  return KIND_ACCENT[kind] ?? "text-muted-foreground";
+}
 
 interface UsedBySectionProps {
   featuresetName: string;
@@ -83,7 +95,7 @@ function UsedByList({ dependents }: UsedByListProps) {
     <div className="space-y-4">
       {kinds.map((kind) => (
         <div key={kind} className="space-y-2">
-          <h3 className="text-xs uppercase tracking-wide text-muted-foreground">
+          <h3 className={`text-xs uppercase tracking-wide ${accentForKind(kind)}`}>
             {pluralKindLabel(kind)} ({groups[kind].length})
           </h3>
           <ul className="space-y-1">

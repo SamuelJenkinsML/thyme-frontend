@@ -63,6 +63,7 @@ export function LineageSection({ featuresetName }: LineageSectionProps) {
               <UpstreamColumn
                 icon={<Plug className="h-4 w-4 text-emerald-400" />}
                 label="Sources"
+                accentText="text-emerald-400"
                 items={upstream.sources.map((s) => ({
                   name: s.dataset,
                   href: `/catalog/sources/${encodeURIComponent(s.id)}`,
@@ -72,6 +73,7 @@ export function LineageSection({ featuresetName }: LineageSectionProps) {
               <UpstreamColumn
                 icon={<Database className="h-4 w-4 text-indigo-400" />}
                 label="Datasets"
+                accentText="text-indigo-400"
                 items={upstream.datasets.map((d) => ({
                   name: d.name,
                   href: `/catalog/datasets/${encodeURIComponent(d.name)}`,
@@ -81,6 +83,7 @@ export function LineageSection({ featuresetName }: LineageSectionProps) {
               <UpstreamColumn
                 icon={<Workflow className="h-4 w-4 text-purple-400" />}
                 label="Pipelines"
+                accentText="text-purple-400"
                 items={upstream.pipelines.map((p) => ({
                   name: p.name,
                   href: `/catalog/pipelines/${encodeURIComponent(p.name)}`,
@@ -98,13 +101,14 @@ export function LineageSection({ featuresetName }: LineageSectionProps) {
 interface UpstreamColumnProps {
   icon: React.ReactNode;
   label: string;
+  accentText: string;
   items: { name: string; href: string; meta?: string }[];
 }
 
-function UpstreamColumn({ icon, label, items }: UpstreamColumnProps) {
+function UpstreamColumn({ icon, label, accentText, items }: UpstreamColumnProps) {
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
+      <div className={`flex items-center gap-2 text-xs uppercase tracking-wide ${accentText}`}>
         {icon}
         <span>
           {label} ({items.length})

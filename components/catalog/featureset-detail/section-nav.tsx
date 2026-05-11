@@ -48,7 +48,7 @@ export function SectionNav({ sections }: SectionNavProps) {
             className={cn(
               "border-l-2 px-3 py-1 transition-colors",
               isActive
-                ? "border-foreground text-foreground"
+                ? "border-emerald-400 text-emerald-300"
                 : "border-transparent text-muted-foreground hover:text-foreground",
             )}
           >

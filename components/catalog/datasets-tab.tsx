@@ -7,8 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
+import { Database } from "lucide-react";
 import { OwnerChip } from "./owner-chip";
 import { TagChipList } from "./tag-chip-list";
+import { KIND_COLORS } from "@/lib/catalog/kind-colors";
 
 interface DatasetsTabProps {
   searchTerm?: string;
@@ -56,10 +58,19 @@ export function DatasetsTab({ searchTerm = "" }: DatasetsTabProps) {
         );
         return (
           <Link key={src.id} href={`/catalog/datasets/${encodeURIComponent(src.dataset)}`}>
-            <Card className="h-full transition-colors hover:bg-accent/20 cursor-pointer">
+            <Card
+              className={`h-full transition-all hover:bg-accent/20 cursor-pointer border-l-2 ${KIND_COLORS.dataset.border} ${KIND_COLORS.dataset.hoverGlow}`}
+            >
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between gap-2">
-                  <CardTitle className="text-base font-semibold">{src.dataset}</CardTitle>
+                  <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                    <span
+                      className={`flex size-5 shrink-0 items-center justify-center rounded ${KIND_COLORS.dataset.iconBg}`}
+                    >
+                      <Database className={`size-3 ${KIND_COLORS.dataset.iconFg}`} />
+                    </span>
+                    <span className="truncate">{src.dataset}</span>
+                  </CardTitle>
                   <Badge variant="secondary">{src.connector_type}</Badge>
                 </div>
               </CardHeader>

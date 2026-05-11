@@ -42,24 +42,28 @@ export default function DashboardPage() {
             subtitle={`${totalFeatures} total features`}
             icon={BookOpen}
             href="/catalog"
+            color="emerald"
           />
           <StatCard
             label="Total Features"
             value={totalFeatures}
             icon={Layers}
             href="/catalog"
+            color="indigo"
           />
           <StatCard
             label="Active Jobs"
             value={jobs?.length ?? 0}
             icon={Activity}
             href="/jobs"
+            color="purple"
           />
           <StatCard
             label="Sources"
             value={sources?.length ?? 0}
             icon={Database}
             href="/sources"
+            color="green"
           />
         </div>
       )}

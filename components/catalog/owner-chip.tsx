@@ -8,7 +8,10 @@ interface OwnerChipProps {
 export function OwnerChip({ owner }: OwnerChipProps) {
   if (!owner) return null;
   return (
-    <Badge variant="secondary" className="text-xs">
+    <Badge
+      variant="secondary"
+      className="border border-thyme-leaf/20 bg-thyme-leaf/10 text-thyme-leaf text-xs"
+    >
       <User />
       {owner}
     </Badge>
