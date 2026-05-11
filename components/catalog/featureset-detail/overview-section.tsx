@@ -36,16 +36,20 @@ export function OverviewSection({ fs }: OverviewSectionProps) {
 
           <div className="grid grid-cols-2 gap-4 border-t border-border/40 pt-4">
             <div>
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">
+              <p className="text-xs uppercase tracking-wide text-emerald-400/80">
                 Features
               </p>
-              <p className="text-2xl font-semibold">{featureCount}</p>
+              <p className="text-2xl font-semibold text-emerald-300">
+                {featureCount}
+              </p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">
+              <p className="text-xs uppercase tracking-wide text-purple-400/80">
                 Extractors
               </p>
-              <p className="text-2xl font-semibold">{extractorCount}</p>
+              <p className="text-2xl font-semibold text-purple-300">
+                {extractorCount}
+              </p>
             </div>
           </div>
         </CardContent>

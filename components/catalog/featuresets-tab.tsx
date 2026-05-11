@@ -8,6 +8,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { FeatureBadgeList } from "./feature-badge-list";
 import { OwnerChip } from "./owner-chip";
 import { TagChipList } from "./tag-chip-list";
+import { KIND_COLORS } from "@/lib/catalog/kind-colors";
+import { Sparkles } from "lucide-react";
 import { useMemo } from "react";
 
 interface FeaturesetsTabProps {
@@ -61,10 +63,19 @@ export function FeaturesetsTab({ searchTerm = "" }: FeaturesetsTabProps) {
 
         return (
           <Link key={fs.id} href={`/catalog/featuresets/${encodeURIComponent(fs.name)}`}>
-            <Card className="h-full transition-colors hover:bg-accent/20 cursor-pointer">
+            <Card
+              className={`h-full transition-all hover:bg-accent/20 cursor-pointer border-l-2 ${KIND_COLORS.featureset.border} ${KIND_COLORS.featureset.hoverGlow}`}
+            >
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between gap-2">
-                  <CardTitle className="text-base font-semibold">{fs.name}</CardTitle>
+                  <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                    <span
+                      className={`flex size-5 shrink-0 items-center justify-center rounded ${KIND_COLORS.featureset.iconBg}`}
+                    >
+                      <Sparkles className={`size-3 ${KIND_COLORS.featureset.iconFg}`} />
+                    </span>
+                    <span className="truncate">{fs.name}</span>
+                  </CardTitle>
                   <div className="flex gap-1 shrink-0">
                     <Badge variant="secondary">{features.length} features</Badge>
                     {(fs.spec.extractors?.length ?? 0) > 0 && (

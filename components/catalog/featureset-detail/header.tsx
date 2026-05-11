@@ -57,7 +57,13 @@ export function FeaturesetDetailHeader({ fs }: FeaturesetDetailHeaderProps) {
       )}
 
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">{fs.name}</h1>
+        <p className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-thyme-leaf">
+          Featureset
+        </p>
+        <h1 className="flex items-center gap-2.5 text-2xl font-bold tracking-tight">
+          <span className="inline-block size-2 rounded-sm bg-emerald-400/80" aria-hidden />
+          {fs.name}
+        </h1>
         <p className="font-mono text-sm text-muted-foreground">{fs.id}</p>
       </div>
 

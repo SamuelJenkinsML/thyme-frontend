@@ -35,8 +35,16 @@ export function SystemHealth() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const anyChecking = services.some((s) => s.healthy === null);
+  const anyDown = services.some((s) => s.healthy === false);
+  const accentClass = anyChecking
+    ? "border-t-muted-foreground/40"
+    : anyDown
+      ? "border-t-red-500/60"
+      : "border-t-emerald-500/60";
+
   return (
-    <Card>
+    <Card className={`border-t-2 ${accentClass}`}>
       <CardHeader>
         <CardTitle className="text-base">System Health</CardTitle>
       </CardHeader>

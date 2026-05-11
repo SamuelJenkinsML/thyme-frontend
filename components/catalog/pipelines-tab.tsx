@@ -6,10 +6,11 @@ import { useJobs } from "@/lib/hooks/use-jobs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Workflow } from "lucide-react";
 import type { PipelineOperator } from "@/lib/types";
 import { OwnerChip } from "./owner-chip";
 import { TagChipList } from "./tag-chip-list";
+import { KIND_COLORS } from "@/lib/catalog/kind-colors";
 
 function getOperatorType(op: PipelineOperator): string {
   if ("aggregate" in op) return "Aggregate";
@@ -66,10 +67,19 @@ export function PipelinesTab({ searchTerm = "" }: PipelinesTabProps) {
 
         return (
           <Link key={job.id} href={`/catalog/pipelines/${encodeURIComponent(pipelineName)}`}>
-            <Card className="h-full transition-colors hover:bg-accent/20 cursor-pointer">
+            <Card
+              className={`h-full transition-all hover:bg-accent/20 cursor-pointer border-l-2 ${KIND_COLORS.pipeline.border} ${KIND_COLORS.pipeline.hoverGlow}`}
+            >
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between gap-2">
-                  <CardTitle className="text-base font-semibold">{job.name}</CardTitle>
+                  <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                    <span
+                      className={`flex size-5 shrink-0 items-center justify-center rounded ${KIND_COLORS.pipeline.iconBg}`}
+                    >
+                      <Workflow className={`size-3 ${KIND_COLORS.pipeline.iconFg}`} />
+                    </span>
+                    <span className="truncate">{job.name}</span>
+                  </CardTitle>
                   <Badge variant="secondary">{job.partition_count} partitions</Badge>
                 </div>
               </CardHeader>
