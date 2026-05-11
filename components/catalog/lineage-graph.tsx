@@ -8,6 +8,7 @@ import {
   Background,
   Controls,
   MiniMap,
+  type Edge,
   type Node,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
@@ -57,7 +58,38 @@ function findCodeForNode(
   return null;
 }
 
-function LineageInner() {
+function scopeGraph(
+  nodes: Node[],
+  edges: Edge[],
+  focusId: string,
+): { nodes: Node[]; edges: Edge[] } {
+  const inScope = new Set<string>([focusId]);
+  let frontier = new Set<string>([focusId]);
+  while (frontier.size > 0) {
+    const next = new Set<string>();
+    for (const edge of edges) {
+      if (frontier.has(edge.source) && !inScope.has(edge.target)) {
+        inScope.add(edge.target);
+        next.add(edge.target);
+      }
+      if (frontier.has(edge.target) && !inScope.has(edge.source)) {
+        inScope.add(edge.source);
+        next.add(edge.source);
+      }
+    }
+    frontier = next;
+  }
+  return {
+    nodes: nodes.filter((n) => inScope.has(n.id)),
+    edges: edges.filter((e) => inScope.has(e.source) && inScope.has(e.target)),
+  };
+}
+
+interface LineageInnerProps {
+  focusFeatureset?: string;
+}
+
+function LineageInner({ focusFeatureset }: LineageInnerProps) {
   const router = useRouter();
   const { data: status, isLoading: statusLoading } = useStatus(30_000);
   const { data: featuresets, isLoading: featuresetsLoading } = useFeaturesets();
@@ -69,8 +101,14 @@ function LineageInner() {
 
   const { nodes, edges } = useMemo(() => {
     if (!status || !featuresets) return { nodes: [], edges: [] };
-    return buildLineageGraph(status, featuresets);
-  }, [status, featuresets]);
+    const full = buildLineageGraph(status, featuresets);
+    if (!focusFeatureset) return full;
+    const focusId = `feature-${focusFeatureset}`;
+    if (!full.nodes.some((n) => n.id === focusId)) {
+      return { nodes: [], edges: [] };
+    }
+    return scopeGraph(full.nodes, full.edges, focusId);
+  }, [status, featuresets, focusFeatureset]);
 
   const isLoading = statusLoading || featuresetsLoading;
 
@@ -167,10 +205,14 @@ function LineageInner() {
   );
 }
 
-export function LineageGraph() {
+interface LineageGraphProps {
+  focusFeatureset?: string;
+}
+
+export function LineageGraph({ focusFeatureset }: LineageGraphProps = {}) {
   return (
     <ReactFlowProvider>
-      <LineageInner />
+      <LineageInner focusFeatureset={focusFeatureset} />
     </ReactFlowProvider>
   );
 }
