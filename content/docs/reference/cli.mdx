@@ -203,20 +203,20 @@ thyme inspect myproject.features:UserFeatures --json   # raw JSON
 Introspects your `@featureset` and `@dataset` classes and emits `.pyi` stub files so type-checkers (mypy, pyright, pylance) can narrow `ThymeClient.query` / `query_batch` / `query_offline` / `lookup` - and their `MockContext` counterparts - by featureset. Autocomplete on row attributes, type errors on typos, no guesswork.
 
 ```bash
-thyme codegen python --out DIR [--path FILE | -m MODULE] [--force]
+thyme codegen python FILE --out DIR [--force]
 ```
 
-| Option | Short | Description |
-|--------|-------|-------------|
+| Argument / Option | Short | Description |
+|-------------------|-------|-------------|
+| `FILE` | - | Path to the Python file containing feature definitions (positional) |
 | `--out DIR` | - | Output directory for generated stubs (created if missing) |
-| `--path FILE` | - | Path to a Python file containing feature definitions |
-| `--module MODULE` | `-m` | Import by dotted module path instead |
 | `--force` | - | Overwrite an existing output directory and prune stale `*.pyi` files |
+| `--path FILE` | - | Alias for the positional `FILE` argument |
+| `--module MODULE` | `-m` | **Deprecated** — pass the file path positionally instead |
 
 ```bash
-thyme codegen python --path features.py --out stubs/
-thyme codegen python -m myproject.features --out myproject/_stubs/
-thyme codegen python --path features.py --out stubs/ --force
+thyme codegen python features.py --out stubs/
+thyme codegen python features.py --out stubs/ --force
 ```
 
 One `.pyi` is emitted per featureset and per dataset, plus an `__init__.pyi` that re-exports each row class. Point your type-checker at the output directory (e.g. `mypy.ini`'s `mypy_path` or `pyrightconfig.json`'s `extraPaths`), or re-export the stubs from your own package's `__init__.pyi`.
