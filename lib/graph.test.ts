@@ -11,11 +11,15 @@ import {
 } from "@/test/fixtures/status";
 import type { StatusResponse, FeaturesetRecord } from "@/lib/types";
 
-function findNode(nodes: { id: string }[], id: string) {
+function findNode<T extends { id: string }>(nodes: T[], id: string): T | undefined {
   return nodes.find((n) => n.id === id);
 }
 
-function findEdge(edges: { source: string; target: string }[], source: string, target: string) {
+function findEdge<T extends { source: string; target: string }>(
+  edges: T[],
+  source: string,
+  target: string,
+): T | undefined {
   return edges.find((e) => e.source === source && e.target === target);
 }
 

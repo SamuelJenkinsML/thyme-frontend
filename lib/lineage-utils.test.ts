@@ -90,7 +90,7 @@ describe("getUpstreamForFeatureset", () => {
       "NonExistent",
       makeFraudDemoStatus(),
       makeFraudFeaturesets(),
-      [{ id: "s1", dataset: "Order", connector_type: "postgres", config: {}, cursor_field: "ts", poll_interval: "1m", cursor_value: "" }],
+      [{ id: "s1", dataset: "Order", connector_type: "postgres" }],
     );
     expect(result.datasets).toEqual([]);
     expect(result.pipelines).toEqual([]);
