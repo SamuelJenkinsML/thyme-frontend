@@ -8,14 +8,14 @@ import {
 const originalFetch = globalThis.fetch;
 
 function mockFetchOnce(body: unknown, status = 200) {
-  const mock = vi.fn(
+  const mock = vi.fn<typeof fetch>(
     async () =>
       new Response(typeof body === "string" ? body : JSON.stringify(body), {
         status,
         headers: { "content-type": "application/json" },
       }),
   );
-  globalThis.fetch = mock as unknown as typeof fetch;
+  globalThis.fetch = mock;
   return mock;
 }
 
@@ -42,7 +42,7 @@ describe("fetchQueryRuns", () => {
   it("passes limit and featureset as query params", async () => {
     const mock = mockFetchOnce({ runs: [] });
     await fetchQueryRuns({ limit: 50, featureset: "UserFeatures" });
-    const url = mock.mock.calls[0][0] as string;
+    const url = String(mock.mock.calls[0][0]);
     expect(url).toContain("/api/proxy/query-runs?");
     expect(url).toContain("limit=50");
     expect(url).toContain("featureset=UserFeatures");
@@ -83,9 +83,9 @@ describe("replayQueryRun", () => {
   it("POSTs to the replay endpoint", async () => {
     const mock = mockFetchOnce({ kind: "batch", result: {} });
     await replayQueryRun("run-1");
-    const [url, init] = mock.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe("/api/proxy/query-runs/run-1/replay");
-    expect(init.method).toBe("POST");
+    const [url, init] = mock.mock.calls[0];
+    expect(String(url)).toBe("/api/proxy/query-runs/run-1/replay");
+    expect(init?.method).toBe("POST");
   });
 
   it("throws when replay fails", async () => {

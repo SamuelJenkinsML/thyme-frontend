@@ -10,8 +10,8 @@ import {
   makeCombinedFeaturesets,
 } from "@/test/fixtures/status";
 
-function nodesByType(nodes: { type?: string }[]) {
-  const groups: Record<string, typeof nodes> = {};
+function nodesByType<T extends { type?: string }>(nodes: T[]): Record<string, T[]> {
+  const groups: Record<string, T[]> = {};
   for (const n of nodes) {
     const t = n.type ?? "unknown";
     if (!groups[t]) groups[t] = [];
