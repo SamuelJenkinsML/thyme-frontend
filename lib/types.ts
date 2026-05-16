@@ -194,6 +194,52 @@ export interface ReplayResponse {
   result: unknown;
 }
 
+// Datasets and pipelines — wire shapes returned by /api/v1/search (TH-CAT-C1)
+// and the future per-kind list endpoints. Mirrors crates/definition-service/
+// src/metadata.rs:951 / :965.
+export interface DatasetRecord {
+  id: string;
+  name: string;
+  version: number;
+  schema: Record<string, unknown>;
+  primary_keys: string[];
+  time_field: string;
+  metadata?: EntityMetadata;
+}
+
+export interface PipelineRecord {
+  id: string;
+  name: string;
+  version: number;
+  input_datasets: string[];
+  output_dataset: string;
+}
+
+// Server-backed catalog search (TH-CAT-C1 backend + TH-CAT-C4 hooks).
+export interface FacetCount {
+  name: string;
+  count: number;
+}
+
+export interface SearchParams {
+  q?: string;
+  kinds?: string[];
+  tags?: string[];
+  owners?: string[];
+  project?: string;
+  limit?: number;
+}
+
+export interface SearchResponse {
+  featuresets: FeaturesetRecord[];
+  datasets: DatasetRecord[];
+  pipelines: PipelineRecord[];
+  sources: SourceRecord[];
+  tags: FacetCount[];
+  owners: FacetCount[];
+  projects: FacetCount[];
+}
+
 // Reverse lineage (TH-CAT-B2)
 export type DependentsKind = "featuresets" | "datasets" | "pipelines" | "sources";
 
