@@ -1,13 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
-import { useJobs } from "@/lib/hooks/use-jobs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, Workflow } from "lucide-react";
-import type { PipelineOperator } from "@/lib/types";
+import type { JobRecord, PipelineOperator } from "@/lib/types";
 import { OwnerChip } from "./owner-chip";
 import { TagChipList } from "./tag-chip-list";
 import { KIND_COLORS } from "@/lib/catalog/kind-colors";
@@ -22,19 +20,12 @@ function getOperatorType(op: PipelineOperator): string {
 }
 
 interface PipelinesTabProps {
+  data: JobRecord[];
+  isLoading: boolean;
   searchTerm?: string;
 }
 
-export function PipelinesTab({ searchTerm = "" }: PipelinesTabProps) {
-  const { data, isLoading, error } = useJobs();
-
-  const filtered = useMemo(() => {
-    if (!data) return [];
-    if (!searchTerm.trim()) return data;
-    const term = searchTerm.toLowerCase();
-    return data.filter((job) => job.name.toLowerCase().includes(term));
-  }, [data, searchTerm]);
-
+export function PipelinesTab({ data, isLoading, searchTerm = "" }: PipelinesTabProps) {
   if (isLoading) {
     return (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -45,21 +36,16 @@ export function PipelinesTab({ searchTerm = "" }: PipelinesTabProps) {
     );
   }
 
-  if (error) {
-    return <p className="text-sm text-destructive">Failed to load pipelines: {error.message}</p>;
-  }
-
-  if (!data?.length) {
+  if (data.length === 0) {
+    if (searchTerm.trim()) {
+      return <p className="text-sm text-muted-foreground">No pipelines matching &ldquo;{searchTerm}&rdquo;.</p>;
+    }
     return <p className="text-sm text-muted-foreground">No pipelines found.</p>;
-  }
-
-  if (filtered.length === 0) {
-    return <p className="text-sm text-muted-foreground">No pipelines matching &ldquo;{searchTerm}&rdquo;.</p>;
   }
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {filtered.map((job) => {
+      {data.map((job) => {
         const spec = job.spec;
         const pipelineName = job.name.replace(/_job$/, "");
         const operators = spec.pipeline_spec?.operators ?? [];

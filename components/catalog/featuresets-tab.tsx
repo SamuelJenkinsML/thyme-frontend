@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useFeaturesets } from "@/lib/hooks/use-featuresets";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -10,22 +9,15 @@ import { OwnerChip } from "./owner-chip";
 import { TagChipList } from "./tag-chip-list";
 import { KIND_COLORS } from "@/lib/catalog/kind-colors";
 import { Sparkles } from "lucide-react";
-import { useMemo } from "react";
+import type { FeaturesetRecord } from "@/lib/types";
 
 interface FeaturesetsTabProps {
+  data: FeaturesetRecord[];
+  isLoading: boolean;
   searchTerm?: string;
 }
 
-export function FeaturesetsTab({ searchTerm = "" }: FeaturesetsTabProps) {
-  const { data, isLoading, error } = useFeaturesets();
-
-  const filtered = useMemo(() => {
-    if (!data) return [];
-    if (!searchTerm.trim()) return data;
-    const term = searchTerm.toLowerCase();
-    return data.filter((fs) => fs.name.toLowerCase().includes(term));
-  }, [data, searchTerm]);
-
+export function FeaturesetsTab({ data, isLoading, searchTerm = "" }: FeaturesetsTabProps) {
   if (isLoading) {
     return (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -36,23 +28,17 @@ export function FeaturesetsTab({ searchTerm = "" }: FeaturesetsTabProps) {
     );
   }
 
-  if (error) {
-    return <p className="text-sm text-destructive">Failed to load featuresets: {error.message}</p>;
-  }
-
-  if (!data?.length) {
+  if (data.length === 0) {
+    if (searchTerm.trim()) {
+      return <p className="text-sm text-muted-foreground">No featuresets matching &ldquo;{searchTerm}&rdquo;.</p>;
+    }
     return <p className="text-sm text-muted-foreground">No featuresets found. Run `thyme commit` to register definitions.</p>;
-  }
-
-  if (filtered.length === 0) {
-    return <p className="text-sm text-muted-foreground">No featuresets matching &ldquo;{searchTerm}&rdquo;.</p>;
   }
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {filtered.map((fs) => {
+      {data.map((fs) => {
         const features = fs.spec.features ?? [];
-        // Compute top dtype distribution
         const dtypeCounts: Record<string, number> = {};
         features.forEach((f) => {
           dtypeCounts[f.dtype] = (dtypeCounts[f.dtype] ?? 0) + 1;
