@@ -1,8 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
-import { useSources } from "@/lib/hooks/use-sources";
-import { useJobs } from "@/lib/hooks/use-jobs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,23 +8,17 @@ import { Database } from "lucide-react";
 import { OwnerChip } from "./owner-chip";
 import { TagChipList } from "./tag-chip-list";
 import { KIND_COLORS } from "@/lib/catalog/kind-colors";
+import type { JobRecord, SourceRecord } from "@/lib/types";
 
 interface DatasetsTabProps {
+  data: SourceRecord[];
+  jobs: JobRecord[];
+  isLoading: boolean;
   searchTerm?: string;
 }
 
-export function DatasetsTab({ searchTerm = "" }: DatasetsTabProps) {
-  const { data: sources, isLoading: srcLoading, error: srcError } = useSources();
-  const { data: jobs } = useJobs();
-
-  const filtered = useMemo(() => {
-    if (!sources) return [];
-    if (!searchTerm.trim()) return sources;
-    const term = searchTerm.toLowerCase();
-    return sources.filter((src) => src.dataset.toLowerCase().includes(term));
-  }, [sources, searchTerm]);
-
-  if (srcLoading) {
+export function DatasetsTab({ data, jobs, isLoading, searchTerm = "" }: DatasetsTabProps) {
+  if (isLoading) {
     return (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 3 }).map((_, i) => (
@@ -37,25 +28,18 @@ export function DatasetsTab({ searchTerm = "" }: DatasetsTabProps) {
     );
   }
 
-  if (srcError) {
-    return <p className="text-sm text-destructive">Failed to load datasets: {srcError.message}</p>;
-  }
-
-  if (!sources?.length) {
+  if (data.length === 0) {
+    if (searchTerm.trim()) {
+      return <p className="text-sm text-muted-foreground">No datasets matching &ldquo;{searchTerm}&rdquo;.</p>;
+    }
     return <p className="text-sm text-muted-foreground">No datasets found.</p>;
-  }
-
-  if (filtered.length === 0) {
-    return <p className="text-sm text-muted-foreground">No datasets matching &ldquo;{searchTerm}&rdquo;.</p>;
   }
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {filtered.map((src) => {
+      {data.map((src) => {
         const topic = `${src.dataset}_topic`;
-        const consuming = (jobs ?? []).filter(
-          (j) => j.spec.input_topic === topic
-        );
+        const consuming = jobs.filter((j) => j.spec.input_topic === topic);
         return (
           <Link key={src.id} href={`/catalog/datasets/${encodeURIComponent(src.dataset)}`}>
             <Card
