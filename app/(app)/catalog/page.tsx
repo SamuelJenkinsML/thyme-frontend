@@ -9,6 +9,7 @@ import { CatalogSearch } from "@/components/catalog/catalog-search";
 import { DependencyGraph } from "@/components/catalog/dependency-graph";
 import { LineageGraph } from "@/components/catalog/lineage-graph";
 import { FacetFilters } from "@/components/catalog/facet-filters";
+import { ProjectSwitcher } from "@/components/catalog/project-switcher";
 import { DocsLink } from "@/components/shared/docs-link";
 import { TermTooltip } from "@/components/shared/term-tooltip";
 import { useSearch } from "@/lib/hooks/use-search";
@@ -36,23 +37,36 @@ function CatalogShellFallback() {
 
 function CatalogPageInner() {
   const [filters, setFilters] = useCatalogFilters();
-  const { q, tags, owners } = filters;
+  const { q, tags, owners, project } = filters;
 
-  const search = useSearch({ q, tags, owners, limit: 500 });
+  const search = useSearch({
+    q,
+    tags,
+    owners,
+    project: project ?? undefined,
+    limit: 500,
+  });
   const jobs = useJobs();
 
   const filteredJobs = useMemo(() => {
     const allJobs = jobs.data ?? [];
-    const hasFilter = q.trim() !== "" || tags.length > 0 || owners.length > 0;
+    const hasFilter =
+      q.trim() !== "" ||
+      tags.length > 0 ||
+      owners.length > 0 ||
+      project !== null;
     if (!hasFilter) return allJobs;
     const allow = new Set((search.data?.pipelines ?? []).map((p) => p.name));
     return allJobs.filter(
       (j) => allow.has(j.name) || allow.has(j.name.replace(/_job$/, "")),
     );
-  }, [jobs.data, search.data, q, tags, owners]);
+  }, [jobs.data, search.data, q, tags, owners, project]);
 
   const hasActiveFilter =
-    q.trim() !== "" || tags.length > 0 || owners.length > 0;
+    q.trim() !== "" ||
+    tags.length > 0 ||
+    owners.length > 0 ||
+    project !== null;
   const pipelinesIsLoading =
     jobs.isLoading || (hasActiveFilter && search.isLoading);
 
@@ -67,6 +81,10 @@ function CatalogPageInner() {
           <DocsLink href="/docs/concepts" className="text-xs">
             Concepts
           </DocsLink>
+          <ProjectSwitcher
+            value={project}
+            onChange={(next) => setFilters({ project: next })}
+          />
           <CatalogSearch
             value={q}
             onChange={(value) => setFilters({ q: value })}

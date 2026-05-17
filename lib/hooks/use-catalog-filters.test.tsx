@@ -20,7 +20,7 @@ describe("useCatalogFilters", () => {
   it("returns empty filters when URL has no query string", () => {
     const { result } = renderHook(() => useCatalogFilters());
     const [filters] = result.current;
-    expect(filters).toEqual({ q: "", tags: [], owners: [] });
+    expect(filters).toEqual({ q: "", tags: [], owners: [], project: null });
   });
 
   it("parses q, CSV tags, and CSV owners from the URL", () => {
@@ -31,6 +31,7 @@ describe("useCatalogFilters", () => {
       q: "frau",
       tags: ["fraud", "realtime"],
       owners: ["ml-platform", "ds-team"],
+      project: null,
     });
   });
 
@@ -83,6 +84,29 @@ describe("useCatalogFilters", () => {
     expect(params.get("q")).toBe("fraud");
     expect(params.get("owners")).toBe("ml-platform");
     expect(params.get("tags")).toBe("realtime");
+  });
+
+  it("parses ?project=<id> and serialises it back as a single value", () => {
+    mockSearch = "project=risk";
+    const { result } = renderHook(() => useCatalogFilters());
+    const [filters] = result.current;
+    expect(filters.project).toBe("risk");
+    act(() => {
+      result.current[1]({ project: "fraud-prevention" });
+    });
+    const [url] = replace.mock.calls[0];
+    const params = new URLSearchParams(url.split("?")[1]);
+    expect(params.get("project")).toBe("fraud-prevention");
+  });
+
+  it("setting project to null removes the URL param", () => {
+    mockSearch = "project=risk&q=fraud";
+    const { result } = renderHook(() => useCatalogFilters());
+    act(() => {
+      result.current[1]({ project: null });
+    });
+    const [url] = replace.mock.calls[0];
+    expect(url).toBe("/catalog?q=fraud");
   });
 
   it("emits a single router.replace per setFilters call (multi-key patch)", () => {

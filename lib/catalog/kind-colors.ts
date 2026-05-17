@@ -4,7 +4,8 @@ export type CatalogKind =
   | "pipeline"
   | "source"
   | "tag"
-  | "owner";
+  | "owner"
+  | "project";
 
 export interface KindColor {
   border: string;
@@ -63,5 +64,13 @@ export const KIND_COLORS: Record<CatalogKind, KindColor> = {
     hoverGlow: "hover:shadow-[0_0_20px_rgba(14,165,233,0.10)]",
     accentText: "text-sky-300",
     ringColor: "ring-sky-500/20",
+  },
+  project: {
+    border: "border-l-orange-500/60",
+    iconBg: "bg-orange-500/10",
+    iconFg: "text-orange-400",
+    hoverGlow: "hover:shadow-[0_0_20px_rgba(249,115,22,0.10)]",
+    accentText: "text-orange-300",
+    ringColor: "ring-orange-500/20",
   },
 };

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
-import { LayoutDashboard, BookOpen, GitBranch, Search, Activity, Database, Monitor, LogOut, Play } from "lucide-react";
+import { LayoutDashboard, BookOpen, FolderOpen, GitBranch, Search, Activity, Database, Monitor, LogOut, Play } from "lucide-react";
 import { ThymeMascot } from "@/components/landing/thyme-mascot";
 import { CommandPaletteTrigger } from "@/components/shared/command-palette-trigger";
 import { cn } from "@/lib/utils";
@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/catalog", label: "Catalog", icon: BookOpen },
+  { href: "/catalog/projects", label: "Projects", icon: FolderOpen },
   { href: "/lineage", label: "Lineage", icon: GitBranch },
   { href: "/inspect", label: "Inspect", icon: Search },
   { href: "/jobs", label: "Jobs", icon: Activity },
@@ -70,8 +71,18 @@ export function Sidebar() {
 
       <nav className="flex flex-col gap-1">
         {navItems.map(({ href, label, icon: Icon }) => {
-          const active =
+          // Active = longest matching prefix wins; prevents nested entries
+          // (e.g. /catalog and /catalog/projects) from both lighting up.
+          const isMatch =
             pathname === href || pathname.startsWith(href + "/");
+          const longerMatch = navItems.some(
+            (other) =>
+              other.href !== href &&
+              other.href.length > href.length &&
+              (pathname === other.href ||
+                pathname.startsWith(other.href + "/")),
+          );
+          const active = isMatch && !longerMatch;
           return (
             <Link
               key={href}
