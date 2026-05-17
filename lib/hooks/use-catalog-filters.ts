@@ -7,6 +7,7 @@ export interface CatalogFilters {
   q: string;
   tags: string[];
   owners: string[];
+  project: string | null;
 }
 
 function parseCsv(value: string | null): string[] {
@@ -22,6 +23,7 @@ function readFilters(params: URLSearchParams): CatalogFilters {
     q: params.get("q") ?? "",
     tags: parseCsv(params.get("tags")),
     owners: parseCsv(params.get("owners")),
+    project: params.get("project") || null,
   };
 }
 
@@ -36,6 +38,8 @@ function writeFilters(
   else next.delete("tags");
   if (filters.owners.length > 0) next.set("owners", filters.owners.join(","));
   else next.delete("owners");
+  if (filters.project) next.set("project", filters.project);
+  else next.delete("project");
   return next;
 }
 

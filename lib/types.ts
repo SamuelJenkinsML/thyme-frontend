@@ -240,6 +240,50 @@ export interface SearchResponse {
   projects: FacetCount[];
 }
 
+// Catalog projects (TH-CAT-D2 backend + TH-CAT-D3 frontend).
+// `member_count` is per metadata-bearing kind (pipelines deliberately omitted —
+// no @pipeline metadata decorator). `freshness` buckets entity `updated_at`
+// across all kinds: fresh < 24h, stale 24h..7d, broken > 7d.
+export interface ProjectMemberCount {
+  featuresets: number;
+  datasets: number;
+  sources: number;
+}
+
+export interface ProjectFreshness {
+  fresh: number;
+  stale: number;
+  broken: number;
+}
+
+export interface ProjectSummary {
+  id: string;
+  name: string;
+  description?: string | null;
+  owner?: string | null;
+  member_count: ProjectMemberCount;
+  freshness: ProjectFreshness;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProjectMembers {
+  featuresets: FeaturesetRecord[];
+  datasets: DatasetRecord[];
+  sources: SourceRecord[];
+}
+
+export interface ProjectDetail {
+  id: string;
+  name: string;
+  description?: string | null;
+  owner?: string | null;
+  created_at: string;
+  updated_at: string;
+  members: ProjectMembers;
+  freshness: ProjectFreshness;
+}
+
 // Reverse lineage (TH-CAT-B2)
 export type DependentsKind = "featuresets" | "datasets" | "pipelines" | "sources";
 

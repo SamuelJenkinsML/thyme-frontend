@@ -3,6 +3,8 @@ import type {
   FacetCount,
   FeaturesetRecord,
   JobRecord,
+  ProjectDetail,
+  ProjectSummary,
   SearchParams,
   SearchResponse,
   SourceRecord,
@@ -109,5 +111,22 @@ export async function fetchOwners(): Promise<FacetCount[]> {
   const url = base ? `${base}/api/v1/owners` : "/api/proxy/owners";
   const res = await fetch(url, { cache: "no-store", headers: { ...serverHeaders() } });
   if (!res.ok) throw new Error(`Failed to fetch owners: ${res.statusText}`);
+  return res.json();
+}
+
+export async function fetchProjects(): Promise<ProjectSummary[]> {
+  const base = definitionBase();
+  const url = base ? `${base}/api/v1/projects` : "/api/proxy/projects";
+  const res = await fetch(url, { cache: "no-store", headers: { ...serverHeaders() } });
+  if (!res.ok) throw new Error(`Failed to fetch projects: ${res.statusText}`);
+  return res.json();
+}
+
+export async function fetchProject(id: string): Promise<ProjectDetail> {
+  const base = definitionBase();
+  const path = `/api/v1/projects/${encodeURIComponent(id)}`;
+  const url = base ? `${base}${path}` : `/api/proxy/projects/${encodeURIComponent(id)}`;
+  const res = await fetch(url, { cache: "no-store", headers: { ...serverHeaders() } });
+  if (!res.ok) throw new Error(`Failed to fetch project ${id}: ${res.statusText}`);
   return res.json();
 }

@@ -1,4 +1,4 @@
-import { Database, Plug, Sparkles, Tag, User, Workflow } from "lucide-react";
+import { Database, FolderOpen, Plug, Sparkles, Tag, User, Workflow } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { CatalogKind } from "./kind-colors";
 
@@ -45,5 +45,11 @@ export const KIND_META: Record<CatalogKind, KindMeta> = {
     pluralLabel: "Owners",
     icon: User,
     href: (name) => `/catalog/owners/${encodeURIComponent(name)}`,
+  },
+  project: {
+    label: "Project",
+    pluralLabel: "Projects",
+    icon: FolderOpen,
+    href: (name) => `/catalog/projects/${encodeURIComponent(name)}`,
   },
 };
