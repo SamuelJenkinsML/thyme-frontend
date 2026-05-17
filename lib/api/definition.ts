@@ -1,7 +1,10 @@
 import type {
   EventRecord,
   FacetCount,
+  FeaturesetDiff,
   FeaturesetRecord,
+  FeaturesetVersionDetail,
+  FeaturesetVersionsResponse,
   JobRecord,
   ProjectDetail,
   ProjectSummary,
@@ -128,5 +131,54 @@ export async function fetchProject(id: string): Promise<ProjectDetail> {
   const url = base ? `${base}${path}` : `/api/proxy/projects/${encodeURIComponent(id)}`;
   const res = await fetch(url, { cache: "no-store", headers: { ...serverHeaders() } });
   if (!res.ok) throw new Error(`Failed to fetch project ${id}: ${res.statusText}`);
+  return res.json();
+}
+
+// TH-CAT-E3: featureset version listing + detail
+export async function fetchFeaturesetVersions(
+  name: string,
+): Promise<FeaturesetVersionsResponse> {
+  const base = definitionBase();
+  const path = `/api/v1/featuresets/${encodeURIComponent(name)}/versions`;
+  const url = base ? `${base}${path}` : `/api/proxy/featuresets/${encodeURIComponent(name)}/versions`;
+  const res = await fetch(url, { cache: "no-store", headers: { ...serverHeaders() } });
+  if (!res.ok) {
+    throw new Error(`Failed to fetch versions for ${name}: ${res.statusText}`);
+  }
+  return res.json();
+}
+
+export async function fetchFeaturesetVersion(
+  name: string,
+  version: number,
+): Promise<FeaturesetVersionDetail> {
+  const base = definitionBase();
+  const path = `/api/v1/featuresets/${encodeURIComponent(name)}/versions/${version}`;
+  const url = base
+    ? `${base}${path}`
+    : `/api/proxy/featuresets/${encodeURIComponent(name)}/versions/${version}`;
+  const res = await fetch(url, { cache: "no-store", headers: { ...serverHeaders() } });
+  if (!res.ok) {
+    throw new Error(`Failed to fetch version ${version} for ${name}: ${res.statusText}`);
+  }
+  return res.json();
+}
+
+// TH-CAT-E4: featureset diff
+export async function fetchFeaturesetDiff(
+  name: string,
+  from: number,
+  to: number,
+): Promise<FeaturesetDiff> {
+  const base = definitionBase();
+  const qs = new URLSearchParams({ from: String(from), to: String(to) });
+  const path = `/api/v1/featuresets/${encodeURIComponent(name)}/diff?${qs}`;
+  const url = base
+    ? `${base}${path}`
+    : `/api/proxy/featuresets/${encodeURIComponent(name)}/diff?${qs}`;
+  const res = await fetch(url, { cache: "no-store", headers: { ...serverHeaders() } });
+  if (!res.ok) {
+    throw new Error(`Failed to fetch diff for ${name}: ${res.statusText}`);
+  }
   return res.json();
 }

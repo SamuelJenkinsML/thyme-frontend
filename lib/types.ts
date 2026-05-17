@@ -284,6 +284,53 @@ export interface ProjectDetail {
   freshness: ProjectFreshness;
 }
 
+// Featureset versioning (TH-CAT-E2/E3)
+export interface FeaturesetVersionSummary {
+  version: number;
+  parent_version: number | null;
+  created_at: string;
+  graph_commit_id: string | null;
+}
+
+export interface FeaturesetVersionsResponse {
+  name: string;
+  versions: FeaturesetVersionSummary[];
+}
+
+export interface FeaturesetVersionDetail {
+  name: string;
+  version: number;
+  parent_version: number | null;
+  spec: FeaturesetSpec;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  graph_commit_id: string | null;
+}
+
+// Featureset diff (TH-CAT-E2/E4)
+export interface DiffFeatureAddRemove {
+  name: string;
+  dtype: string;
+}
+
+export interface DiffFeatureChange {
+  name: string;
+  from_dtype: string;
+  to_dtype: string;
+}
+
+export interface FeaturesetDiff {
+  name: string;
+  from: number;
+  to: number;
+  added: DiffFeatureAddRemove[];
+  removed: DiffFeatureAddRemove[];
+  changed: DiffFeatureChange[];
+  extractors_added: string[];
+  extractors_removed: string[];
+  extractors_changed: string[];
+}
+
 // Reverse lineage (TH-CAT-B2)
 export type DependentsKind = "featuresets" | "datasets" | "pipelines" | "sources";
 
