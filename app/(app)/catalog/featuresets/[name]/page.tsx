@@ -11,6 +11,8 @@ import { RecentQueriesSection } from "@/components/catalog/featureset-detail/rec
 import { SchemaSection } from "@/components/catalog/featureset-detail/schema-section";
 import { SectionNav } from "@/components/catalog/featureset-detail/section-nav";
 import { UsedBySection } from "@/components/catalog/featureset-detail/used-by-section";
+import { VersionSelector } from "@/components/catalog/featureset-detail/version-selector";
+import { VersionsSection } from "@/components/catalog/featureset-detail/versions-section";
 
 interface Props {
   params: Promise<{ name: string }>;
@@ -29,6 +31,7 @@ export default async function FeaturesetDetailPage({ params }: Props) {
   const sections = [
     { id: "overview", label: "Overview" },
     { id: "schema", label: "Schema" },
+    { id: "versions", label: "Versions" },
     { id: "lineage", label: "Lineage" },
     { id: "used-by", label: "Used by" },
     { id: "examples", label: "Examples" },
@@ -49,7 +52,12 @@ export default async function FeaturesetDetailPage({ params }: Props) {
         ]}
       />
 
-      <FeaturesetDetailHeader fs={fs} />
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <FeaturesetDetailHeader fs={fs} />
+        </div>
+        <VersionSelector featuresetName={fs.name} />
+      </div>
 
       <div className="flex gap-8">
         <aside className="hidden w-48 shrink-0 md:block">
@@ -58,6 +66,7 @@ export default async function FeaturesetDetailPage({ params }: Props) {
         <main className="flex-1 space-y-8">
           <OverviewSection fs={fs} />
           <SchemaSection features={features} />
+          <VersionsSection featuresetName={fs.name} />
           <LineageSection featuresetName={fs.name} />
           <UsedBySection featuresetName={fs.name} />
           <ExamplesSection fs={fs} />
