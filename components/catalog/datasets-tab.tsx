@@ -40,10 +40,13 @@ export function DatasetsTab({ data, jobs, isLoading, searchTerm = "" }: Datasets
       {data.map((src) => {
         const topic = `${src.dataset}_topic`;
         const consuming = jobs.filter((j) => j.spec.input_topic === topic);
+        const isDeprecated = Boolean(
+          src.metadata?.deprecated_at || src.metadata?.deprecated,
+        );
         return (
           <Link key={src.id} href={`/catalog/datasets/${encodeURIComponent(src.dataset)}`}>
             <Card
-              className={`h-full transition-all hover:bg-accent/20 cursor-pointer border-l-2 ${KIND_COLORS.dataset.border} ${KIND_COLORS.dataset.hoverGlow}`}
+              className={`h-full transition-all hover:bg-accent/20 cursor-pointer border-l-2 ${KIND_COLORS.dataset.border} ${KIND_COLORS.dataset.hoverGlow} ${isDeprecated ? "opacity-70" : ""}`}
             >
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between gap-2">
@@ -53,9 +56,21 @@ export function DatasetsTab({ data, jobs, isLoading, searchTerm = "" }: Datasets
                     >
                       <Database className={`size-3 ${KIND_COLORS.dataset.iconFg}`} />
                     </span>
-                    <span className="truncate">{src.dataset}</span>
+                    <span className={`truncate ${isDeprecated ? "line-through decoration-yellow-400/60" : ""}`}>
+                      {src.dataset}
+                    </span>
                   </CardTitle>
-                  <Badge variant="secondary">{src.connector_type}</Badge>
+                  <div className="flex gap-1 shrink-0">
+                    {isDeprecated && (
+                      <Badge
+                        variant="outline"
+                        className="border-yellow-500/40 bg-yellow-500/10 text-yellow-300"
+                      >
+                        Deprecated
+                      </Badge>
+                    )}
+                    <Badge variant="secondary">{src.connector_type}</Badge>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-1 text-xs text-muted-foreground font-mono">

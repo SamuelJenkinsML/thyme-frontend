@@ -1,4 +1,6 @@
 import type {
+  DeprecateRequest,
+  DeprecateResult,
   EventRecord,
   FacetCount,
   FeaturesetDiff,
@@ -160,6 +162,31 @@ export async function fetchFeaturesetVersion(
   const res = await fetch(url, { cache: "no-store", headers: { ...serverHeaders() } });
   if (!res.ok) {
     throw new Error(`Failed to fetch version ${version} for ${name}: ${res.statusText}`);
+  }
+  return res.json();
+}
+
+// TH-CAT-E6: featureset deprecation (UI path, mutates deprecated_at)
+export async function deprecateFeatureset(
+  name: string,
+  body: DeprecateRequest,
+): Promise<DeprecateResult> {
+  const base = definitionBase();
+  const path = `/api/v1/featuresets/${encodeURIComponent(name)}/deprecate`;
+  const url = base
+    ? `${base}${path}`
+    : `/api/proxy/featuresets/${encodeURIComponent(name)}/deprecate`;
+  const res = await fetch(url, {
+    method: "POST",
+    cache: "no-store",
+    headers: {
+      ...serverHeaders(),
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to deprecate ${name}: ${res.statusText}`);
   }
   return res.json();
 }

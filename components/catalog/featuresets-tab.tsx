@@ -47,10 +47,13 @@ export function FeaturesetsTab({ data, isLoading, searchTerm = "" }: Featuresets
           .sort((a, b) => b[1] - a[1])
           .slice(0, 3);
 
+        const isDeprecated = Boolean(
+          fs.metadata?.deprecated_at || fs.metadata?.deprecated,
+        );
         return (
           <Link key={fs.id} href={`/catalog/featuresets/${encodeURIComponent(fs.name)}`}>
             <Card
-              className={`h-full transition-all hover:bg-accent/20 cursor-pointer border-l-2 ${KIND_COLORS.featureset.border} ${KIND_COLORS.featureset.hoverGlow}`}
+              className={`h-full transition-all hover:bg-accent/20 cursor-pointer border-l-2 ${KIND_COLORS.featureset.border} ${KIND_COLORS.featureset.hoverGlow} ${isDeprecated ? "opacity-70" : ""}`}
             >
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between gap-2">
@@ -60,9 +63,19 @@ export function FeaturesetsTab({ data, isLoading, searchTerm = "" }: Featuresets
                     >
                       <Sparkles className={`size-3 ${KIND_COLORS.featureset.iconFg}`} />
                     </span>
-                    <span className="truncate">{fs.name}</span>
+                    <span className={`truncate ${isDeprecated ? "line-through decoration-yellow-400/60" : ""}`}>
+                      {fs.name}
+                    </span>
                   </CardTitle>
                   <div className="flex gap-1 shrink-0">
+                    {isDeprecated && (
+                      <Badge
+                        variant="outline"
+                        className="border-yellow-500/40 bg-yellow-500/10 text-yellow-300"
+                      >
+                        Deprecated
+                      </Badge>
+                    )}
                     <Badge variant="secondary">{features.length} features</Badge>
                     {(fs.spec.extractors?.length ?? 0) > 0 && (
                       <Badge variant="outline">{fs.spec.extractors.length} extractors</Badge>

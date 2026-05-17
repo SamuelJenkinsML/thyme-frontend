@@ -5,6 +5,7 @@ import { ActivitySection } from "@/components/catalog/featureset-detail/activity
 import { ExamplesSection } from "@/components/catalog/featureset-detail/examples-section";
 import { ExtractorsSection } from "@/components/catalog/featureset-detail/extractors-section";
 import { FeaturesetDetailHeader } from "@/components/catalog/featureset-detail/header";
+import { HeaderActions } from "@/components/catalog/featureset-detail/header-actions";
 import { LineageSection } from "@/components/catalog/featureset-detail/lineage-section";
 import { OverviewSection } from "@/components/catalog/featureset-detail/overview-section";
 import { RecentQueriesSection } from "@/components/catalog/featureset-detail/recent-queries-section";
@@ -56,7 +57,15 @@ export default async function FeaturesetDetailPage({ params }: Props) {
         <div className="min-w-0 flex-1">
           <FeaturesetDetailHeader fs={fs} />
         </div>
-        <VersionSelector featuresetName={fs.name} />
+        <div className="flex items-center gap-2">
+          <HeaderActions
+            featuresetName={fs.name}
+            isDeprecated={Boolean(
+              fs.metadata?.deprecated_at || fs.metadata?.deprecated,
+            )}
+          />
+          <VersionSelector featuresetName={fs.name} />
+        </div>
       </div>
 
       <div className="flex gap-8">

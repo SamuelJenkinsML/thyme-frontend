@@ -307,6 +307,19 @@ export interface FeaturesetVersionDetail {
   graph_commit_id: string | null;
 }
 
+// Featureset deprecation (TH-CAT-E5/E6)
+export interface DeprecateRequest {
+  reason?: string | null;
+  replacement?: string | null;
+}
+
+export interface DeprecateResult {
+  name: string;
+  deprecated_at: string;
+  deprecation_reason: string | null;
+  replacement: string | null;
+}
+
 // Featureset diff (TH-CAT-E2/E4)
 export interface DiffFeatureAddRemove {
   name: string;

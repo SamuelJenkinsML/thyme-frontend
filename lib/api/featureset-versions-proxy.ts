@@ -49,3 +49,23 @@ export async function proxyFeaturesetDiff(name: string, search: string) {
   const data = await res.json().catch(() => ({}));
   return NextResponse.json(data, { status: res.status });
 }
+
+export async function proxyDeprecateFeatureset(name: string, body: unknown) {
+  const unauth = await requireSession();
+  if (unauth) return unauth;
+
+  const res = await fetch(
+    `${definitionBase()}/api/v1/featuresets/${encodeURIComponent(name)}/deprecate`,
+    {
+      method: "POST",
+      cache: "no-store",
+      headers: {
+        ...authHeaders(),
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(body ?? {}),
+    },
+  );
+  const data = await res.json().catch(() => ({}));
+  return NextResponse.json(data, { status: res.status });
+}
