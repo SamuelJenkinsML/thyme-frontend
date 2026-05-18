@@ -1,6 +1,7 @@
 import type {
   DeprecateRequest,
   DeprecateResult,
+  EntityMetadata,
   EventRecord,
   FacetCount,
   FeaturesetDiff,
@@ -167,6 +168,39 @@ export async function fetchFeaturesetVersion(
 }
 
 // TH-CAT-E6: featureset deprecation (UI path, mutates deprecated_at)
+// TH-CAT-F3: inline metadata edit
+export type MetadataKind = "featureset" | "dataset" | "source";
+export interface MetadataPatch {
+  description?: string;
+  owner?: string;
+  tags?: Record<string, string>;
+}
+
+export async function updateMetadata(
+  kind: MetadataKind,
+  name: string,
+  patch: MetadataPatch,
+): Promise<EntityMetadata> {
+  const base = definitionBase();
+  const path = `/api/v1/metadata/${encodeURIComponent(kind)}/${encodeURIComponent(name)}`;
+  const url = base
+    ? `${base}${path}`
+    : `/api/proxy/metadata/${encodeURIComponent(kind)}/${encodeURIComponent(name)}`;
+  const res = await fetch(url, {
+    method: "PATCH",
+    cache: "no-store",
+    headers: {
+      ...serverHeaders(),
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(patch),
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to update metadata for ${kind} ${name}: ${res.statusText}`);
+  }
+  return res.json();
+}
+
 export async function deprecateFeatureset(
   name: string,
   body: DeprecateRequest,

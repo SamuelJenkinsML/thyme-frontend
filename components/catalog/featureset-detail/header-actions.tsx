@@ -5,11 +5,15 @@ import { ArchiveX, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DeleteModal } from "@/components/catalog/delete-modal";
 import { DeprecateModal } from "@/components/catalog/deprecate-modal";
+import { EditMetadataButton } from "@/components/catalog/edit-metadata-button";
+import type { EntityMetadata } from "@/lib/types";
 
 interface HeaderActionsProps {
   featuresetName: string;
   /** When true, the "Mark deprecated" CTA is hidden (already deprecated). */
   isDeprecated: boolean;
+  /** Current metadata to seed the edit modal. */
+  initialMetadata?: EntityMetadata;
 }
 
 /**
@@ -19,33 +23,39 @@ interface HeaderActionsProps {
 export function HeaderActions({
   featuresetName,
   isDeprecated,
+  initialMetadata,
 }: HeaderActionsProps) {
   const [deprecateOpen, setDeprecateOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  if (isDeprecated) {
-    return null;
-  }
-
   return (
     <>
       <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setDeprecateOpen(true)}
-        >
-          <ArchiveX className="size-3.5" />
-          Mark deprecated
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setDeleteOpen(true)}
-        >
-          <Trash2 className="size-3.5" />
-          Delete
-        </Button>
+        <EditMetadataButton
+          kind="featureset"
+          name={featuresetName}
+          initial={initialMetadata}
+        />
+        {!isDeprecated && (
+          <>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setDeprecateOpen(true)}
+            >
+              <ArchiveX className="size-3.5" />
+              Mark deprecated
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setDeleteOpen(true)}
+            >
+              <Trash2 className="size-3.5" />
+              Delete
+            </Button>
+          </>
+        )}
       </div>
       <DeprecateModal
         open={deprecateOpen}

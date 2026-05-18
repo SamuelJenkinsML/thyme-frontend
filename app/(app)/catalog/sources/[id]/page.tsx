@@ -6,6 +6,7 @@ import {
 } from "@/lib/api/definition";
 import { getDownstreamFromSource } from "@/lib/lineage-utils";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { EditMetadataButton } from "@/components/catalog/edit-metadata-button";
 import { SourceDetailHeader } from "@/components/catalog/source-detail-header";
 import { SourceConfigViewer } from "@/components/catalog/source-config-viewer";
 import { SourceDownstream } from "@/components/catalog/source-downstream";
@@ -44,7 +45,16 @@ export default async function SourceDetailPage({ params }: Props) {
         ]}
       />
 
-      <SourceDetailHeader source={source} />
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <SourceDetailHeader source={source} />
+        </div>
+        <EditMetadataButton
+          kind="source"
+          name={source.dataset}
+          initial={source.metadata}
+        />
+      </div>
 
       {downstream.dataset && (
         <SourceDownstream
