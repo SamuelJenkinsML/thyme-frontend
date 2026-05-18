@@ -1,16 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { FRESHNESS_STYLE } from "@/lib/catalog/freshness";
 import type { ProjectDetail } from "@/lib/types";
 
 interface ProjectStatsCardProps {
   project: ProjectDetail;
 }
-
-const freshnessStyle: Record<"fresh" | "stale" | "broken", string> = {
-  fresh: "border-emerald-500/20 bg-emerald-500/10 text-emerald-400",
-  stale: "border-amber-500/20 bg-amber-500/10 text-amber-400",
-  broken: "border-red-500/20 bg-red-500/10 text-red-400",
-};
 
 export function ProjectStatsCard({ project }: ProjectStatsCardProps) {
   const total =
@@ -39,7 +34,7 @@ export function ProjectStatsCard({ project }: ProjectStatsCardProps) {
               <Badge
                 key={bucket}
                 variant="secondary"
-                className={`text-[11px] border ${freshnessStyle[bucket]}`}
+                className={`text-[11px] border ${FRESHNESS_STYLE[bucket]}`}
               >
                 {project.freshness[bucket]} {bucket}
               </Badge>

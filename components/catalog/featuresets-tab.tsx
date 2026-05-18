@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FeatureBadgeList } from "./feature-badge-list";
+import { FreshnessPill } from "./freshness-pill";
 import { OwnerChip } from "./owner-chip";
 import { TagChipList } from "./tag-chip-list";
 import { KIND_COLORS } from "@/lib/catalog/kind-colors";
@@ -76,6 +77,7 @@ export function FeaturesetsTab({ data, isLoading, searchTerm = "" }: Featuresets
                         Deprecated
                       </Badge>
                     )}
+                    <FreshnessPill updatedAt={fs.metadata?.updated_at} />
                     <Badge variant="secondary">{features.length} features</Badge>
                     {(fs.spec.extractors?.length ?? 0) > 0 && (
                       <Badge variant="outline">{fs.spec.extractors.length} extractors</Badge>

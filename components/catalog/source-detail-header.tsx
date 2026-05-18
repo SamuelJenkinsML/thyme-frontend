@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { ConnectorIcon, getConnectorLabel } from "@/components/catalog/connector-icon";
+import { FreshnessPill } from "@/components/catalog/freshness-pill";
 import type { SourceRecord } from "@/lib/types";
 
 interface SourceDetailHeaderProps {
@@ -20,6 +21,7 @@ export function SourceDetailHeader({ source }: SourceDetailHeaderProps) {
           {getConnectorLabel(source.connector_type)}
         </Badge>
         {source.cdc && <Badge variant="secondary">{source.cdc}</Badge>}
+        <FreshnessPill updatedAt={source.metadata?.updated_at} size="md" />
       </div>
 
       <div className="flex items-center gap-6 text-sm text-muted-foreground">

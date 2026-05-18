@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { Database } from "lucide-react";
+import { FreshnessPill } from "./freshness-pill";
 import { OwnerChip } from "./owner-chip";
 import { TagChipList } from "./tag-chip-list";
 import { KIND_COLORS } from "@/lib/catalog/kind-colors";
@@ -69,6 +70,7 @@ export function DatasetsTab({ data, jobs, isLoading, searchTerm = "" }: Datasets
                         Deprecated
                       </Badge>
                     )}
+                    <FreshnessPill updatedAt={src.metadata?.updated_at} />
                     <Badge variant="secondary">{src.connector_type}</Badge>
                   </div>
                 </div>

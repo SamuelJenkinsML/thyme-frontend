@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AlertTriangle, Calendar } from "lucide-react";
+import { FreshnessPill } from "@/components/catalog/freshness-pill";
 import { OwnerChip } from "@/components/catalog/owner-chip";
 import { TagChipList } from "@/components/catalog/tag-chip-list";
 import type { FeaturesetRecord } from "@/lib/types";
@@ -77,6 +78,7 @@ export function FeaturesetDetailHeader({ fs }: FeaturesetDetailHeaderProps) {
               <span>Updated {updatedAt}</span>
             </span>
           )}
+          <FreshnessPill updatedAt={metadata?.updated_at} size="md" />
         </div>
       )}
     </div>
