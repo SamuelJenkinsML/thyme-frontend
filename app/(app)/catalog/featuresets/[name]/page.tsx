@@ -4,8 +4,10 @@ import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { ActivitySection } from "@/components/catalog/featureset-detail/activity-section";
 import { ExamplesSection } from "@/components/catalog/featureset-detail/examples-section";
 import { ExtractorsSection } from "@/components/catalog/featureset-detail/extractors-section";
+import { FavoriteToggle } from "@/components/catalog/favorite-toggle";
 import { FeaturesetDetailHeader } from "@/components/catalog/featureset-detail/header";
 import { HeaderActions } from "@/components/catalog/featureset-detail/header-actions";
+import { RecordRecentlyViewed } from "@/components/catalog/record-recently-viewed";
 import { LineageSection } from "@/components/catalog/featureset-detail/lineage-section";
 import { OverviewSection } from "@/components/catalog/featureset-detail/overview-section";
 import { RecentQueriesSection } from "@/components/catalog/featureset-detail/recent-queries-section";
@@ -58,6 +60,7 @@ export default async function FeaturesetDetailPage({ params }: Props) {
           <FeaturesetDetailHeader fs={fs} />
         </div>
         <div className="flex items-center gap-2">
+          <FavoriteToggle kind="featureset" name={fs.name} size="md" />
           <HeaderActions
             featuresetName={fs.name}
             isDeprecated={Boolean(
@@ -67,6 +70,7 @@ export default async function FeaturesetDetailPage({ params }: Props) {
           <VersionSelector featuresetName={fs.name} />
         </div>
       </div>
+      <RecordRecentlyViewed kind="featureset" name={fs.name} />
 
       <div className="flex gap-8">
         <aside className="hidden w-48 shrink-0 md:block">

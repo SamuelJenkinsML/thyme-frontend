@@ -9,7 +9,9 @@ import { CatalogSearch } from "@/components/catalog/catalog-search";
 import { DependencyGraph } from "@/components/catalog/dependency-graph";
 import { LineageGraph } from "@/components/catalog/lineage-graph";
 import { FacetFilters } from "@/components/catalog/facet-filters";
+import { FavoritesStrip } from "@/components/catalog/favorites-strip";
 import { ProjectSwitcher } from "@/components/catalog/project-switcher";
+import { RecentlyViewedStrip } from "@/components/catalog/recently-viewed-strip";
 import { DocsLink } from "@/components/shared/docs-link";
 import { TermTooltip } from "@/components/shared/term-tooltip";
 import { useSearch } from "@/lib/hooks/use-search";
@@ -106,6 +108,12 @@ function CatalogPageInner() {
         <p className="text-sm text-destructive">
           Failed to load pipelines: {jobs.error.message}
         </p>
+      )}
+      {!hasActiveFilter && (
+        <div className="space-y-3">
+          <FavoritesStrip />
+          <RecentlyViewedStrip />
+        </div>
       )}
       <Tabs defaultValue="featuresets">
         <TabsList>

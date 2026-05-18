@@ -3,7 +3,9 @@ import { fetchJobs } from "@/lib/api/definition";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { FavoriteToggle } from "@/components/catalog/favorite-toggle";
 import { PipelineFlow } from "@/components/catalog/pipeline-flow";
+import { RecordRecentlyViewed } from "@/components/catalog/record-recently-viewed";
 import { ArrowRight } from "lucide-react";
 
 interface Props {
@@ -33,10 +35,14 @@ export default async function PipelineDetailPage({ params }: Props) {
         ]}
       />
 
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">{job.name}</h1>
-        <p className="text-sm text-muted-foreground">{job.id}</p>
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-2xl font-bold tracking-tight">{job.name}</h1>
+          <p className="text-sm text-muted-foreground">{job.id}</p>
+        </div>
+        <FavoriteToggle kind="pipeline" name={decodedName} size="md" />
       </div>
+      <RecordRecentlyViewed kind="pipeline" name={decodedName} />
 
       <Card>
         <CardHeader>
