@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MarkdownDescription } from "@/components/ui/markdown-description";
 import type { FeaturesetRecord } from "@/lib/types";
 
 interface OverviewSectionProps {
@@ -20,7 +21,7 @@ export function OverviewSection({ fs }: OverviewSectionProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           {description ? (
-            <p className="whitespace-pre-wrap text-sm">{description}</p>
+            <MarkdownDescription>{description}</MarkdownDescription>
           ) : (
             <p className="text-sm italic text-muted-foreground">
               No description provided.
