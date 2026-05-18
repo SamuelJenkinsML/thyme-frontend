@@ -2,6 +2,7 @@ import { fetchSearch } from "@/lib/api/definition";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { FacetDetailTable } from "@/components/catalog/facet-detail-table";
 import { KindIcon } from "@/components/catalog/kind-icon";
+import { OwnershipHealthPanel } from "@/components/catalog/owner/ownership-health-panel";
 
 interface Props {
   params: Promise<{ owner: string }>;
@@ -44,6 +45,7 @@ export default async function OwnerDetailPage({ params }: Props) {
           </p>
         </div>
       </header>
+      <OwnershipHealthPanel data={data} />
       <FacetDetailTable data={data} />
     </div>
   );
