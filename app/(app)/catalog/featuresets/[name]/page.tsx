@@ -63,6 +63,7 @@ export default async function FeaturesetDetailPage({ params }: Props) {
             isDeprecated={Boolean(
               fs.metadata?.deprecated_at || fs.metadata?.deprecated,
             )}
+            initialMetadata={fs.metadata}
           />
           <VersionSelector featuresetName={fs.name} />
         </div>
