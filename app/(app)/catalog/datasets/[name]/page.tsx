@@ -11,6 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DatasetDetailHeader } from "@/components/catalog/dataset-detail-header";
 import { DatasetRelationships } from "@/components/catalog/dataset-relationships";
 import { DatasetEventsSection } from "@/components/catalog/dataset-events-section";
+import { FavoriteToggle } from "@/components/catalog/favorite-toggle";
+import { RecordRecentlyViewed } from "@/components/catalog/record-recently-viewed";
 import { CodeBlock } from "@/components/ui/code-block";
 import { SourceConfigViewer } from "@/components/catalog/source-config-viewer";
 
@@ -66,7 +68,13 @@ export default async function DatasetDetailPage({ params }: Props) {
         ]}
       />
 
-      <DatasetDetailHeader dataset={dataset} source={src} />
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <DatasetDetailHeader dataset={dataset} source={src} />
+        </div>
+        <FavoriteToggle kind="dataset" name={decodedName} size="md" />
+      </div>
+      <RecordRecentlyViewed kind="dataset" name={decodedName} />
 
       <DatasetRelationships
         source={src}
