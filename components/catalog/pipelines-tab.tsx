@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, Workflow } from "lucide-react";
 import type { JobRecord, PipelineOperator } from "@/lib/types";
+import { FreshnessPill } from "./freshness-pill";
 import { OwnerChip } from "./owner-chip";
 import { TagChipList } from "./tag-chip-list";
 import { KIND_COLORS } from "@/lib/catalog/kind-colors";
@@ -66,6 +67,7 @@ export function PipelinesTab({ data, isLoading, searchTerm = "" }: PipelinesTabP
                     </span>
                     <span className="truncate">{job.name}</span>
                   </CardTitle>
+                  <FreshnessPill updatedAt={job.metadata?.updated_at} />
                   <Badge variant="secondary">{job.partition_count} partitions</Badge>
                 </div>
               </CardHeader>

@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { ConnectorIcon, getConnectorLabel } from "@/components/catalog/connector-icon";
+import { FreshnessPill } from "@/components/catalog/freshness-pill";
 import type { StatusDataset, SourceRecord } from "@/lib/types";
 
 interface DatasetDetailHeaderProps {
@@ -32,6 +33,7 @@ export function DatasetDetailHeader({
             )}
           </>
         )}
+        <FreshnessPill updatedAt={source?.metadata?.updated_at} size="md" />
       </div>
 
       {source && (
