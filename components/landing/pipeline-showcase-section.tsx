@@ -7,7 +7,7 @@ import { Plus } from "lucide-react";
 const items = [
   {
     title: "Built-in streaming & windowed aggregations",
-    body: "Time-windowed aggregations (1m, 24h, 7d) run on a continuous Rust streaming engine. Values are updated within milliseconds of new events arriving - a kappa based architecture that is constantly streaming fresh data.",
+    body: "Time-windowed aggregations (1m, 24h, 7d) run on a continuous Rust streaming engine. Values are updated within milliseconds of new events arriving - Thyme is constantly streaming fresh data.",
   },
   {
     title: "Point-in-time queries for training",

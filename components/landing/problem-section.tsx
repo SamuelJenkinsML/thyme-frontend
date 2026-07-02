@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "motion/react";
-import { AlertTriangle, GitBranch, TrendingDown, ArrowRight } from "lucide-react";
+import { AlertTriangle, GitBranch, TrendingDown, Clock, ArrowRight } from "lucide-react";
 
 const problems = [
   {
@@ -22,6 +22,12 @@ const problems = [
     title: "Silent accuracy drops",
     desc: "Batch pipelines run on schedules — hourly, daily. A user's last transaction was 4 minutes ago, but your model sees yesterday's aggregate. You're serving predictions on stale data.",
     color: "#E91E63",
+  },
+  {
+    icon: Clock,
+    title: "Stale by default",
+    desc: "Fresh features must be recomputed the instant new data lands. Conventional tooling turns that into an infrastructure project, with a streaming cluster to stand up and maintain just to keep one number current. So teams settle for nightly batch, and every feature is born stale.",
+    color: "#14B8A6",
   },
 ];
 
@@ -75,7 +81,7 @@ export function ProblemSection() {
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {problems.map((p, i) => (
             <ProblemCard key={p.title} problem={p} index={i} />
           ))}
@@ -89,8 +95,7 @@ export function ProblemSection() {
           className="text-center mt-16"
         >
           <p className="text-thyme-ink font-body text-[1.15rem] leading-[1.7] mb-4">
-            Thyme runs one pipeline. Training and serving read the same state — skew is
-            structurally impossible, not a convention you enforce in review.
+            Thyme runs one pipeline. Training and serving read the same state, structurally eliminating any skew 
           </p>
           <Link
             href="/docs/why-thyme"

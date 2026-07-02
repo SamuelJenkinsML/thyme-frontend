@@ -64,7 +64,7 @@ export function HeroSection() {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="text-thyme-ink/75 max-w-xl mb-10 font-body text-[1.25rem] leading-[1.7]"
           >
-            Define ML features once in Python. Thyme compiles them to a high-throughput Rust streaming engine — real-time serving, point-in-time correct training, zero skew between the two.
+            Define ML features once in Python. Thyme compiles them to its high-throughput streaming engine — real-time serving, point-in-time correct training, zero skew between the two.
           </motion.p>
 
           <motion.div
