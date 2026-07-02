@@ -35,8 +35,7 @@ export function CTASection() {
             <br />your feature platform
           </h2>
           <p className="text-thyme-cream/60 max-w-xl mb-10 font-body text-[1.1rem] leading-[1.7]">
-            Join the teams shipping ML features faster with Thyme.
-            Get up and running in minutes, not months.
+            Thyme is in early access preview - Join the teams shipping ML features faster with Thyme.
           </p>
 
           <div className="flex flex-wrap justify-center gap-4">
