@@ -16,6 +16,9 @@ interface SchemaDiffProps {
 
 function isEmpty(d: FeaturesetDiff): boolean {
   return (
+    d.policies_added.length === 0 &&
+    d.policies_removed.length === 0 &&
+    d.policies_changed.length === 0 &&
     d.added.length === 0 &&
     d.removed.length === 0 &&
     d.changed.length === 0 &&
@@ -180,6 +183,75 @@ export function SchemaDiff({ diff }: SchemaDiffProps) {
                 {diff.extractors_changed.map((name) => (
                   <TableRow
                     key={`ext-changed-${name}`}
+                    className="bg-amber-500/10 hover:bg-amber-500/15"
+                  >
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className="border-amber-500/40 text-amber-300"
+                      >
+                        changed
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="font-mono">{name}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
+      {(diff.policies_added.length > 0 ||
+        diff.policies_removed.length > 0 ||
+        diff.policies_changed.length > 0) && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Policies</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-24">Change</TableHead>
+                  <TableHead>Name</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {diff.policies_added.map((name) => (
+                  <TableRow
+                    key={`policy-added-${name}`}
+                    className="bg-emerald-500/10 hover:bg-emerald-500/15"
+                  >
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className="border-emerald-500/40 text-emerald-300"
+                      >
+                        added
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="font-mono">{name}</TableCell>
+                  </TableRow>
+                ))}
+                {diff.policies_removed.map((name) => (
+                  <TableRow
+                    key={`policy-removed-${name}`}
+                    className="bg-red-500/10 hover:bg-red-500/15"
+                  >
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className="border-red-500/40 text-red-300"
+                      >
+                        removed
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="font-mono">{name}</TableCell>
+                  </TableRow>
+                ))}
+                {diff.policies_changed.map((name) => (
+                  <TableRow
+                    key={`policy-changed-${name}`}
                     className="bg-amber-500/10 hover:bg-amber-500/15"
                   >
                     <TableCell>
