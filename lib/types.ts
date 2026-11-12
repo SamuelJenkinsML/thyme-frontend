@@ -333,6 +333,9 @@ export interface DiffFeatureChange {
 }
 
 export interface FeaturesetDiff {
+  policies_added: string[];
+  policies_removed: string[];
+  policies_changed: string[];
   name: string;
   from: number;
   to: number;

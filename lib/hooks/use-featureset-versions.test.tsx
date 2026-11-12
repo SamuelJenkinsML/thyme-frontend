@@ -108,7 +108,10 @@ describe("useFeaturesetDiff", () => {
       added: [],
       removed: [],
       changed: [],
-      extractors_added: [],
+      policies_added: [],
+    policies_removed: [],
+    policies_changed: [],
+    extractors_added: [],
       extractors_removed: [],
       extractors_changed: [],
     };

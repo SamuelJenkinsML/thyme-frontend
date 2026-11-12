@@ -11,6 +11,9 @@ function emptyDiff(from = 1, to = 2): FeaturesetDiff {
     added: [],
     removed: [],
     changed: [],
+    policies_added: [],
+    policies_removed: [],
+    policies_changed: [],
     extractors_added: [],
     extractors_removed: [],
     extractors_changed: [],
@@ -49,7 +52,10 @@ describe("SchemaDiff", () => {
   it("renders the extractors panel only when extractor changes are present", () => {
     const diff: FeaturesetDiff = {
       ...emptyDiff(),
-      extractors_added: ["new_ext"],
+      policies_added: [],
+    policies_removed: [],
+    policies_changed: [],
+    extractors_added: ["new_ext"],
       extractors_removed: ["old_ext"],
       extractors_changed: ["modified_ext"],
     };
@@ -58,6 +64,21 @@ describe("SchemaDiff", () => {
     expect(screen.getByText("new_ext")).toBeTruthy();
     expect(screen.getByText("old_ext")).toBeTruthy();
     expect(screen.getByText("modified_ext")).toBeTruthy();
+  });
+
+  it("shows policy-only changes instead of the empty state", () => {
+    // Given a diff with only policy changes
+    const diff = { ...emptyDiff(), policies_added: ["new_action"],
+      policies_removed: ["old_action"], policies_changed: ["action"] };
+
+    // When the version diff renders, then each policy change is visible
+    render(<SchemaDiff diff={diff} />);
+    expect(screen.queryByText("No differences")).toBeNull();
+    expect(screen.getByText("Policies")).toBeTruthy();
+    for (const name of ["new_action", "old_action", "action"]) {
+      expect(screen.getByText(name)).toBeTruthy();
+    }
+    expect(screen.queryByText("Extractors")).toBeNull();
   });
 
   it("renders dtype transition for changed features", () => {
